@@ -1,0 +1,364 @@
+﻿<UserControl x:Class="TESMEA_TMS.Views.ScenarioView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:TESMEA_TMS.Views"
+             xmlns:lex="http://wpflocalizeextension.codeplex.com"
+            lex:ResxLocalizationProvider.DefaultAssembly="TESMEA_TMS"
+            lex:ResxLocalizationProvider.DefaultDictionary="Strings"
+             mc:Ignorable="d" 
+             Background="White"
+             d:Height="979" d:Width="1690"
+             DataContext="{Binding ScenarioViewModel, Source={StaticResource Locator}}">
+    <Grid Margin="20" Background="Transparent">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <Grid Grid.Row="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="2*"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- DataGrid Cha - Danh sách kịch bản -->
+            <GroupBox Grid.Column="0" Margin="0 5" Header="{lex:Loc groupbox_Scenarios}">
+                <DataGrid Margin="10"
+                      ItemsSource="{Binding Scenarios}"
+                      SelectedItem="{Binding SelectedScenario, Mode=TwoWay}"
+                      Background="White" 
+                      AutoGenerateColumns="False" 
+                      IsReadOnly="False"
+                      CanUserAddRows="False"
+                      CanUserResizeColumns="True"
+                      CanUserResizeRows="False"
+                      CanUserReorderColumns="False"
+                      CanUserSortColumns="False"
+                      HeadersVisibility="Column"
+                      SelectionMode="Single"
+                      SelectionUnit="FullRow"
+                      ColumnWidth="*"
+                      HorizontalScrollBarVisibility="Auto"
+                      VerticalScrollBarVisibility="Auto"
+                      FontSize="15">
+                    <DataGrid.Resources>
+                        <Style TargetType="DataGridColumnHeader">
+                            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+                            <Setter Property="VerticalContentAlignment" Value="Center"/>
+                            <Setter Property="Background" Value="#FAFAFA"/>
+                            <Setter Property="BorderBrush" Value="#E0E0E0"/>
+                            <Setter Property="BorderThickness" Value="0,0,1,1"/>
+                            <Setter Property="Height" Value="36"/>
+                        </Style>
+                        <Style TargetType="DataGridCell" x:Key="DataGridCellDefaultOverride" BasedOn="{StaticResource DataGridCellCenter}">
+                            <Setter Property="FontSize" Value="15"/>
+                        </Style>
+                    </DataGrid.Resources>
+
+                    <!-- Style cho Row -->
+                    <DataGrid.RowStyle>
+                        <Style TargetType="DataGridRow">
+                            <Setter Property="Background" Value="Transparent"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsNew}" Value="True">
+                                    <Setter Property="Background" Value="#388E3C"/>
+                                    <Setter Property="Foreground" Value="White"/>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding IsEdited}" Value="True">
+                                    <Setter Property="Background" Value="#FF9800"/>
+                                    <Setter Property="Foreground" Value="White"/>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding IsMarkedForDeletion}" Value="True">
+                                    <Setter Property="Foreground" Value="#B71C1C"/>
+                                    <Setter Property="FontStyle" Value="Italic"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </DataGrid.RowStyle>
+
+                    <DataGrid.CellStyle>
+                        <StaticResource ResourceKey="DataGridCellDefaultOverride"/>
+                    </DataGrid.CellStyle>
+
+                    <DataGrid.Columns>
+                        <DataGridTemplateColumn Header="{lex:Loc col_No}" Width="40" IsReadOnly="True">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock HorizontalAlignment="Center"
+                                               Text="{Binding RelativeSource={RelativeSource AncestorType=DataGridRow}, Converter={StaticResource RowIndexConverter}}"/>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+
+                        <!-- Cột Action - Chọn/Xóa/Hoàn tác -->
+                        <DataGridTemplateColumn Header="{lex:Loc col_Action}" Width="120" CanUserResize="False">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                        <!-- Hyperlink Chọn - hiện khi chưa đánh dấu xóa -->
+                                        <TextBlock VerticalAlignment="Center" Margin="0 0 5 0">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="Visibility" Value="Visible"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsMarkedForDeletion}" Value="True">
+                                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                            <Hyperlink 
+                                                Command="{Binding DataContext.ViewDetailCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                CommandParameter="{Binding ScenarioId}">
+                                                <Run Text="{lex:Loc col_Select}"/>
+                                            </Hyperlink>
+                                        </TextBlock>
+
+                                        <!-- Hyperlink Xóa - hiện khi chưa đánh dấu xóa -->
+                                        <TextBlock VerticalAlignment="Center">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="Visibility" Value="Visible"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsMarkedForDeletion}" Value="True">
+                                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                            <Hyperlink 
+                                                Command="{Binding DataContext.DeleteCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                CommandParameter="{Binding}"
+                                                Foreground="#F44336">
+                                                 <Run Text="{lex:Loc col_Delete}"/>
+                                            </Hyperlink>
+                                        </TextBlock>
+
+                                        <!-- Hyperlink Hoàn tác - hiện khi đã đánh dấu xóa -->
+                                        <TextBlock VerticalAlignment="Center">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsMarkedForDeletion}" Value="True">
+                                                            <Setter Property="Visibility" Value="Visible"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                            <Hyperlink 
+                                                Command="{Binding DataContext.UndoDeleteCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                CommandParameter="{Binding ScenarioId}"
+                                                Foreground="#4CAF50">
+                                                 <Run Text="{lex:Loc col_Undo}"/>
+                                            </Hyperlink>
+                                        </TextBlock>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                            <DataGridTemplateColumn.CellStyle>
+                                <Style TargetType="DataGridCell" BasedOn="{StaticResource DataGridCellCenter}">
+                                    <Setter Property="Focusable" Value="False"/>
+                                    <Setter Property="IsHitTestVisible" Value="True"/>
+                                    <Setter Property="FontSize" Value="15"/>
+                                    <Style.Triggers>
+                                        <Trigger Property="IsSelected" Value="True">
+                                            <Setter Property="Background" Value="Transparent"/>
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </DataGridTemplateColumn.CellStyle>
+                        </DataGridTemplateColumn>
+
+                        <DataGridTextColumn Header="{lex:Loc col_Scenario_name}" Binding="{Binding ScenarioName}" Width="*" IsReadOnly="True">
+                            <!--<DataGridTextColumn.ElementStyle>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="TextAlignment" Value="Left"/>
+                                    <Setter Property="Padding" Value="5"/>
+                                </Style>
+                            </DataGridTextColumn.ElementStyle>-->
+                            <!--<DataGridTextColumn.EditingElementStyle>
+                                <Style TargetType="TextBox">
+                                    <Setter Property="IsReadOnly" Value="True"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsNew}" Value="True">
+                                            <Setter Property="IsReadOnly" Value="False"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </DataGridTextColumn.EditingElementStyle>-->
+                            <!--<DataGridTextColumn.CellStyle>
+                                <Style TargetType="DataGridCell">
+                                    <Setter Property="HorizontalContentAlignment" Value="Left"/>
+                                </Style>
+                            </DataGridTextColumn.CellStyle>-->
+                        </DataGridTextColumn>
+                        
+                        
+
+                        <DataGridTextColumn Header="{lex:Loc col_Scenario_maxmin}" Binding="{Binding StandardDeviation}" IsReadOnly="True" Width="*"/>
+                        <DataGridTextColumn Header="{lex:Loc col_Scenario_timerange}" Binding="{Binding TimeRange}" IsReadOnly="True" Width="*"/>
+
+
+                        <DataGridTextColumn Header="{lex:Loc col_Created_date}" Binding="{Binding CreatedDate, StringFormat='{}{0:dd/MM/yyyy HH:mm}'}" IsReadOnly="True" Width="*"/>
+                        <DataGridTextColumn Header="{lex:Loc col_Created_user}" Binding="{Binding CreatedUser}" IsReadOnly="True" Width="*"/>
+                        <DataGridTextColumn Header="{lex:Loc col_Modified_date}" Binding="{Binding ModifiedDate, StringFormat='{}{0:dd/MM/yyyy HH:mm}'}" IsReadOnly="True" Width="*"/>
+                        <DataGridTextColumn Header="{lex:Loc col_Modified_user}" Binding="{Binding ModifiedUser}" IsReadOnly="True" Width="*"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </GroupBox>
+
+            <md:PackIcon Grid.Column="1" Kind="ArrowRightBold" Width="40" Height="40" Foreground="DodgerBlue" VerticalAlignment="Center" Margin="10"/>
+
+            <!-- DataGrid Con - Thông số chi tiết -->
+            <GroupBox Grid.Column="2" Margin="0 5" Header="{Binding SelectedScenario.ScenarioName, Mode=OneWay}">
+                <DataGrid Background="White" 
+                          ItemsSource="{Binding ScenarioParams}"
+                          AutoGenerateColumns="False" 
+                          CanUserResizeColumns="False"
+                          CanUserResizeRows="False"
+                          CanUserReorderColumns="False"
+                          CanUserSortColumns="False"
+                          HeadersVisibility="Column"
+                          SelectionMode="Single"
+                          SelectionUnit="FullRow"
+                          ColumnWidth="*"
+                          HorizontalScrollBarVisibility="Auto"
+                          VerticalScrollBarVisibility="Auto"
+                          FontSize="15"
+                          Margin="10">
+                    <DataGrid.Resources>
+                        <Style TargetType="DataGridColumnHeader">
+                            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+                            <Setter Property="VerticalContentAlignment" Value="Center"/>
+                            <Setter Property="Background" Value="#FAFAFA"/>
+                            <Setter Property="BorderBrush" Value="#E0E0E0"/>
+                            <Setter Property="BorderThickness" Value="0,0,1,1"/>
+                            <Setter Property="Height" Value="36"/>
+                        </Style>
+                        <Style TargetType="DataGridCell" x:Key="DataGridCellDefaultOverride" BasedOn="{StaticResource DataGridCellCenter}">
+                            <Setter Property="FontSize" Value="15"/>
+                            <Setter Property="Cursor" Value="Hand"/>
+                        </Style>
+                    </DataGrid.Resources>
+
+                    <!-- Style để enable/disable dựa trên SelectedScenario -->
+                    <DataGrid.Style>
+                        <Style TargetType="DataGrid">
+                            <Setter Property="IsReadOnly" Value="True"/>
+                            <Setter Property="CanUserAddRows" Value="False"/>
+                            <Style.Triggers>
+                                <!-- Cho phép chỉnh sửa khi có scenario được chọn và scenario đó là mới hoặc đang edit -->
+                                <MultiDataTrigger>
+                                    <MultiDataTrigger.Conditions>
+                                        <Condition Binding="{Binding SelectedScenario.IsNew}" Value="True"/>
+                                    </MultiDataTrigger.Conditions>
+                                    <Setter Property="IsReadOnly" Value="False"/>
+                                    <Setter Property="CanUserAddRows" Value="True"/>
+                                </MultiDataTrigger>
+
+                                <MultiDataTrigger>
+                                    <MultiDataTrigger.Conditions>
+                                        <Condition Binding="{Binding SelectedScenario.IsEdited}" Value="True"/>
+                                        <Condition Binding="{Binding SelectedScenario.IsMarkedForDeletion}" Value="False"/>
+                                    </MultiDataTrigger.Conditions>
+                                    <Setter Property="IsReadOnly" Value="False"/>
+                                    <Setter Property="CanUserAddRows" Value="True"/>
+                                </MultiDataTrigger>
+
+                                <!-- Disable khi chưa chọn scenario -->
+                                <DataTrigger Binding="{Binding SelectedScenario}" Value="{x:Null}">
+                                    <Setter Property="IsEnabled" Value="False"/>
+                                    <Setter Property="Background" Value="#FFF5F5F5"/>
+                                    <Setter Property="ToolTip" Value="Vui lòng chọn kịch bản để xem chi tiết"/>
+                                </DataTrigger>
+
+                                <!-- Disable khi scenario đánh dấu xóa -->
+                                <DataTrigger Binding="{Binding SelectedScenario.IsMarkedForDeletion}" Value="True">
+                                    <Setter Property="IsEnabled" Value="False"/>
+                                    <Setter Property="Background" Value="#FFEBEE"/>
+                                    <Setter Property="ToolTip" Value="Kịch bản này đã được đánh dấu xóa"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </DataGrid.Style>
+
+                    <!-- Style cho row để hiển thị trạng thái -->
+                    <DataGrid.RowStyle>
+                        <Style TargetType="DataGridRow">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsNew}" Value="True">
+                                    <Setter Property="Background" Value="#E3F2FD"/>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding IsEdited}" Value="True">
+                                    <Setter Property="Background" Value="#FFF3E0"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </DataGrid.RowStyle>
+
+                    <DataGrid.CellStyle>
+                        <StaticResource ResourceKey="DataGridCellDefaultOverride"/>
+                    </DataGrid.CellStyle>
+
+                    <DataGrid.Columns>
+                        <!-- STT tự động -->
+                        <DataGridTextColumn Header="{lex:Loc col_No}" Width="60" Binding="{Binding STT}" IsReadOnly="True">
+                            <DataGridTextColumn.CellStyle>
+                                <Style TargetType="DataGridCell" BasedOn="{StaticResource DataGridCellCenter}">
+                                    <Setter Property="FontWeight" Value="Bold"/>
+                                    <Setter Property="FontSize" Value="15"/>
+                                </Style>
+                            </DataGridTextColumn.CellStyle>
+                        </DataGridTextColumn>
+                        <DataGridTextColumn Header="{lex:Loc col_Scenario_s}" Binding="{Binding S, StringFormat=N0}" Width="*"/>
+                        <DataGridTextColumn Header="{lex:Loc col_Scenario_cv}" Binding="{Binding CV, StringFormat=N0}" Width="*"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </GroupBox>
+        </Grid>
+
+        <!-- Bottom action buttons -->
+        <StackPanel Grid.Row="1" Margin="10" VerticalAlignment="Bottom" HorizontalAlignment="Right">
+            <Border Padding="5">
+                <StackPanel Orientation="Horizontal" Background="White">
+                    <Button 
+                         Margin="0 0 5 0"
+                         md:ShadowAssist.ShadowDepth="Depth2"
+                         MinWidth="100" Width="Auto"
+                         FontSize="11"
+                         ToolTip="Tạo kịch bản mới"
+                         Command="{Binding NewCommand}">
+                        <StackPanel Orientation="Horizontal">
+                            <md:PackIcon Kind="Plus" VerticalAlignment="Center" Margin="0 0 5 0"/>
+                            <TextBlock Text="Tạo mới"
+                                       TextTrimming="CharacterEllipsis"
+                                       TextWrapping="NoWrap"
+                                       VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+
+                    <Button 
+                         Margin="0 0 5 0"
+                         md:ShadowAssist.ShadowDepth="Depth2"
+                         MinWidth="100" Width="Auto"
+                         FontSize="11"
+                         ToolTip="Lưu các thay đổi"
+                         Command="{Binding SaveCommand}">
+                        <StackPanel Orientation="Horizontal">
+                            <md:PackIcon Kind="ContentSave" VerticalAlignment="Center" Margin="0 0 5 0"/>
+                            <TextBlock Text="Lưu"
+                                       TextTrimming="CharacterEllipsis"
+                                       TextWrapping="NoWrap"
+                                       VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </Grid>
+</UserControl>

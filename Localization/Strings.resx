@@ -1,0 +1,423 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="btn_Login" xml:space="preserve">
+    <value>ĐĂNG NHẬP</value>
+  </data>
+  <data name="btn_Logout" xml:space="preserve">
+    <value>Đăng xuất</value>
+  </data>
+  <data name="ckb_RememberMe" xml:space="preserve">
+    <value>Ghi nhớ đăng nhập</value>
+  </data>
+  <data name="Common_AppName" xml:space="preserve">
+    <value>HỆ THỐNG ĐO KIỂM TỰ ĐỘNG ĐẶC TÍNH QUẠT CÔNG NGHIỆP</value>
+  </data>
+  <data name="Common_AppSubName" xml:space="preserve">
+    <value>SẢN PHẨM THUỘC ĐỀ TÀI CẤP NHÀ NƯỚC MÃ SỐ: ĐTĐL.CN-63/23</value>
+  </data>
+  <data name="Common_ExitMessage" xml:space="preserve">
+    <value>Bạn có chắc muốn thoát ứng dụng?</value>
+  </data>
+  <data name="Common_ExitTitle" xml:space="preserve">
+    <value>Đóng ứng dụng</value>
+  </data>
+  <data name="groupbox_Duct" xml:space="preserve">
+    <value>Ống gió</value>
+  </data>
+  <data name="groupbox_General_infomation" xml:space="preserve">
+    <value>Thông tin chung</value>
+  </data>
+  <data name="groupbox_Inverter" xml:space="preserve">
+    <value>Biến tần</value>
+  </data>
+  <data name="groupbox_Parameter" xml:space="preserve">
+    <value>Tham số</value>
+  </data>
+  <data name="groupbox_Sample_information" xml:space="preserve">
+    <value>Thông tin mẫu thử nghiệm</value>
+  </data>
+  <data name="groupbox_Sensor" xml:space="preserve">
+    <value>Bảng thông số cảm biến</value>
+  </data>
+  <data name="lbl_Reception_date" xml:space="preserve">
+    <value>Ngày nhận mẫu</value>
+  </data>
+  <data name="lbl_Manufacturer" xml:space="preserve">
+    <value>Cơ sở sản xuất</value>
+  </data>
+  <data name="lbl_Project_name" xml:space="preserve">
+    <value>Tên dự án</value>
+  </data>
+  <data name="lbl_Project_path" xml:space="preserve">
+    <value>Đường dẫn lưu dự án</value>
+  </data>
+  <data name="lbl_Quantity" xml:space="preserve">
+    <value>Số lượng</value>
+  </data>
+  <data name="lbl_Request_date" xml:space="preserve">
+    <value>Ngày nhận yêu cầu</value>
+  </data>
+  <data name="lbl_Sample" xml:space="preserve">
+    <value>Tên mẫu thử</value>
+  </data>
+  <data name="lbl_Sample_obser" xml:space="preserve">
+    <value>Tình trạng mẫu</value>
+  </data>
+  <data name="lbl_Test_type" xml:space="preserve">
+    <value>Kiểm kiểm thử</value>
+  </data>
+  <data name="lbl_Test_completed_date" xml:space="preserve">
+    <value>Ngày hoàn thành</value>
+  </data>
+  <data name="lbl_Test_duration" xml:space="preserve">
+    <value>Ngày thử nghiệm</value>
+  </data>
+  <data name="txt_Password" xml:space="preserve">
+    <value>Mật khẩu</value>
+  </data>
+  <data name="txt_UserName" xml:space="preserve">
+    <value>Tên đăng nhập</value>
+  </data>
+  <data name="lbl_Applied_standard" xml:space="preserve">
+    <value>Tiêu chuẩn áp dụng</value>
+  </data>
+  <data name="lbl_Airflow_design" xml:space="preserve">
+    <value>Lưu lượng khí thiết kế</value>
+  </data>
+  <data name="lbl_SPressure_design" xml:space="preserve">
+    <value>Áp suất thiết kế</value>
+  </data>
+  <data name="lbl_Motor_power" xml:space="preserve">
+    <value>Công suất động cơ</value>
+  </data>
+  <data name="lbl_Fan_speed" xml:space="preserve">
+    <value>Tốc độ thiết kế của quạt</value>
+  </data>
+  <data name="lbl_Frequency_design" xml:space="preserve">
+    <value>Tần số động cơ theo thiết kế</value>
+  </data>
+  <data name="lbl_Motor_cosphi" xml:space="preserve">
+    <value>Hệ số công suất động cơ</value>
+  </data>
+  <data name="lbl_Motor_eff" xml:space="preserve">
+    <value>Hiệu suất động cơ</value>
+  </data>
+  <data name="lbl_Rated_current" xml:space="preserve">
+    <value>Dòng điện định mức của động cơ</value>
+  </data>
+  <data name="lbl_Motor_voltage" xml:space="preserve">
+    <value>Điện áp động cơ</value>
+  </data>
+  <data name="lbl_Sample_symbol" xml:space="preserve">
+    <value>Ký hiệu</value>
+  </data>
+  <data name="hint_Project_path" xml:space="preserve">
+    <value>Nhấn chọn đường dẫn lưu dự án</value>
+  </data>
+  <data name="lbl_Scenario" xml:space="preserve">
+    <value>Kịch bản kiểm thử</value>
+  </data>
+  <data name="lbl_Temp_fluid" xml:space="preserve">
+    <value>Nhiệt độ thiết kế làm việc</value>
+  </data>
+  <data name="lbl_Simatic_path" xml:space="preserve">
+    <value>Đường dẫn tới Simatic/PLC</value>
+  </data>
+  <data name="groupbox_Simatic" xml:space="preserve">
+    <value>Simatic/PLC</value>
+  </data>
+  <data name="lbl_Timeout" xml:space="preserve">
+    <value>Thời gian chờ kết nối (giây)</value>
+  </data>
+  <data name="groupbox_Password" xml:space="preserve">
+    <value>Đổi mật khẩu</value>
+  </data>
+  <data name="lbl_Password_old" xml:space="preserve">
+    <value>Mật khẩu hiên tại</value>
+  </data>
+  <data name="lbl_Password_new" xml:space="preserve">
+    <value>Mật khẩu mới</value>
+  </data>
+  <data name="lbl_Password_confirm" xml:space="preserve">
+    <value>Xác nhận mật khẩu</value>
+  </data>
+  <data name="btn_Save" xml:space="preserve">
+    <value>Lưu</value>
+  </data>
+  <data name="btn_Close" xml:space="preserve">
+    <value>Đóng</value>
+  </data>
+  <data name="btn_Add" xml:space="preserve">
+    <value>Tạo mới</value>
+  </data>
+  <data name="btn_Cancel" xml:space="preserve">
+    <value>Hủy</value>
+  </data>
+  <data name="btn_Ok" xml:space="preserve">
+    <value>Đồng ý</value>
+  </data>
+  <data name="groupbox_Report" xml:space="preserve">
+    <value>Báo cáo</value>
+  </data>
+  <data name="lbl_Report_select" xml:space="preserve">
+    <value>Chọn mẫu báo cáo</value>
+  </data>
+  <data name="btn_Export_result" xml:space="preserve">
+    <value>XUẤT KẾT QUẢ ĐO KIỂM</value>
+  </data>
+  <data name="btn_Export_report" xml:space="preserve">
+    <value>XUẤT BÁO CÁO</value>
+  </data>
+  <data name="groupbox_Test_information" xml:space="preserve">
+    <value>Thông tin đo kiểm</value>
+  </data>
+  <data name="lbl_Operating_status" xml:space="preserve">
+    <value>Trạng thái hoạt động</value>
+  </data>
+  <data name="lbl_Frequency" xml:space="preserve">
+    <value>Tần số</value>
+  </data>
+  <data name="lbl_Current" xml:space="preserve">
+    <value>Dòng điện</value>
+  </data>
+  <data name="lbl_Power" xml:space="preserve">
+    <value>Công suất</value>
+  </data>
+  <data name="lbl_Speed" xml:space="preserve">
+    <value>Tốc độ</value>
+  </data>
+  <data name="lbl_Bearing_temp" xml:space="preserve">
+    <value>Nhiệt độ gối trục</value>
+  </data>
+  <data name="lbl_Momen" xml:space="preserve">
+    <value>Momen xoắn trên trục quạt</value>
+  </data>
+  <data name="lbl_Sensor_pressure" xml:space="preserve">
+    <value>Cảm biến áp suất</value>
+  </data>
+  <data name="lbl_Sensor_flow" xml:space="preserve">
+    <value>Cảm biến lưu lượng</value>
+  </data>
+  <data name="lbl_Airflow" xml:space="preserve">
+    <value>Lưu lượng</value>
+  </data>
+  <data name="lbl_Ambient_temp" xml:space="preserve">
+    <value>Nhiệt độ môi trường</value>
+  </data>
+  <data name="lbl_Dry_bulb_temp" xml:space="preserve">
+    <value>Nhiệt độ bầu khô</value>
+  </data>
+  <data name="lbl_Bearing_viab" xml:space="preserve">
+    <value>Độ rung gối trục</value>
+  </data>
+  <data name="lbl_Torque_power_abs" xml:space="preserve">
+    <value>Công suất tính bằng momen xoắn trên trục quạt</value>
+  </data>
+  <data name="lbl_Db_path" xml:space="preserve">
+    <value>Chọn đường dẫn file cơ sử dữ liệu</value>
+  </data>
+  <data name="col_Airflow" xml:space="preserve">
+    <value>Lưu lượng</value>
+  </data>
+  <data name="col_Ps" xml:space="preserve">
+    <value>Áp suất tĩnh (Pa)</value>
+  </data>
+  <data name="col_Pt" xml:space="preserve">
+    <value>Áp suất tổng (Pa)</value>
+  </data>
+  <data name="col_SEff" xml:space="preserve">
+    <value>Hiệu suất tĩnh (%)</value>
+  </data>
+  <data name="col_Power" xml:space="preserve">
+    <value>Hiệu suất trên trục (kW)</value>
+  </data>
+  <data name="col_TEff" xml:space="preserve">
+    <value>Hiệu suất tổng (%)</value>
+  </data>
+  <data name="col_No" xml:space="preserve">
+    <value>STT</value>
+  </data>
+  <data name="col_Scenario_name" xml:space="preserve">
+    <value>Tên kịch bản</value>
+  </data>
+  <data name="col_Created_user" xml:space="preserve">
+    <value>Người tạo</value>
+  </data>
+  <data name="col_Created_date" xml:space="preserve">
+    <value>Ngày tạo</value>
+  </data>
+  <data name="col_Modified_user" xml:space="preserve">
+    <value>Người sửa</value>
+  </data>
+  <data name="col_Modified_date" xml:space="preserve">
+    <value>Ngày sửa</value>
+  </data>
+  <data name="col_Scenario_s" xml:space="preserve">
+    <value>Tần số (%)</value>
+  </data>
+  <data name="col_Scenario_cv" xml:space="preserve">
+    <value>Góc mở van (%)</value>
+  </data>
+  <data name="col_Scenario_maxmin" xml:space="preserve">
+    <value>Độ lệch chuẩn (%)</value>
+  </data>
+  <data name="col_Scenario_timerange" xml:space="preserve">
+    <value>Thời gian chờ ổn định (giây)</value>
+  </data>
+  <data name="col_Action" xml:space="preserve">
+    <value>Thao tác</value>
+  </data>
+  <data name="col_Select" xml:space="preserve">
+    <value>Chọn</value>
+  </data>
+  <data name="col_Delete" xml:space="preserve">
+    <value>Xóa</value>
+  </data>
+  <data name="col_Undo" xml:space="preserve">
+    <value>Hoàn tác</value>
+  </data>
+  <data name="title_Scenario_new" xml:space="preserve">
+    <value>Tạo mới kịch bản</value>
+  </data>
+  <data name="lbl_Please_login" xml:space="preserve">
+    <value>Vui lòng đăng nhập để tiếp tục</value>
+  </data>
+  <data name="groupbox_Scenarios" xml:space="preserve">
+    <value>Danh sách kịch bản</value>
+  </data>
+  <data name="groupbox_Scenario" xml:space="preserve">
+    <value>Kịch bản đo kiểm</value>
+  </data>
+  <data name="groupbox_Action" xml:space="preserve">
+    <value>Thao tác</value>
+  </data>
+  <data name="btn_Import_measure" xml:space="preserve">
+    <value>NHẬP DỮ LIỆU ĐO KIỂM</value>
+  </data>
+  <data name="btn_Down_measure_template" xml:space="preserve">
+    <value>Tải xuống template nhập dữ liệu</value>
+  </data>
+  <data name="btn_Back" xml:space="preserve">
+    <value>QUAY LẠI</value>
+  </data>
+  <data name="btn_Finish" xml:space="preserve">
+    <value>KẾT THÚC</value>
+  </data>
+</root>

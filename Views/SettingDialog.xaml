@@ -1,0 +1,83 @@
+﻿<UserControl x:Class="TESMEA_TMS.Views.SettingDialog"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:local="clr-namespace:TESMEA_TMS.Views"
+             xmlns:lex="http://wpflocalizeextension.codeplex.com"
+            lex:LocalizeDictionary.DesignCulture="vi"
+            lex:ResxLocalizationProvider.DefaultAssembly="TESMEA_TMS"
+            lex:ResxLocalizationProvider.DefaultDictionary="Strings"
+             mc:Ignorable="d" 
+             Height="300" 
+             Width="450"
+             DataContext="{Binding SettingViewModel, Source={StaticResource Locator}}">
+    <Grid Margin="5 0" Background="White">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <GroupBox Header="{lex:Loc groupbox_Simatic}" Grid.Row="0">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <TextBox Grid.Row="0" 
+                         Grid.Column="0" Grid.ColumnSpan="2"
+                         Margin="5"
+                         md:HintAssist.Hint="{lex:Loc lbl_Simatic_path}"
+                         ToolTip="{Binding SimaticPath}"
+                         PreviewMouseLeftButtonDown="TextBox_PreviewMouseLeftButtonDown"
+                         Text="{Binding SimaticPath, Mode=TwoWay}"
+                         />
+                <TextBlock Grid.Row="1"
+                           Grid.Column="0" 
+                           Margin="5"
+                           Text="{lex:Loc lbl_Timeout}" 
+                           VerticalAlignment="Center" 
+                           />
+                <TextBox Grid.Row="1" 
+                         Grid.Column="1" 
+                         Width="80" 
+                         ToolTip="{Binding Timeout}"
+                         HorizontalAlignment="Left"
+                         PreviewTextInput="TextBox_PreviewTextInput" 
+                         PreviewKeyDown="TextBox_PreviewKeyDown" 
+                         TextChanged="TextBox_TextChanged"
+                         Text="{Binding Timeout, Mode=TwoWay}"/>
+            </Grid>
+        </GroupBox>
+        <GroupBox Header="Đổi mật khẩu" Grid.Row="1">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <TextBlock Grid.Row="0" Grid.Column="0" Text="{lex:Loc lbl_Password_old}" VerticalAlignment="Center" Margin="5"/>
+                <PasswordBox Grid.Row="0" Grid.Column="1" Margin="5" Name="currentPassword" PasswordChanged="PasswordBox_PasswordChanged" VerticalAlignment="Center"/>
+                <TextBlock Grid.Row="1" Grid.Column="0" Text="{lex:Loc lbl_Password_new}" VerticalAlignment="Center" Margin="5"/>
+                <PasswordBox Grid.Row="1" Grid.Column="1" Margin="5" Name="newPassword" PasswordChanged="PasswordBox_PasswordChanged" VerticalAlignment="Center"/>
+                <TextBlock Grid.Row="2" Grid.Column="0" Text="{lex:Loc lbl_Password_confirm}" VerticalAlignment="Center" Margin="5"/>
+                <PasswordBox Grid.Row="2" Grid.Column="1" Margin="5" Name="confirmPassword" PasswordChanged="PasswordBox_PasswordChanged" VerticalAlignment="Center"/>
+            </Grid>
+        </GroupBox>
+
+        <StackPanel Grid.Row="2" Margin="5" Orientation="Horizontal" HorizontalAlignment="Center">
+            <Button Content="{lex:Loc btn_Save}" Grid.Column="0" Width="100" HorizontalAlignment="Right" Margin="0 0 10 0" IsDefault="True" Command="{Binding SaveCommand}"/>
+            <Button Content="{lex:Loc btn_Close}" Grid.Column="1" Width="100" HorizontalAlignment="Left" Style="{StaticResource SolidButtonStyle}" IsCancel="True" Command="{Binding CancelCommand}"/>
+        </StackPanel>
+    </Grid>
+</UserControl>

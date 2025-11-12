@@ -1,0 +1,465 @@
+﻿<UserControl x:Class="TESMEA_TMS.Views.LibraryView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:local="clr-namespace:TESMEA_TMS.Views"
+              xmlns:lex="http://wpflocalizeextension.codeplex.com"
+            lex:LocalizeDictionary.DesignCulture="vi"
+            lex:ResxLocalizationProvider.DefaultAssembly="TESMEA_TMS"
+            lex:ResxLocalizationProvider.DefaultDictionary="Strings"
+             mc:Ignorable="d" 
+             d:Height="979" d:Width="1690"
+             Background="White"
+             DataContext="{Binding LibraryViewModel, Source={StaticResource Locator}}">
+    <Grid Margin="20" Background="Transparent">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <GroupBox Grid.Row="0" Header="{Binding CurrentParameter.LibName, Mode=OneWay}" d:Header="Tên library">
+            
+            <Grid Grid.Row="0" IsEnabled="{Binding IsParameterSelected, Mode=OneWay}" Margin="5">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1.5*" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <GroupBox Grid.Row="0" Grid.Column="0" Header="{lex:Loc groupbox_Inverter}" FontSize="13">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Điện áp vào (V)" VerticalAlignment="Center" Margin="10 0 5 0"/>
+                    <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding BienTan.DienApVao, Mode=TwoWay}" />
+
+                    <TextBlock Grid.Row="1" Grid.Column="0" Text="Dòng điện vào (A)" VerticalAlignment="Center" Margin="10 0 5 0"/>
+                    <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding BienTan.DongDienVao, Mode=TwoWay}"/>
+
+                    <TextBlock Grid.Row="2" Grid.Column="0" Text="Tần số vào (Hz)" VerticalAlignment="Center" Margin="10 0 5 0"/>
+                    <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding BienTan.TanSoVao, Mode=TwoWay}"/>
+
+                    <TextBlock Grid.Row="3" Grid.Column="0" Text="Công suất vào (kVA)" VerticalAlignment="Center" Margin="10 0 5 0"/>
+                    <TextBox Grid.Row="3" Grid.Column="1" Text="{Binding BienTan.CongSuatVao, Mode=TwoWay}" VerticalAlignment="Center"/>
+
+                    <TextBlock Grid.Row="0" Grid.Column="2" Text="Điện áp ra (V)" VerticalAlignment="Center" Margin="10 0 5 0"/>
+                    <TextBox Grid.Row="0" Grid.Column="3" Text="{Binding BienTan.DienApRa, Mode=TwoWay}"/>
+
+                    <TextBlock Grid.Row="1" Grid.Column="2" Text="Dòng điện ra (A)" VerticalAlignment="Center" Margin="10 0 5 0"/>
+                    <TextBox Grid.Row="1" Grid.Column="3" Text="{Binding BienTan.DongDienRa, Mode=TwoWay}"/>
+
+                    <TextBlock Grid.Row="2" Grid.Column="2" Text="Tần số ra (Hz)" VerticalAlignment="Center" Margin="10 0 5 0"/>
+                    <TextBox Grid.Row="2" Grid.Column="3" Text="{Binding BienTan.TanSoRa, Mode=TwoWay}"/>
+
+                    <TextBlock Grid.Row="3" Grid.Column="2" Text="Công suất tổng ra (kVA)" TextWrapping="Wrap"  VerticalAlignment="Center" Margin="10 0 5 0"/>
+                    <TextBox Grid.Row="3" Grid.Column="3" Text="{Binding BienTan.CongSuatTongRa, Mode=TwoWay}" VerticalAlignment="Center"/>
+                    
+                    <TextBlock Grid.Row="4" Grid.Column="2" Text="Công suất hiệu dụng ra (kVA)" TextWrapping="Wrap" VerticalAlignment="Center" Margin="10 0 5 0"/>
+                    <TextBox Grid.Row="4" Grid.Column="3" Text="{Binding BienTan.CongSuatHieuDungRa, Mode=TwoWay}" VerticalAlignment="Center"/>
+
+                    <TextBlock Grid.Row="4" Grid.Column="0" Text="Hiệu suất bộ truyền (%)" TextWrapping="Wrap" VerticalAlignment="Center" Margin="10 0 5 0"/>
+                    <TextBox Grid.Row="4" Grid.Column="1" Text="{Binding BienTan.HieuSuatBoTruyen, Mode=TwoWay}" VerticalAlignment="Center"/>
+
+                    <TextBlock Grid.Row="5" Grid.Column="0" Text="Hiệu suất nối trục (%)" TextWrapping="Wrap" VerticalAlignment="Center" Margin="10 0 5 0"/>
+                    <TextBox Grid.Row="5" Grid.Column="1" Text="{Binding BienTan.HieuSuatNoiTruc, Mode=TwoWay}" VerticalAlignment="Center"/>
+
+                    <TextBlock Grid.Row="6" Grid.Column="0" Text="Hiệu suất gối trục (%)" TextWrapping="Wrap" VerticalAlignment="Center" Margin="10 0 5 0"/>
+                    <TextBox Grid.Row="6" Grid.Column="1" Text="{Binding BienTan.HieuSuatGoiTruc, Mode=TwoWay}" VerticalAlignment="Center"/>
+                </Grid>
+            </GroupBox>
+            <GroupBox Header="{lex:Loc groupbox_Duct}" Grid.Row="1" FontSize="13">
+                <UniformGrid Rows="3" Columns="4">
+                    <TextBlock Text="Đường kính ống gió" VerticalAlignment="Center" Margin="10 0 5 0"/>
+                    <TextBox Text="{Binding OngGio.DuongKinhOngGio, Mode=TwoWay}" />
+                    <TextBlock Text="Đường kính lỗ phụt" VerticalAlignment="Center" Margin="10 0 5 0"/>
+                    <TextBox Text="{Binding OngGio.DuongKinhLoPhut, Mode=TwoWay}" />
+                    
+                    <TextBlock Text="Chiều dài ống gió sau quạt" VerticalAlignment="Center" Margin="10 0 5 0"/>
+                    <TextBox Text="{Binding OngGio.ChieuDaiOngGioSauQuat, Mode=TwoWay}" />
+                    <TextBlock Text="Chiều dài ống gió trước quạt" VerticalAlignment="Center" Margin="10 0 5 0"/>
+                    <TextBox Text="{Binding OngGio.ChieuDaiOngGioTruocQuat, Mode=TwoWay}" />
+                    
+
+                    <TextBlock Text="Đường kính miệng quạt" VerticalAlignment="Center" Margin="10 0 5 0"/>
+                    <TextBox Text="{Binding OngGio.DuongKinhMiengQuat, Mode=TwoWay}" />
+
+                    <TextBlock Text="Chiều dài côn quạt" VerticalAlignment="Center" Margin="10 0 5 0"/>
+                    <TextBox Text="{Binding OngGio.ChieuDaiConQuat, Mode=TwoWay}" />
+                </UniformGrid>
+            </GroupBox>
+
+            <!--<GroupBox Grid.Row="1" Grid.Column="0" Header="I.2 Bảng thông số ống gió và van điều khiển" FontSize="13">
+                <UniformGrid Rows="2" Columns="4">
+                    <TextBlock Text="Đường kính ống gió" VerticalAlignment="Center" Margin="10 0 5 0"/>
+                    <TextBox Text="{Binding OngGio.DuongKinhOngGio, Mode=TwoWay}" />
+                    <TextBlock Text="Đường kính lỗ phụt" VerticalAlignment="Center" Margin="10 0 5 0"/>
+                    <TextBox Text="{Binding OngGio.DuongKinhOngGio, Mode=TwoWay}" />
+                </UniformGrid>
+                --><!--<Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Đường kính ống gió" VerticalAlignment="Center" Margin="10 0 5 0"/>
+                    <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding OngGio.DuongKinhOngGio, Mode=TwoWay}" />
+
+                    <TextBlock Grid.Row="1" Grid.Column="0" Text="Chiều dài ống gió sau quạt" VerticalAlignment="Center" Margin="10 0 5 0"/>
+                    <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding OngGio.ChieuDaiOngGioSauQuat, Mode=TwoWay}"/>
+
+                    <TextBlock Grid.Row="2" Grid.Column="0" Text="Chiều dài ống gió trước quạt" VerticalAlignment="Center" Margin="10 0 5 0"/>
+                    <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding OngGio.ChieuDaiOngGioTruocQuat, Mode=TwoWay}"/>
+                </Grid>--><!--
+            </GroupBox>-->
+
+            <GroupBox Grid.Column="2" Grid.Row="0" Grid.RowSpan="3" Header="{lex:Loc groupbox_Sensor}" FontSize="13">
+                <Grid Margin="5 10 0 5">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="3*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Dải đo cảm biến (đơn vị đo - SI)" VerticalAlignment="Center" Margin="10 0 5 0" FontWeight="SemiBold"/>
+                    <TextBlock Grid.Row="0" Grid.Column="1" Text="Zero" VerticalAlignment="Center" Margin="10 0 5 5" FontWeight="SemiBold" HorizontalAlignment="Center"/>
+                    <TextBlock Grid.Row="0" Grid.Column="2" Text="Span" VerticalAlignment="Center" Margin="10 0 5 5" FontWeight="SemiBold" HorizontalAlignment="Center"/>
+
+                    <TextBlock Grid.Row="1" Grid.Column="0" Text="1. Cảm biến nhiệt độ môi trường (oC)" TextWrapping="Wrap" VerticalAlignment="Center" Margin="10 0 5 0"/>
+                    <TextBox Grid.Row="1" Grid.Column="1" Margin="10 0 5 0" Text="{Binding CamBien.NhietDoMoiTruongMin, Mode=TwoWay}"/>
+                    <TextBox Grid.Row="1" Grid.Column="2" Margin="10 0 5 0" Text="{Binding CamBien.NhietDoMoiTruongMax, Mode=TwoWay}"/>
+
+                    <TextBlock Grid.Row="2" Grid.Column="0" Text="2. Cảm biến độ ẩm môi trường (%)" VerticalAlignment="Center" Margin="10 0 5 0"/>
+                    <TextBox Grid.Row="2" Grid.Column="1" Margin="10 0 5 0" Text="{Binding CamBien.DoAmMoiTruongMin, Mode=TwoWay}"/>
+                    <TextBox Grid.Row="2" Grid.Column="2" Margin="10 0 5 0" Text="{Binding CamBien.DoAmMoiTruongMax, Mode=TwoWay}"/>
+
+                    <TextBlock Grid.Row="3" Grid.Column="0" Text="3. Cảm biến áp suất khí quyển (Pa)" VerticalAlignment="Center" Margin="10 0 5 0"/>
+                    <TextBox Grid.Row="3" Grid.Column="1" Margin="10 0 5 0" Text="{Binding CamBien.ApSuatKhiQuyenMin, Mode=TwoWay}"/>
+                    <TextBox Grid.Row="3" Grid.Column="2" Margin="10 0 5 0" Text="{Binding CamBien.ApSuatKhiQuyenMax, Mode=TwoWay}"/>
+
+                    <TextBlock Grid.Row="4" Grid.Column="0" Text="4. Cảm biến chênh lệch áp suất (Pa)" VerticalAlignment="Center" Margin="10 0 5 0"/>
+                    <TextBox Grid.Row="4" Grid.Column="1" Margin="10 0 5 0" Text="{Binding CamBien.ChenhLechApSuatMin, Mode=TwoWay}"/>
+                    <TextBox Grid.Row="4" Grid.Column="2" Margin="10 0 5 0" Text="{Binding CamBien.ChenhLechApSuatMax, Mode=TwoWay}"/>
+
+                    <TextBlock Grid.Row="5" Grid.Column="0" Text="5. Cảm biến áp suất tĩnh (Pa)" VerticalAlignment="Center" Margin="10 0 5 0"/>
+                    <TextBox Grid.Row="5" Grid.Column="1" Margin="10 0 5 0" Text="{Binding CamBien.ApSuatTinhMin, Mode=TwoWay}"/>
+                    <TextBox Grid.Row="5" Grid.Column="2" Margin="10 0 5 0" Text="{Binding CamBien.ApSuatTinhMax, Mode=TwoWay}"/>
+
+                    <TextBlock Grid.Row="6" Grid.Column="0" Text="6. Cảm biến độ rung" VerticalAlignment="Center" Margin="10 0 5 0"/>
+                    <TextBox Grid.Row="6" Grid.Column="1" Margin="10 0 5 0" Text="{Binding CamBien.DoRungMin, Mode=TwoWay}"/>
+                    <TextBox Grid.Row="6" Grid.Column="2" Margin="10 0 5 0" Text="{Binding CamBien.DoRungMax, Mode=TwoWay}"/>
+
+                    <TextBlock Grid.Row="7" Grid.Column="0" Text="7. Cảm biến độ ồn" VerticalAlignment="Center" Margin="10 0 5 0"/>
+                    <TextBox Grid.Row="7" Grid.Column="1" Margin="10 0 5 0" Text="{Binding CamBien.DoOnMin, Mode=TwoWay}"/>
+                    <TextBox Grid.Row="7" Grid.Column="2" Margin="10 0 5 0" Text="{Binding CamBien.DoOnMax, Mode=TwoWay}"/>
+
+                    <TextBlock Grid.Row="8" Grid.Column="0" Text="8. Số vòng quay" VerticalAlignment="Center" Margin="10 0 5 0"/>
+                    <TextBox Grid.Row="8" Grid.Column="1" Margin="10 0 5 0" Text="{Binding CamBien.SoVongQuayMin, Mode=TwoWay}"/>
+                    <TextBox Grid.Row="8" Grid.Column="2" Margin="10 0 5 0" Text="{Binding CamBien.SoVongQuayMax, Mode=TwoWay}"/>
+
+                    <TextBlock Grid.Row="9" Grid.Column="0" Text="9. Cảm biến mô men xoắn" VerticalAlignment="Center" Margin="10 0 5 0"/>
+                    <TextBox Grid.Row="9" Grid.Column="1" Margin="10 0 5 0" Text="{Binding CamBien.MomenMin, Mode=TwoWay}"/>
+                    <TextBox Grid.Row="9" Grid.Column="2" Margin="10 0 5 0" Text="{Binding CamBien.MomenMax, Mode=TwoWay}"/>
+
+                    <TextBlock Grid.Row="10" Grid.Column="0" Text="10. Phản hồi dòng điện (AO1_INV)" VerticalAlignment="Center" Margin="10 0 5 0"/>
+                    <TextBox Grid.Row="10" Grid.Column="1" Margin="10 0 5 0" Text="{Binding CamBien.PhanHoiDongDienMin, Mode=TwoWay}"/>
+                    <TextBox Grid.Row="10" Grid.Column="2" Margin="10 0 5 0" Text="{Binding CamBien.PhanHoiDongDienMax, Mode=TwoWay}"/>
+
+                    <TextBlock Grid.Row="11" Grid.Column="0" Text="11. Phản hồi công suất (AO2_INV)" VerticalAlignment="Center" Margin="10 0 5 0"/>
+                    <TextBox Grid.Row="11" Grid.Column="1" Margin="10 0 5 0" Text="{Binding CamBien.PhanHoiCongSuatMin, Mode=TwoWay}"/>
+                    <TextBox Grid.Row="11" Grid.Column="2" Margin="10 0 5 0" Text="{Binding CamBien.PhanHoiCongSuatMax, Mode=TwoWay}"/>
+                    
+                    <TextBlock Grid.Row="12" Grid.Column="0" Text="12. Phản hồi vị trí van (CV)" VerticalAlignment="Center" Margin="10 0 5 0"/>
+                    <TextBox Grid.Row="12" Grid.Column="1" Margin="10 0 5 0" Text="{Binding CamBien.PhanHoiViTriVanMin, Mode=TwoWay}"/>
+                    <TextBox Grid.Row="12" Grid.Column="2" Margin="10 0 5 0" Text="{Binding CamBien.PhanHoiViTriVanMax, Mode=TwoWay}"/>
+
+                    <!-- 13. Phản hồi điện áp --><!--
+                    <TextBlock Grid.Row="13" Grid.Column="0" Text="13. Phản hồi điện áp" VerticalAlignment="Center" Margin="10 0 5 0"/>
+                    <TextBox Grid.Row="13" Grid.Column="1" Margin="10 0 5 0" Text="{Binding CamBien.PhanHoiDienApMin, Mode=TwoWay}"/>
+                    <TextBox Grid.Row="13" Grid.Column="2" Margin="10 0 5 0" Text="{Binding CamBien.PhanHoiDienApMax, Mode=TwoWay}"/>-->
+
+                    <!-- 14. Tần số -->
+                    <TextBlock Grid.Row="13" Grid.Column="0" Text="13. Tần số" VerticalAlignment="Center" Margin="10 0 5 0"/>
+                    <TextBox Grid.Row="13" Grid.Column="1" Margin="10 0 5 0" Text="{Binding CamBien.PhanHoiTanSoMin, Mode=TwoWay}"/>
+                    <TextBox Grid.Row="13" Grid.Column="2" Margin="10 0 5 0" Text="{Binding CamBien.PhanHoiTanSoMax, Mode=TwoWay}"/>
+
+                    <!-- 15. Nhiệt độ gối trục -->
+                    <TextBlock Grid.Row="14" Grid.Column="0" Text="14. Nhiệt độ gối trục" VerticalAlignment="Center" Margin="10 0 5 0"/>
+                    <TextBox Grid.Row="14" Grid.Column="1" Margin="10 0 5 0" Text="{Binding CamBien.NhietDoGoiTrucMin, Mode=TwoWay}"/>
+                    <TextBox Grid.Row="14" Grid.Column="2" Margin="10 0 5 0" Text="{Binding CamBien.NhietDoGoiTrucMax, Mode=TwoWay}"/>
+
+                    <!-- 16. Nhiệt độ bầu khô --><!--
+                    <TextBlock Grid.Row="16" Grid.Column="0" Text="16. Nhiệt độ bầu khô" VerticalAlignment="Center" Margin="10 0 5 0"/>
+                    <TextBox Grid.Row="16" Grid.Column="1" Margin="10 0 5 0" Text="{Binding CamBien.NhietDoBauKhoMin, Mode=TwoWay}"/>
+                    <TextBox Grid.Row="16" Grid.Column="2" Margin="10 0 5 0" Text="{Binding CamBien.NhietDoBauKhoMax, Mode=TwoWay}"/>
+
+                    --><!-- 17. Cảm biến lưu lượng --><!--
+                    <TextBlock Grid.Row="17" Grid.Column="0" Text="17. Cảm biến lưu lượng" VerticalAlignment="Center" Margin="10 0 5 0"/>
+                    <TextBox Grid.Row="17" Grid.Column="1" Margin="10 0 5 0" Text="{Binding CamBien.CamBienLuuLuongMin, Mode=TwoWay}"/>
+                    <TextBox Grid.Row="17" Grid.Column="2" Margin="10 0 5 0" Text="{Binding CamBien.CamBienLuuLuongMax, Mode=TwoWay}"/>-->
+                </Grid>
+            </GroupBox>
+
+        </Grid>
+        </GroupBox>
+
+            <DataGrid Grid.Row="1" Margin="0 5"
+                  ItemsSource="{Binding InputParameters}"
+                  SelectedItem="{Binding CurrentParameter, Mode=TwoWay}"
+                  Background="White" 
+                  AutoGenerateColumns="False" 
+                  IsReadOnly="True"
+                  CanUserAddRows="False"
+                  CanUserResizeColumns="True"
+                  CanUserResizeRows="False"
+                  CanUserReorderColumns="False"
+                  CanUserSortColumns="False"
+                  HeadersVisibility="Column"
+                  SelectionMode="Single"
+                  SelectionUnit="FullRow"
+                  ColumnWidth="*"
+                  HorizontalScrollBarVisibility="Auto"
+                  VerticalScrollBarVisibility="Auto"
+                  AlternatingRowBackground="#F5F5F5"
+                  AlternationCount="2"
+                  FontSize="15">
+                
+                <DataGrid.Resources>
+                    <Style TargetType="DataGridColumnHeader">
+                        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+                        <Setter Property="VerticalContentAlignment" Value="Center"/>
+                        <Setter Property="Background" Value="#FAFAFA"/>
+                        <Setter Property="BorderBrush" Value="#E0E0E0"/>
+                        <Setter Property="BorderThickness" Value="0,0,1,1"/>
+                        <Setter Property="Height" Value="36"/>
+                    </Style>
+                    <Style TargetType="DataGridCell" x:Key="DataGridCellDefaultOverride" BasedOn="{StaticResource DataGridCellCenter}">
+                        <Setter Property="FontSize" Value="15"/>
+                    </Style>
+                </DataGrid.Resources>
+
+                <!-- Style cho Row để hiển thị trạng thái -->
+                <DataGrid.RowStyle>
+                    <Style TargetType="DataGridRow">
+                        <Setter Property="Background" Value="Transparent"/>
+                        <Style.Triggers>
+                            <!-- Row mới tạo - màu xanh nhạt -->
+                            <DataTrigger Binding="{Binding IsNew}" Value="True">
+                                <Setter Property="Background" Value="#E3F2FD"/>
+                            </DataTrigger>
+                            <!-- Row đã chỉnh sửa - màu cam nhạt (warning) -->
+                            <DataTrigger Binding="{Binding IsEdited}" Value="True">
+                                <Setter Property="Background" Value="#FFF3E0"/>
+                            </DataTrigger>
+                            <!-- Row đánh dấu xóa - text màu đỏ -->
+                            <DataTrigger Binding="{Binding IsMarkedForDeletion}" Value="True">
+                                <Setter Property="Foreground" Value="#F44336"/>
+                                <Setter Property="FontStyle" Value="Italic"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </DataGrid.RowStyle>
+
+                <DataGrid.CellStyle>
+                    <StaticResource ResourceKey="DataGridCellDefaultOverride"/>
+                </DataGrid.CellStyle>
+
+                <DataGrid.Columns>
+                    <DataGridTemplateColumn Header="STT" Width="40" IsReadOnly="True" CanUserResize="False">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock HorizontalAlignment="Center"
+                               Text="{Binding RelativeSource={RelativeSource AncestorType=DataGridRow}, Converter={StaticResource RowIndexConverter}}"/>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+
+                    <!-- Cột Thao tác với Chọn/Xóa/Hoàn tác -->
+                    <DataGridTemplateColumn Header="Thao tác" Width="120" CanUserResize="False">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                    <!-- Hyperlink Chọn -->
+                                    <TextBlock VerticalAlignment="Center" Margin="0 0 5 0">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="Visibility" Value="Visible"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsMarkedForDeletion}" Value="True">
+                                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                            <Hyperlink 
+                                Command="{Binding DataContext.ViewDetailCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                CommandParameter="{Binding LibId}">
+                                Chọn
+                            </Hyperlink>
+                                    </TextBlock>
+
+                                    <!-- Hyperlink Xóa -->
+                                    <TextBlock VerticalAlignment="Center">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="Visibility" Value="Visible"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsMarkedForDeletion}" Value="True">
+                                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                            <Hyperlink 
+                                Command="{Binding DataContext.DeleteCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                CommandParameter="{Binding}"
+                                Foreground="#F44336">
+                                Xóa
+                            </Hyperlink>
+                                    </TextBlock>
+
+                                    <!-- Hyperlink Hoàn tác -->
+                                    <TextBlock VerticalAlignment="Center">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsMarkedForDeletion}" Value="True">
+                                                        <Setter Property="Visibility" Value="Visible"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                            <Hyperlink 
+                                Command="{Binding DataContext.UndoDeleteCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                CommandParameter="{Binding LibId}"
+                                Foreground="#4CAF50">
+                                Hoàn tác
+                            </Hyperlink>
+                                    </TextBlock>
+                                </StackPanel>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                        <DataGridTemplateColumn.CellStyle>
+                            <Style TargetType="DataGridCell" BasedOn="{StaticResource DataGridCellCenter}">
+                                <Setter Property="Focusable" Value="False"/>
+                                <Setter Property="IsHitTestVisible" Value="True"/>
+                                <Setter Property="FontSize" Value="15"/>
+                                <Style.Triggers>
+                                    <Trigger Property="IsSelected" Value="True">
+                                        <Setter Property="Background" Value="Transparent"/>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </DataGridTemplateColumn.CellStyle>
+                    </DataGridTemplateColumn>
+
+                    <!-- Tên library - chỉ cho phép sửa khi IsNew -->
+                    <DataGridTextColumn Header="Tên library" Binding="{Binding LibName}" Width="*">
+                        <DataGridTextColumn.ElementStyle>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="TextAlignment" Value="Left"/>
+                                <Setter Property="Padding" Value="5"/>
+                            </Style>
+                        </DataGridTextColumn.ElementStyle>
+                        <DataGridTextColumn.EditingElementStyle>
+                            <Style TargetType="TextBox">
+                                <Setter Property="IsReadOnly" Value="True"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsNew}" Value="True">
+                                        <Setter Property="IsReadOnly" Value="False"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </DataGridTextColumn.EditingElementStyle>
+                        <DataGridTextColumn.CellStyle>
+                            <Style TargetType="DataGridCell">
+                                <Setter Property="HorizontalContentAlignment" Value="Left"/>
+                            </Style>
+                        </DataGridTextColumn.CellStyle>
+                    </DataGridTextColumn>
+
+                    <DataGridTextColumn Header="Ngày tạo" Binding="{Binding CreatedDate, StringFormat='{}{0:dd/MM/yyyy HH:mm}'}" IsReadOnly="True" Width="140"/>
+                    <DataGridTextColumn Header="Người tạo" Binding="{Binding CreatedUser}" IsReadOnly="True" Width="200"/>
+                    <DataGridTextColumn Header="Ngày sửa" Binding="{Binding ModifiedDate, StringFormat='{}{0:dd/MM/yyyy HH:mm}'}" IsReadOnly="True" Width="140"/>
+                    <DataGridTextColumn Header="Người sửa" Binding="{Binding ModifiedUser}" IsReadOnly="True" Width="200"/>
+                </DataGrid.Columns>
+            </DataGrid>
+       
+
+        <StackPanel Grid.Row="2" Margin="20 10 15 10" VerticalAlignment="Bottom" HorizontalAlignment="Right">
+            <Border Padding="5">
+                <StackPanel Orientation="Horizontal" Background="White">
+                    <Button 
+                 Margin="0 0 5 0"
+                 md:ShadowAssist.ShadowDepth="Depth2"
+                 MinWidth="100" Width="Auto"
+                 FontSize="11"
+                 ToolTip="Tạo kịch bản mới"
+                 Command="{Binding NewCommand}">
+                        <StackPanel Orientation="Horizontal">
+                            <md:PackIcon Kind="Plus" VerticalAlignment="Center" Margin="0 0 5 0"/>
+                            <TextBlock Text="Tạo mới"
+                               TextTrimming="CharacterEllipsis"
+                               TextWrapping="NoWrap"
+                               VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+
+                    <Button 
+                 md:ShadowAssist.ShadowDepth="Depth2"
+                 MinWidth="100" Width="Auto"
+                 FontSize="11"
+                 ToolTip="Lưu các thay đổi"
+                 Command="{Binding SaveCommand}">
+                        <StackPanel Orientation="Horizontal">
+                            <md:PackIcon Kind="ContentSave" VerticalAlignment="Center" Margin="0 0 5 0"/>
+                            <TextBlock Text="Lưu"
+                               TextTrimming="CharacterEllipsis"
+                               TextWrapping="NoWrap"
+                               VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </Grid>
+</UserControl>

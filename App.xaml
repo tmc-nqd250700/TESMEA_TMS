@@ -1,0 +1,35 @@
+﻿<Application x:Class="TESMEA_TMS.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:TESMEA_TMS"
+             xmlns:vm="clr-namespace:TESMEA_TMS.ViewModels"
+             xmlns:hp="clr-namespace:TESMEA_TMS.Helpers"
+             xmlns:cctrl="clr-namespace:TESMEA_TMS.Views.CustomControls">
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <!-- Material Design Base Themes -->
+                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.Light.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.Defaults.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MaterialDesignColors;component/Themes/Recommended/Primary/MaterialDesignColor.Blue.xaml" />
+
+                <!-- Custom Material Theme -->
+                <ResourceDictionary Source="Themes/MaterialTheme.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+
+            <vm:ViewModelLocator x:Key="Locator" />
+            <hp:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+            <hp:RowIndexConverter x:Key="RowIndexConverter"/>
+            <hp:StatusToTextConverter x:Key="StatusToTextConverter"/>
+            <hp:StatusToColorConverter x:Key="StatusToColorConverter"/>
+            <hp:BooleanReverseConverter x:Key="BooleanReverseConverter"/>
+            <DataTemplate DataType="{x:Type vm:ProgressSplashViewModel}">
+                <cctrl:ProgressSplashContent />
+            </DataTemplate>
+            
+            <Style TargetType="Control">
+                <Setter Property="FontFamily" Value="Segoe UI"/>
+            </Style>
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>
