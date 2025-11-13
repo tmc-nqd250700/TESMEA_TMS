@@ -949,10 +949,10 @@ namespace TESMEA_TMS.Helpers
 
             return new ParameterShow
             {
-                Freq_show = (float)Math.Round(Freq_fb / 100, 2),
+                Freq_show = (float)Math.Round(Freq_fb, 2),
                 Current_show = (float)Math.Round(Current_fb / 100, 2),
                 Pw_show = (float)Math.Round(Power_fb, 2),
-                Speed_show = (float)Math.Round(Freq_fb / 100 * n1 / 50, 2),
+                Speed_show = (float)Math.Round((float)Math.Round(Freq_fb, 2) * n1 / 50, 2),
                 TempB_show = (float)Math.Round(BearingTemp, 2),
                 T_Show = (float)Math.Round(T, 2),
                 Ps_show = (float)Math.Round(Pe3 - pv3 + pf3 + pcb, 2),

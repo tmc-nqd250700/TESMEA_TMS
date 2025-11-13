@@ -21,7 +21,7 @@ namespace TESMEA_TMS.Services
         event Action<bool> OnSimaticConnectionChanged;
         event Action<List<Measure>> OnSimaticExchangeCompleted;
         event Action<MeasureResponse, ParameterShow> OnMeasurePointCompleted;
-        event Action<MeasureFittingFC> OnMeasureRangeCompleted;
+        event Action<MeasureFittingFC, Measure> OnMeasureRangeCompleted;
     }
 
     public class ExternalAppService : IExternalAppService
@@ -522,20 +522,6 @@ namespace TESMEA_TMS.Services
                 for (int i = _currentIndex; i < _measures.Count; i++)
                 {
                     var measure = _measures[i];
-
-                    //// Nếu range thay đổi (S khác), thực hiện fitting cho range cũ
-                    //if (measure.S != currentS)
-                    //{
-                    //    var fitting = DataProcess.FittingFC(currentRange.Count, startIndex);
-                    //    OnMeasureRangeCompleted?.Invoke(fitting);
-                    //    currentRange.Clear();
-                    //    currentS = measure.S;
-                    //    startIndex = i - _currentIndex;
-                    //}
-                    //var measurePoint = DataProcess.OnePointMeasure(measure, _inv, _sensor, _duct, _input);
-                    //OnMeasurePointCompleted?.Invoke(measurePoint);
-                    //currentRange.Add(measure);
-
                     var completionSource = new TaskCompletionSource<bool>();
                     bool isResultProcessed = false;
                     _watcher = new FileSystemWatcher(_exchangeFolder, $"2_S_IN.{_fileFormat}")
@@ -566,7 +552,7 @@ namespace TESMEA_TMS.Services
                                 if (_measures[i].S != currentS)
                                 {
                                     var fitting = DataProcess.FittingFC(currentRange.Count, startIndex);
-                                    OnMeasureRangeCompleted?.Invoke(fitting);
+                                    OnMeasureRangeCompleted?.Invoke(fitting, currentRange.LastOrDefault());
                                     currentRange.Clear();
                                     currentS = _measures[i].S;
                                     startIndex = i;
@@ -616,7 +602,7 @@ namespace TESMEA_TMS.Services
                 if (currentRange.Count > 0)
                 {
                     var fitting = DataProcess.FittingFC(currentRange.Count, startIndex);
-                    OnMeasureRangeCompleted?.Invoke(fitting);
+                    OnMeasureRangeCompleted?.Invoke(fitting, currentRange.LastOrDefault());
                     currentRange.Clear();
                 }
                 OnSimaticExchangeCompleted?.Invoke(_simaticResults);
@@ -774,6 +760,6 @@ namespace TESMEA_TMS.Services
         public event Action<Measure> OnSimaticResultReceived;
         public event Action<List<Measure>> OnSimaticExchangeCompleted;
         public event Action<MeasureResponse, ParameterShow> OnMeasurePointCompleted;
-        public event Action<MeasureFittingFC> OnMeasureRangeCompleted;
+        public event Action<MeasureFittingFC, Measure> OnMeasureRangeCompleted;
     }
 }

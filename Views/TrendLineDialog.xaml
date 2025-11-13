@@ -5,6 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:oxy="http://oxyplot.org/wpf"
        xmlns:local="clr-namespace:TESMEA_TMS.Views"
+         xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
        xmlns:lex="http://wpflocalizeextension.codeplex.com"
        lex:LocalizeDictionary.DesignCulture="vi"
        lex:ResxLocalizationProvider.DefaultAssembly="TESMEA_TMS"
@@ -13,7 +14,22 @@
         Height="450" 
         Width="800">
     <Grid>
-        <oxy:PlotView
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="10">
+            <TextBlock Text="Chọn loại cảm biến" Margin="0 0 10 0"/>
+            <ComboBox Grid.Row="0" md:ComboBoxAssist.ShowSelectedItem="True"
+                  MinWidth="200"
+                  MaxWidth="250"
+                   Style="{StaticResource MaterialDesignComboBox}" 
+                   ItemsSource="{Binding PVTypes}" 
+                   SelectedValue="{Binding SelectedPV, Mode=TwoWay}"
+                   SelectedValuePath="Value"
+                   DisplayMemberPath="Text"/>
+        </StackPanel>
+        <oxy:PlotView Grid.Row="1"
                     Background="#FFF"
                     Foreground="#222"
                     VerticalAlignment="Stretch"

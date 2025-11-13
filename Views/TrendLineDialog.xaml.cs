@@ -7,17 +7,42 @@ using System.Windows;
 using TESMEA_TMS.DTOs;
 using TESMEA_TMS.Configs;
 using System.Diagnostics;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
+using LicenseContext = OfficeOpenXml.LicenseContext;
 
 namespace TESMEA_TMS.Views
 {
-    public partial class TrendLineDialog : Window
+    public partial class TrendLineDialog : Window, INotifyPropertyChanged
     {
+        public event PropertyChangedEventHandler PropertyChanged;
+        protected void OnPropertyChanged(string propertyName)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
         public PlotModel TrendPlotModel { get; set; }
+        public ObservableCollection<ComboBoxInfo> PVTypes { get; set; }
+        private string _selectedPV;
+        public string SelectedPV
+        {
+            get => _selectedPV;
+            set
+            {
+                if (_selectedPV != value)
+                {
+                    _selectedPV = value;
+                    OnPropertyChanged(nameof(SelectedPV));
+                    LoadTrendDataAndDraw(_currentK, _selectedPV);
+                }
+            }
+        }
+        private int _currentK;
 
         public TrendLineDialog(int k)
         {
             InitializeComponent();
             DataContext = this;
+            _currentK = k;
             TrendPlotModel = new PlotModel
             {
                 Title = $"Trend line k = {k}",
@@ -37,7 +62,7 @@ namespace TESMEA_TMS.Views
             TrendPlotModel.Axes.Add(new LinearAxis
             {
                 Position = AxisPosition.Left,
-                Title = "Nhiệt độ môi trường (°C)",
+                Title = "Giá trị",
                 Minimum = 0,
                 MajorGridlineStyle = LineStyle.Solid,
                 MinorGridlineStyle = LineStyle.Dot,
@@ -45,10 +70,27 @@ namespace TESMEA_TMS.Views
                 IsZoomEnabled = false,
             });
 
-            LoadTrendDataAndDraw(k);
+            PVTypes = new ObservableCollection<ComboBoxInfo>
+            {
+                new ComboBoxInfo("NhietDoMoiTruong_sen", "Nhiệt độ môi trường"),
+                new ComboBoxInfo("DoAm_sen", "Độ ẩm"),
+                new ComboBoxInfo("ApSuatkhiQuyen_sen", "Áp suất khí quyển"),
+                new ComboBoxInfo("ChenhLechApSuat_sen", "Chênh lệch áp suất"),
+                new ComboBoxInfo("ApSuatTinh_sen", "Áp suất tính"),
+                new ComboBoxInfo("DoRung_sen", "Độ rung"),
+                new ComboBoxInfo("DoOn_sen", "Độ ồn"),
+                new ComboBoxInfo("SoVongQuay_sen", "Tốc độ quay"),
+                new ComboBoxInfo("Momen_sen", "Mômen"),
+                new ComboBoxInfo("DongDien_fb", "Dòng điện"),
+                new ComboBoxInfo("CongSuat_fb", "Công suất"),
+                new ComboBoxInfo("ViTriVan_fb", "Vị trí van")
+            };
+            SelectedPV = PVTypes[0].Value;
+
+            LoadTrendDataAndDraw(_currentK, SelectedPV);
         }
 
-        public void LoadTrendDataAndDraw(int k)
+        public void LoadTrendDataAndDraw(int k, string pvType)
         {
             var trendFolder = Path.Combine(UserSetting.TOMFAN_folder);
             if (!Directory.Exists(trendFolder)) return;
@@ -66,7 +108,7 @@ namespace TESMEA_TMS.Views
                 var worksheet = package.Workbook.Worksheets.FirstOrDefault();
                 if (worksheet != null)
                 {
-                    for (int row = 1; row <= worksheet.Dimension.End.Row; row++)
+                    for (int row = 3; row <= worksheet.Dimension.End.Row; row++)
                     {
                         var trend = new TrendTime
                         {
@@ -95,11 +137,6 @@ namespace TESMEA_TMS.Views
                 return;
             }
 
-            TrendPlotModel.Title = $"Trend line k = {k}";
-            this.Title = $"Trend line k = {k}";
-            TrendPlotModel.Series.Clear();
-
-
             var parametersToDisplay = new List<string>()
             {
                 "NhietDoMoiTruong_sen",
@@ -116,38 +153,61 @@ namespace TESMEA_TMS.Views
                 "ViTriVan_fb"
             };
 
-            var colors = new[]
+            var thongSoTrend = CalculateTrendStatistics(trendList, parametersToDisplay);
+
+            TrendPlotModel.Title = $"Trend line k = {k} - {GetDisplayName(pvType)}";
+            this.Title = TrendPlotModel.Title;
+            TrendPlotModel.Series.Clear();
+
+            var color = OxyColors.Red;
+            var lineSeries = CreateLineSeries(trendList, pvType, color);
+            if (lineSeries != null)
             {
-                OxyColors.Red, OxyColors.Blue, OxyColors.Green,
-                OxyColors.Orange, OxyColors.Purple, OxyColors.Brown
-            };
-            int colorIndex = 0;
-            foreach (var param in parametersToDisplay)
-            {
-                var lineSeries = CreateLineSeries(trendList, param, colors[colorIndex % colors.Length]);
-                if (lineSeries != null)
-                {
-                    TrendPlotModel.Series.Add(lineSeries);
-                }
-                colorIndex++;
+                TrendPlotModel.Series.Add(lineSeries);
             }
+            if (trendList.Count > 0)
+            {
+                var xAxis = TrendPlotModel.Axes.FirstOrDefault(a => a.Position == AxisPosition.Bottom) as LinearAxis;
+                if (xAxis != null)
+                {
+                    xAxis.Minimum = trendList.Min(t => t.Time);
+                    xAxis.Maximum = trendList.Max(t => t.Time);
+                    xAxis.Title = "Thời gian phản hồi";
+                }
 
-            //// Vẽ dữ liệu lên biểu đồ
-            //var lineSeries = new LineSeries
-            //{
-            //    Title = "Nhiệt độ môi trường",
-            //    Color = OxyColors.Red,
-            //    StrokeThickness = 2
-            //};
-
-            //foreach (var trend in trendList)
-            //{
-            //    lineSeries.Points.Add(new DataPoint(trend.Time, trend.NhietDoMoiTruong_sen));
-            //}
-
-            //TrendPlotModel.Series.Add(lineSeries);
+                var yAxis = TrendPlotModel.Axes.FirstOrDefault(a => a.Position == AxisPosition.Left) as LinearAxis;
+                if (yAxis != null)
+                {
+                    var values = trendList.Select(t => GetPropertyValue(t, pvType)).ToList();
+                    yAxis.Minimum = Math.Min(0, values.Min() - 5);
+                    yAxis.Maximum = values.Max() + 5;
+                    yAxis.Title = GetDisplayName(pvType);
+                }
+            }
             TrendPlotModel.InvalidatePlot(true);
         }
+
+        private Dictionary<string, (float Max, float Min, float Average)> CalculateTrendStatistics(List<TrendTime> trendList, List<string> parameters)
+        {
+            var result = new Dictionary<string, (float Max, float Min, float Average)>();
+
+            foreach (var param in parameters)
+            {
+                var values = trendList.Select(t => GetPropertyValue(t, param)).ToList();
+                if (values.Count == 0) continue;
+
+                float max = values.Max();
+                float min = values.Min();
+                float average = (min != 0 && (max / min) < 1.03f) ? values.Average() : -1f;
+
+                result[param] = (max, min, average);
+            }
+
+            return result;
+        }
+
+
+
         private LineSeries CreateLineSeries(List<TrendTime> trendList, string parameterName, OxyColor color)
         {
             try
@@ -160,13 +220,11 @@ namespace TESMEA_TMS.Views
                     MarkerType = MarkerType.None
                 };
 
-                // Sử dụng AddRange để tăng hiệu suất
                 var points = new List<DataPoint>();
                 foreach (var trend in trendList)
                 {
                     var value = GetPropertyValue(trend, parameterName);
-                    var timeInSeconds = trend.Time / 1000f; // Chuyển ms sang giây
-                    points.Add(new DataPoint(timeInSeconds, value));
+                    points.Add(new DataPoint(trend.Time, value));
                 }
 
                 lineSeries.Points.AddRange(points);
