@@ -471,6 +471,7 @@ namespace TESMEA_TMS.ViewModels
             {
                 if (DialogHost.IsDialogOpen("MainDialogHost"))
                     DialogHost.Close("MainDialogHost");
+                throw;
             }
         }
 

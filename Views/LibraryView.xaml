@@ -6,7 +6,7 @@
              xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
              xmlns:local="clr-namespace:TESMEA_TMS.Views"
               xmlns:lex="http://wpflocalizeextension.codeplex.com"
-            lex:LocalizeDictionary.DesignCulture="vi"
+            lex:LocalizeDictionary.DesignCulture="en"
             lex:ResxLocalizationProvider.DefaultAssembly="TESMEA_TMS"
             lex:ResxLocalizationProvider.DefaultDictionary="Strings"
              mc:Ignorable="d" 
@@ -159,7 +159,7 @@
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
-                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Dải đo cảm biến (đơn vị đo - SI)" VerticalAlignment="Center" Margin="10 0 5 0" FontWeight="SemiBold"/>
+                    <TextBlock Grid.Row="0" Grid.Column="0" Text="{lex:Loc lbl_Sensor_range}" VerticalAlignment="Center" Margin="10 0 5 0" FontWeight="SemiBold"/>
                     <TextBlock Grid.Row="0" Grid.Column="1" Text="Zero" VerticalAlignment="Center" Margin="10 0 5 5" FontWeight="SemiBold" HorizontalAlignment="Center"/>
                     <TextBlock Grid.Row="0" Grid.Column="2" Text="Span" VerticalAlignment="Center" Margin="10 0 5 5" FontWeight="SemiBold" HorizontalAlignment="Center"/>
 
@@ -303,7 +303,7 @@
                 </DataGrid.CellStyle>
 
                 <DataGrid.Columns>
-                    <DataGridTemplateColumn Header="STT" Width="40" IsReadOnly="True" CanUserResize="False">
+                    <DataGridTemplateColumn Header="{lex:Loc col_No}" Width="40" IsReadOnly="True" CanUserResize="False">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
                                 <TextBlock HorizontalAlignment="Center"
@@ -313,7 +313,7 @@
                     </DataGridTemplateColumn>
 
                     <!-- Cột Thao tác với Chọn/Xóa/Hoàn tác -->
-                    <DataGridTemplateColumn Header="Thao tác" Width="120" CanUserResize="False">
+                    <DataGridTemplateColumn Header="{lex:Loc col_Action}" Width="120" CanUserResize="False">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
                                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
@@ -393,7 +393,7 @@
                     </DataGridTemplateColumn>
 
                     <!-- Tên library - chỉ cho phép sửa khi IsNew -->
-                    <DataGridTextColumn Header="Tên library" Binding="{Binding LibName}" Width="*">
+                    <DataGridTextColumn Header="{lex:Loc col_Lib_name}" Binding="{Binding LibName}" Width="*">
                         <DataGridTextColumn.ElementStyle>
                             <Style TargetType="TextBlock">
                                 <Setter Property="TextAlignment" Value="Left"/>
@@ -417,10 +417,10 @@
                         </DataGridTextColumn.CellStyle>
                     </DataGridTextColumn>
 
-                    <DataGridTextColumn Header="Ngày tạo" Binding="{Binding CreatedDate, StringFormat='{}{0:dd/MM/yyyy HH:mm}'}" IsReadOnly="True" Width="140"/>
-                    <DataGridTextColumn Header="Người tạo" Binding="{Binding CreatedUser}" IsReadOnly="True" Width="200"/>
-                    <DataGridTextColumn Header="Ngày sửa" Binding="{Binding ModifiedDate, StringFormat='{}{0:dd/MM/yyyy HH:mm}'}" IsReadOnly="True" Width="140"/>
-                    <DataGridTextColumn Header="Người sửa" Binding="{Binding ModifiedUser}" IsReadOnly="True" Width="200"/>
+                    <DataGridTextColumn Header="{lex:Loc col_Created_date}" Binding="{Binding CreatedDate, StringFormat='{}{0:dd/MM/yyyy HH:mm}'}" IsReadOnly="True" Width="140"/>
+                    <DataGridTextColumn Header="{lex:Loc col_Created_user}" Binding="{Binding CreatedUser}" IsReadOnly="True" Width="200"/>
+                    <DataGridTextColumn Header="{lex:Loc col_Modified_date}" Binding="{Binding ModifiedDate, StringFormat='{}{0:dd/MM/yyyy HH:mm}'}" IsReadOnly="True" Width="140"/>
+                    <DataGridTextColumn Header="{lex:Loc col_Modified_user}" Binding="{Binding ModifiedUser}" IsReadOnly="True" Width="200"/>
                 </DataGrid.Columns>
             </DataGrid>
        
@@ -433,11 +433,11 @@
                  md:ShadowAssist.ShadowDepth="Depth2"
                  MinWidth="100" Width="Auto"
                  FontSize="11"
-                 ToolTip="Tạo kịch bản mới"
+                 ToolTip="{lex:Loc btn_Add}"
                  Command="{Binding NewCommand}">
                         <StackPanel Orientation="Horizontal">
                             <md:PackIcon Kind="Plus" VerticalAlignment="Center" Margin="0 0 5 0"/>
-                            <TextBlock Text="Tạo mới"
+                            <TextBlock Text="{lex:Loc btn_Add}"
                                TextTrimming="CharacterEllipsis"
                                TextWrapping="NoWrap"
                                VerticalAlignment="Center"/>
@@ -445,14 +445,14 @@
                     </Button>
 
                     <Button 
-                 md:ShadowAssist.ShadowDepth="Depth2"
-                 MinWidth="100" Width="Auto"
-                 FontSize="11"
-                 ToolTip="Lưu các thay đổi"
-                 Command="{Binding SaveCommand}">
+                         md:ShadowAssist.ShadowDepth="Depth2"
+                         MinWidth="100" Width="Auto"
+                         FontSize="11"
+                         ToolTip="{lex:Loc btn_Save}"
+                         Command="{Binding SaveCommand}">
                         <StackPanel Orientation="Horizontal">
                             <md:PackIcon Kind="ContentSave" VerticalAlignment="Center" Margin="0 0 5 0"/>
-                            <TextBlock Text="Lưu"
+                            <TextBlock Text="{lex:Loc btn_Save}"
                                TextTrimming="CharacterEllipsis"
                                TextWrapping="NoWrap"
                                VerticalAlignment="Center"/>

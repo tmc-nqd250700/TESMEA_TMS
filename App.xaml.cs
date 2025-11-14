@@ -1,6 +1,8 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using System.Globalization;
 using System.IO;
+using System.Security.AccessControl;
+using System.Security.Principal;
 using System.Windows;
 using TESMEA_TMS.Configs;
 using TESMEA_TMS.Helpers;
@@ -66,8 +68,26 @@ public partial class App : Application
 
 
             // folder TOMFAN lưu các file exchange, trendline
-            if(!Directory.Exists(UserSetting.TOMFAN_folder))
+            if (!Directory.Exists(UserSetting.TOMFAN_folder))
+            {
                 Directory.CreateDirectory(UserSetting.TOMFAN_folder);
+                var dirInfo = new DirectoryInfo(UserSetting.TOMFAN_folder);
+                dirInfo.Attributes |= FileAttributes.Hidden;
+
+                // Set folder administrators only permissions
+                var dirSecurity = dirInfo.GetAccessControl();
+                dirSecurity.SetAccessRuleProtection(true, false);
+                var adminSid = new SecurityIdentifier(WellKnownSidType.BuiltinAdministratorsSid, null);
+                var accessRule = new FileSystemAccessRule(
+                    adminSid,
+                    FileSystemRights.FullControl,
+                    InheritanceFlags.ContainerInherit | InheritanceFlags.ObjectInherit,
+                    PropagationFlags.None,
+                    AccessControlType.Allow);
+                dirSecurity.SetAccessRule(accessRule);
+                dirInfo.SetAccessControl(dirSecurity);
+            }
+                
 
             // navigate to login
             navigationService.ShowLoginWindow();
@@ -100,11 +120,19 @@ public partial class App : Application
                 }
                 else
                 {
+#if DEBUG
                     System.Windows.MessageBox.Show(
                         $"Lỗi hệ thống: {ex.Message}\n{ex.StackTrace}",
                         "Lỗi hệ thống",
                         MessageBoxButton.OK,
                         MessageBoxImage.Error);
+#else
+                     System.Windows.MessageBox.Show(
+                                            $"Lỗi hệ thống: {ex.Message}",
+                                            "Lỗi hệ thống",
+                                            MessageBoxButton.OK,
+                                            MessageBoxImage.Error);
+#endif
                 }
             }
         };
@@ -125,11 +153,19 @@ public partial class App : Application
                 }
                 else
                 {
+#if DEBUG
                     System.Windows.MessageBox.Show(
-                        $"Lỗi hệ thống: {ex.Message}",
+                        $"Lỗi hệ thống: {ex.Message}\n{ex.StackTrace}",
                         "Lỗi hệ thống",
                         MessageBoxButton.OK,
                         MessageBoxImage.Error);
+#else
+                     System.Windows.MessageBox.Show(
+                                            $"Lỗi hệ thống: {ex.Message}",
+                                            "Lỗi hệ thống",
+                                            MessageBoxButton.OK,
+                                            MessageBoxImage.Error);
+#endif
                     exArgs.SetObserved();
                 }
             }

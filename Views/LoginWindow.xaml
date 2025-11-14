@@ -47,16 +47,18 @@
                 HorizontalAlignment="Right"
                 VerticalAlignment="Top"
                 Margin="0 20 20 0"
-                SelectedIndex="0"
+                SelectedValue="{Binding SelectedLanguage, Mode=TwoWay}"
+                SelectedValuePath="Tag"
                 Width="160"
+                SelectionChanged="ComboBox_SelectionChanged"
                 Style="{DynamicResource MaterialDesignOutlinedComboBox}">
-                <ComboBoxItem Tag="vi-VN">
+                <ComboBoxItem Tag="vi">
                     <StackPanel Orientation="Horizontal">
                         <Image Source="/Assets/Images/vn.png" Width="24" Height="24" Margin="0,0,8,0"/>
                         <TextBlock Text="Tiếng Việt (VI)" VerticalAlignment="Center"/>
                     </StackPanel>
                 </ComboBoxItem>
-                <ComboBoxItem Tag="en-US">
+                <ComboBoxItem Tag="en">
                     <StackPanel Orientation="Horizontal">
                         <Image Source="/Assets/Images/eng.png" Width="24" Height="24" Margin="0,0,8,0"/>
                         <TextBlock Text="English (EN)" VerticalAlignment="Center"/>

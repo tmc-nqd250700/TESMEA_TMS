@@ -113,7 +113,7 @@
                         <GroupBox Header="{lex:Loc groupbox_Sample_information}" FontSize="13">
                             <Grid>
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto" />
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
                                 <Grid.RowDefinitions>
@@ -131,61 +131,58 @@
                                 <TextBlock Grid.Row="0" Grid.Column="0" 
                                            Text="{Binding Source={lex:Loc lbl_Airflow_design}, StringFormat={}1. {0} (m³/h)}" VerticalAlignment="Center"
                                            Margin="10 0 5 0" />
-                                <TextBox Grid.Row="0" Grid.Column="3" Text="{Binding ThongTinMauThuNghiem.LuuLuongKhiThietKe, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="100" HorizontalAlignment="Left"/>
+                                <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding ThongTinMauThuNghiem.LuuLuongKhiThietKe, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="100" HorizontalAlignment="Left"/>
 
                                 <TextBlock Grid.Row="1" Grid.Column="0" 
                                            Text="{Binding Source={lex:Loc lbl_SPressure_design}, StringFormat={}2. {0} (Pa)}" VerticalAlignment="Center"
                                            Margin="10 0 5 0" />
-                                <TextBox Grid.Row="1" Grid.Column="2" Text="{Binding ThongTinMauThuNghiem.ApSuatThietKe, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="100" HorizontalAlignment="Left"/>
+                                <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding ThongTinMauThuNghiem.ApSuatThietKe, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="100" HorizontalAlignment="Left"/>
 
                                 <TextBlock Grid.Row="2" Grid.Column="0" 
                                            Text="{Binding Source={lex:Loc lbl_Temp_fluid}, StringFormat={}3. {0} (ºC)}" VerticalAlignment="Center"
                                            Margin="10 0 5 0" />
-                                <TextBox Grid.Row="2" Grid.Column="2" Text="{Binding ThongTinMauThuNghiem.NhietDoThietKeLamViec, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="100" HorizontalAlignment="Left"/>
+                                <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding ThongTinMauThuNghiem.NhietDoThietKeLamViec, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="100" HorizontalAlignment="Left"/>
 
                                 <UniformGrid Grid.Row="3" Grid.Column="0" Columns="2" Margin="10 0 5 0" >
-                                    <TextBlock Text="{Binding Source={lex:Loc lbl_Motor_power}, StringFormat={}4. {0} (kW)}" VerticalAlignment="Center"
-                                               />
-                                    <Button Grid.Row="3" Grid.Column="1" x:Name="btnPw_i" Margin="2" Width="48" Height="Auto"  Style="{StaticResource SolidButtonStyle}" Content="?" Padding="0" FontSize="15" Click="btnPw_i_Click"/>
+                                    <TextBlock Text="{Binding Source={lex:Loc lbl_Motor_power}, StringFormat={}4. {0} (kW)}" VerticalAlignment="Center"/>
+                                    <Button x:Name="btnPw_i" Margin="2" Width="48" Height="Auto"  Style="{StaticResource SolidButtonStyle}" Content="?" Padding="0" FontSize="15" Click="btnPw_i_Click"/>
                                 </UniformGrid>
-                                <TextBox Grid.Row="3" Grid.Column="2" Text="{Binding ThongTinMauThuNghiem.CongSuatDongCo, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="100" HorizontalAlignment="Left"/>
+                                <TextBox Grid.Row="3" Grid.Column="1" Text="{Binding ThongTinMauThuNghiem.CongSuatDongCo, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="100" HorizontalAlignment="Left"/>
 
                                 <UniformGrid Grid.Row="4" Grid.Column="0" Columns="2" Margin="10 0 5 0" >
-                                    <TextBlock Text="{Binding Source={lex:Loc lbl_Fan_speed}, StringFormat={}5. {0} (rpm)}" VerticalAlignment="Center"
-                                               />
-                                    <Button Grid.Row="4" Grid.Column="1" x:Name="btnSpeed_i" Margin="2" Width="48" Height="Auto"  Style="{StaticResource SolidButtonStyle}" Content="?" Padding="0" FontSize="15" Click="btnSpeed_i_Click"/>
+                                    <TextBlock Text="{Binding Source={lex:Loc lbl_Fan_speed}, StringFormat={}5. {0} (rpm)}" VerticalAlignment="Center" />
+                                    <Button x:Name="btnSpeed_i" Margin="2" Width="48" Height="Auto"  Style="{StaticResource SolidButtonStyle}" Content="?" Padding="0" FontSize="15" Click="btnSpeed_i_Click"/>
                                 </UniformGrid>
-                                <TextBox Grid.Row="4" Grid.Column="2" Text="{Binding ThongTinMauThuNghiem.TocDoThietKeCuaQuat, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="100" HorizontalAlignment="Left"/>
+                                <TextBox Grid.Row="4" Grid.Column="1" Text="{Binding ThongTinMauThuNghiem.TocDoThietKeCuaQuat, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="100" HorizontalAlignment="Left"/>
 
                                 <TextBlock Grid.Row="5" Grid.Column="0" 
                                            Text="{Binding Source={lex:Loc lbl_Frequency_design}, StringFormat={}6. {0} (Hz)}" VerticalAlignment="Center"
                                            Margin="10 0 5 0" />
-                                <TextBox Grid.Row="5" Grid.Column="2" Text="{Binding ThongTinMauThuNghiem.TanSoDongCoTheoThietKe, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="100" HorizontalAlignment="Left"/>
+                                <TextBox Grid.Row="5" Grid.Column="1" Text="{Binding ThongTinMauThuNghiem.TanSoDongCoTheoThietKe, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="100" HorizontalAlignment="Left"/>
 
-                                <UniformGrid Grid.Row="6" Grid.Column="0"  Columns="2"  Margin="10 0 5 0">
+                                <UniformGrid Grid.Row="6" Grid.Column="0" Columns="2"  Margin="10 0 5 0">
                                     <TextBlock Text="{Binding Source={lex:Loc lbl_Motor_cosphi}, StringFormat={}7. {0}}" VerticalAlignment="Center"/>
-                                    <Button Grid.Row="6" Grid.Column="1" Margin="2" x:Name="btnCosphi_i" Width="48" Height="Auto"  Style="{StaticResource SolidButtonStyle}" Content="?" Padding="0" FontSize="15" Click="btnCosphi_i_Click"/>
+                                    <Button Margin="2" x:Name="btnCosphi_i" Width="48" Height="Auto"  Style="{StaticResource SolidButtonStyle}" Content="?" Padding="0" FontSize="15" Click="btnCosphi_i_Click"/>
                                 </UniformGrid>
-                                <TextBox Grid.Row="6" Grid.Column="2" Text="{Binding ThongTinMauThuNghiem.HeSoCongSuatDongCo, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="100" HorizontalAlignment="Left"/>
+                                <TextBox Grid.Row="6" Grid.Column="1" Text="{Binding ThongTinMauThuNghiem.HeSoCongSuatDongCo, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="100" HorizontalAlignment="Left"/>
 
-                                <UniformGrid Columns="2" Grid.Row="7" Grid.Column="0" Margin="10 0 5 0" >
+                                <UniformGrid Grid.Row="7" Grid.Column="0" Columns="2" Margin="10 0 5 0" >
                                     <TextBlock Text="{Binding Source={lex:Loc lbl_Motor_eff}, StringFormat={}8. {0} (%)}" VerticalAlignment="Center"/>
-                                    <Button Grid.Row="7" Grid.Column="1" Margin="2" x:Name="btnEff_i" Width="48" Height="Auto"  Style="{StaticResource SolidButtonStyle}" Content="?" Padding="0" FontSize="15" Click="btnEff_i_Click"/>
+                                    <Button Margin="2" x:Name="btnEff_i" Width="48" Height="Auto"  Style="{StaticResource SolidButtonStyle}" Content="?" Padding="0" FontSize="15" Click="btnEff_i_Click"/>
                                 </UniformGrid>
-                                <TextBox Grid.Row="7" Grid.Column="3" Text="{Binding ThongTinMauThuNghiem.HieuSuatDongCo, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="100" HorizontalAlignment="Left"/>
+                                <TextBox Grid.Row="7" Grid.Column="1" Text="{Binding ThongTinMauThuNghiem.HieuSuatDongCo, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="100" HorizontalAlignment="Left"/>
 
-                                <UniformGrid Grid.Row="8" Grid.Column="0"  Columns="2" Margin="10 0 5 0">
-                                    <TextBlock Text="{Binding Source={lex:Loc lbl_Rated_current}, StringFormat={}9. {0} (A)}" VerticalAlignment="Center"
-                                                />
-                                    <Button Grid.Row="8" Grid.Column="1" Margin="2" x:Name="btnIdm_i" Width="48" Height="Auto"  Style="{StaticResource SolidButtonStyle}" Content="?" Padding="0" FontSize="15" Click="btnIdm_i_Click"/>
+                                <UniformGrid Grid.Row="8" Grid.Column="0" Columns="2" Margin="10 0 5 0">
+                                    <TextBlock Text="{Binding Source={lex:Loc lbl_Rated_current}, StringFormat={}9. {0} (A)}" VerticalAlignment="Center"/>
+                                    <Button Margin="2" x:Name="btnIdm_i" Width="48" Height="Auto"  Style="{StaticResource SolidButtonStyle}" Content="?" Padding="0" FontSize="15" Click="btnIdm_i_Click"/>
                                 </UniformGrid>
-                                <TextBox Grid.Row="8" Grid.Column="3" Text="{Binding ThongTinMauThuNghiem.DongDienDinhMucCuaDongCo, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="100" HorizontalAlignment="Left"/>
+                                <TextBox Grid.Row="8" Grid.Column="1" Text="{Binding ThongTinMauThuNghiem.DongDienDinhMucCuaDongCo, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="100" HorizontalAlignment="Left"/>
 
                                 <UniformGrid Grid.Row="9" Grid.Column="0"  Columns="2" Margin="10 0 5 0">
                                     <TextBlock Text="{Binding Source={lex:Loc lbl_Motor_voltage}, StringFormat={}10. {0} (V)}" VerticalAlignment="Center"/>
-                                    <Button Grid.Row="9" Grid.Column="1" Margin="2" x:Name="btnUdm_i" Width="48" Height="Auto"  Style="{StaticResource SolidButtonStyle}" Content="?" Padding="0" FontSize="15" Click="btnUdm_i_Click"/>
+                                    <Button Margin="2" x:Name="btnUdm_i" Width="48" Height="Auto"  Style="{StaticResource SolidButtonStyle}" Content="?" Padding="0" FontSize="15" Click="btnUdm_i_Click"/>
                                 </UniformGrid>
-                                <TextBox Grid.Row="9" Grid.Column="3" Text="{Binding ThongTinMauThuNghiem.DienApDongCo, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="100" HorizontalAlignment="Left"/>
+                                <TextBox Grid.Row="9" Grid.Column="1" Text="{Binding ThongTinMauThuNghiem.DienApDongCo, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="100" HorizontalAlignment="Left"/>
                             </Grid>
                         </GroupBox>
                     </UniformGrid>
@@ -361,8 +358,8 @@
             </ScrollViewer>
         </Grid>
         <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0 0 10 10">
-            <Button Content="Tạo tính toán" Width="120" Margin="0,0,8,0" Command="{Binding AddCalculationCommand}"/>
-            <Button Content="Tạo dự án" Width="120" Margin="0,0,8,0" Command="{Binding AddProjectCommand}"/>
+            <Button Content="{lex:Loc btn_Add_calculation}" Width="130" Margin="0,0,8,0" Command="{Binding AddCalculationCommand}"/>
+            <Button Content="{lex:Loc btn_Add_project}" Width="130" Margin="0,0,8,0" Command="{Binding AddProjectCommand}"/>
         </StackPanel>
     </Grid>
 </UserControl>

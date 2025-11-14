@@ -420,4 +420,25 @@
   <data name="btn_Finish" xml:space="preserve">
     <value>KẾT THÚC</value>
   </data>
+  <data name="btn_Add_project" xml:space="preserve">
+    <value>Tạo dự án</value>
+  </data>
+  <data name="btn_Add_calculation" xml:space="preserve">
+    <value>Tạo tính toán</value>
+  </data>
+  <data name="col_Lib_name" xml:space="preserve">
+    <value>Tên library</value>
+  </data>
+  <data name="lbl_Sensor_range" xml:space="preserve">
+    <value>Dải đo cảm biến (đơn vị đo - SI)</value>
+  </data>
+  <data name="lbl_Sensor_Amb_temp" xml:space="preserve">
+    <value>Cảm biến nhiệt độ môi trường</value>
+  </data>
+  <data name="lbl_Sensor_hu" xml:space="preserve">
+    <value>Cảm biến độ ẩm môi trường</value>
+  </data>
+  <data name="title_Lib_new" xml:space="preserve">
+    <value>Tạo mới library</value>
+  </data>
 </root>

@@ -68,6 +68,20 @@ namespace TESMEA_TMS.ViewModels
                 }
             }
         }
+
+        private string _selectedLanguage;
+        public string SelectedLanguage
+        {
+            get => _selectedLanguage;
+            set
+            {
+                if (_selectedLanguage != value)
+                {
+                    _selectedLanguage = value;
+                    OnPropertyChanged(nameof(SelectedLanguage));
+                }
+            }
+        }
         public ICommand LoginCommand { get; }
         public ICommand RecoverPasswordCommand { get; }
         public ICommand ShowPasswordCommand { get; }
@@ -89,7 +103,9 @@ namespace TESMEA_TMS.ViewModels
             var setting = UserSetting.Load();
             UserName = setting.LastUserName;
             IsRememberMe = !string.IsNullOrEmpty(UserName);
-          
+            SelectedLanguage = setting.Language;
+
+
         }
 
         private bool CanExecuteLoginCommand(object obj)
@@ -161,6 +177,16 @@ namespace TESMEA_TMS.ViewModels
         private void ExecuteRecoverPassCommand(string username, string email)
         {
             throw new NotImplementedException();
+        }
+
+        public void ExecuteSelectLanguageCommand()
+        {
+            // Thực hiện lưu ngôn ngữ mới và reset app
+            if (UserSetting.Instance.Language == SelectedLanguage) return;
+            UserSetting.Instance.Language = SelectedLanguage;
+            UserSetting.Instance.Save();
+            _appNavigationService.RestartApplication();
+        
         }
     }
 }

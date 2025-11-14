@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using TESMEA_TMS.DTOs;
 using TESMEA_TMS.Helpers;
 using TESMEA_TMS.Models.Entities;
 using TESMEA_TMS.Models.Infrastructure;
@@ -12,16 +13,16 @@ namespace TESMEA_TMS.Services
         Task<List<Scenario>> GetScenariosAsync();
         Task<Scenario> GetScenarioAsync(string id);
         Task<List<ScenarioParam>> GetScenarioDetailAsync(Guid id);
-        Task UpdateScenarioAsync(List<Scenario> scenarios, List<ScenarioParam> scenarioParams);
+        Task UpdateScenarioAsync(List<ScenarioUpdateDto> scenariosToUpdate);
         Task DeleteScenarioAsync(Guid id);
         #endregion
 
         #region library gồm thông số biến tần, ống gió và cảm biến
         Task<List<Library>> GetLibrariesAsync();
         Task<(BienTan, CamBien, OngGio)> GetLibraryByIdAsync(Guid id);
-        Task AddInputParamAsync(Library inputParam, BienTan bienTan, CamBien camBien, OngGio ongGio);
-        Task UpdateInputParamAsync(Guid libId, BienTan bienTan, CamBien camBien, OngGio ongGio);
-        Task DeleteInputParamAsync(Guid libId);
+        Task AddLibraryAsync(Library inputParam, BienTan bienTan, CamBien camBien, OngGio ongGio);
+        Task UpdateLibraryAsync(Guid libId, BienTan bienTan, CamBien camBien, OngGio ongGio);
+        Task DeleteLibraryAsync(Guid libId);
         #endregion
     }
     public class ParameterService : RepositoryBase, IParameterService
@@ -56,26 +57,49 @@ namespace TESMEA_TMS.Services
             return await ExecuteAsync(async () =>
             {
                 
-                return await _dbContext.ScenarioParams.Where(x => x.ScenarioId.ToString() == id.ToString()).ToListAsync();
+                return await _dbContext.ScenarioParams.Where(x => x.ScenarioId == id).ToListAsync();
             });
         }
 
-        public async Task UpdateScenarioAsync(List<Scenario> scenarios, List<ScenarioParam> scenarioParams)
+        public async Task UpdateScenarioAsync(List<ScenarioUpdateDto> scenarios)
         {
             await ExecuteAsync(async () =>
             {
                 foreach(var item in scenarios)
                 {
-                    var exist = await _dbContext.Scenarios.Where(x => x.ScenarioId.ToString() == item.ScenarioId.ToString()).FirstOrDefaultAsync();
-                    if (exist == null)
+                    // Kiểm tra scenario đã tồn tại
+                    var exist = await _dbContext.Scenarios.Where(x => x.ScenarioId == item.Scenario.ScenarioId).FirstOrDefaultAsync();
+                    // Lấy danh sách param
+                    var paramsToAdd = item.Params.Select(p => p.ToEntity()).Where(x => x.ScenarioId == item.Scenario.ScenarioId).ToList();
+                    if (paramsToAdd.Count > 0)
                     {
-                        // Tạo mới
-                        await _dbContext.Scenarios.AddAsync(item);
+                        if (exist == null)
+                        {
+                            if (string.IsNullOrEmpty(item.Scenario.ScenarioName))
+                            {
+                                throw new BusinessException("Tên kịch bản không được để trống");
+                            }
+                            await _dbContext.Scenarios.AddAsync(item.Scenario.ToEntity());
+                            await _dbContext.ScenarioParams.AddRangeAsync(paramsToAdd);
+                        }
+                        else
+                        {
+                            // Xóa scenario đã tồn tại
+                            if (item.Scenario.IsMarkedForDeletion && !item.Scenario.IsNew)
+                            {
+                                _dbContext.Scenarios.Remove(exist);
+                            }
+                            // Cập nhật
+                            else
+                            {
+                                _dbContext.Scenarios.Update(item.Scenario.ToEntity());
+                                _dbContext.ScenarioParams.UpdateRange(paramsToAdd);
+                            }
+                        }
                     }
                     else
                     {
-                        // Cập nhật
-                        _dbContext.Entry(exist).CurrentValues.SetValues(item);
+                        throw new BusinessException($"Danh sách thông số kịch bản không được để trống '{item.Scenario.ScenarioName}'");
                     }
                 }
                 await _dbContext.SaveChangesAsync();
@@ -86,7 +110,7 @@ namespace TESMEA_TMS.Services
         {
             await ExecuteAsync(async () =>
             {
-                var exist = await _dbContext.Scenarios.Where(x => x.ScenarioId.ToString() == id.ToString()).FirstOrDefaultAsync();
+                var exist = await _dbContext.Scenarios.Where(x => x.ScenarioId == id).FirstOrDefaultAsync();
                 if(exist != null)
                 {
                     _dbContext.Scenarios.Remove(exist);
@@ -111,9 +135,9 @@ namespace TESMEA_TMS.Services
             {
                 return await ExecuteAsync(async () =>
                 {
-                    var bienTan = await _dbContext.BienTans.FirstOrDefaultAsync(x=>x.LibId.ToString() == id.ToString());
-                    var camBien = await _dbContext.CamBiens.FirstOrDefaultAsync(x=>x.LibId.ToString() == id.ToString());
-                    var ongGio = await _dbContext.OngGios.FirstOrDefaultAsync(x=>x.LibId.ToString() == id.ToString());
+                    var bienTan = await _dbContext.BienTans.FirstOrDefaultAsync(x=>x.LibId == id);
+                    var camBien = await _dbContext.CamBiens.FirstOrDefaultAsync(x=>x.LibId == id);
+                    var ongGio = await _dbContext.OngGios.FirstOrDefaultAsync(x=>x.LibId == id);
                     return (bienTan, camBien, ongGio);
                 });
             }
@@ -123,7 +147,7 @@ namespace TESMEA_TMS.Services
             }
         }
 
-        public async Task AddInputParamAsync(Library lib, BienTan bienTan, CamBien camBien, OngGio ongGio)
+        public async Task AddLibraryAsync(Library lib, BienTan bienTan, CamBien camBien, OngGio ongGio)
         {
             await ExecuteAsync(async () =>
             {
@@ -134,13 +158,22 @@ namespace TESMEA_TMS.Services
                 await _dbContext.Libraries.AddAsync(lib);
                 await _dbContext.BienTans.AddAsync(bienTan);
                 await _dbContext.CamBiens.AddAsync(camBien);
+                await _dbContext.OngGios.AddAsync(ongGio);
+                await _dbContext.SaveChangesAsync();
 
             });
         }
-        public async Task UpdateInputParamAsync(Guid id, BienTan bienTan, CamBien camBien, OngGio ongGio)
+        public async Task UpdateLibraryAsync(Guid id, BienTan bienTan, CamBien camBien, OngGio ongGio)
         {
             await ExecuteAsync(async () =>
             {
+                var existLib = await _dbContext.Libraries.Where(x => x.LibId == id).FirstOrDefaultAsync();
+                if(existLib == null)
+                {
+                    throw new BusinessException("Library không tồn tại");
+                }
+                   
+                _dbContext.Libraries.Update(existLib);
                 var exist = await GetLibraryByIdAsync(id);
                 if (exist.Item1 != null)
                 {
@@ -158,11 +191,11 @@ namespace TESMEA_TMS.Services
 
             });
         }
-        public async Task DeleteInputParamAsync(Guid libId)
+        public async Task DeleteLibraryAsync(Guid libId)
         {
             await ExecuteAsync(async () =>
             {
-                var exist = await _dbContext.Libraries.Where(x => x.LibId.ToString() == libId.ToString()).FirstOrDefaultAsync();
+                var exist = await _dbContext.Libraries.Where(x => x.LibId == libId).FirstOrDefaultAsync();
                 if(exist != null)
                 {
                     _dbContext.Libraries.Remove(exist);

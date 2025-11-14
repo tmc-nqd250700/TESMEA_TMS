@@ -1,5 +1,6 @@
 ﻿using OfficeOpenXml;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using TESMEA_TMS.Configs;
 using TESMEA_TMS.DTOs;
@@ -39,13 +40,12 @@ namespace TESMEA_TMS.Services
         private List<Measure> _simaticResults = new List<Measure>();
         private FileSystemWatcher _watcher;
         private string _exchangeFolder;
-        private string _exchangeFilePath;
         private string _trendlineFolder;
         private string _fileFormat = "xlsx";
+        private bool _isComma = true;
         public ExternalAppService()
         {
             _exchangeFolder = UserSetting.TOMFAN_folder;
-            _exchangeFilePath = Path.Combine(_exchangeFolder, "1_T_OUT.csv");
             _trendlineFolder = Path.Combine(_exchangeFolder, "Testdata");
         }
 
@@ -55,7 +55,7 @@ namespace TESMEA_TMS.Services
 
             if (string.IsNullOrEmpty(simaticPath) || !File.Exists(simaticPath))
             {
-                MessageBoxHelper.ShowWarning("Đường dẫn Simatic không hợp lệ");
+                MessageBoxHelper.ShowWarning("Đường dẫn app Simatic không tồn tại");
                 return;
             }
             //foreach (var proc in Process.GetProcessesByName(Path.GetFileNameWithoutExtension(simaticPath)))
@@ -303,55 +303,58 @@ namespace TESMEA_TMS.Services
                 {
                     Directory.CreateDirectory(_exchangeFolder);
                 }
+                var fileExchange1 = Path.Combine(_exchangeFolder, $"1_T_OUT.{_fileFormat}");
+                var fileExchange2 = Path.Combine(_exchangeFolder, $"2_S_IN.{_fileFormat}");
+
+
+                if (Common.IsFileLocked(fileExchange1))
+                {
+                    throw new BusinessException($"File 1_T_OUT.{_fileFormat} đang được mở bởi ứng dụng khác, vui lòng tắt trước khi thực hiện");
+                }
+
+                if (Common.IsFileLocked(fileExchange2))
+                {
+                    throw new BusinessException($"File 2_S_IN.{_fileFormat} đang được mở bởi ứng dụng khác, vui lòng tắt trước khi thực hiện");
+                }
 
                 if (_fileFormat == "csv")
                 {
-                    _exchangeFilePath = Path.Combine(_exchangeFolder, "1_T_OUT.csv");
-                    using (var writer = new StreamWriter(_exchangeFilePath))
+                    using (var writer = new StreamWriter(fileExchange1))
                     {
-                        for (int i = 0; i < Math.Min(2, _measures.Count); i++)
+                        if(_isComma)
                         {
-                            var m = _measures[i];
-                            var row = string.Join(",", new object[]
+                            for (int i = 0; i < Math.Min(2, _measures.Count); i++)
                             {
-                                m.k,
-                                m.S,
-                                m.CV
-                            });
-                            writer.WriteLine(row);
+                                var m = _measures[i];
+                                var col4 = i == 0 ? maxmin.ToString(CultureInfo.InvariantCulture) : timeRange.ToString(CultureInfo.InvariantCulture);
+                                var row = $"{m.k},{m.S},{m.CV},{col4}";
+                                writer.WriteLine(row);
+                            }
                         }
+                        else
+                        {
+                            for (int i = 0; i < Math.Min(2, _measures.Count); i++)
+                            {
+                                var m = _measures[i];
+                                var col4 = i == 0 ? maxmin.ToString(CultureInfo.InvariantCulture) : timeRange.ToString(CultureInfo.InvariantCulture);
+                                var row = $"{m.k};{m.S};{m.CV};{col4}";
+                                writer.WriteLine(row);
+                            }
+                        }
+                           
+                    }
+                    using (var writer2 = new StreamWriter(fileExchange2))
+                    {
                     }
                 }
                 else
                 {
-                    _exchangeFilePath = Path.Combine(_exchangeFolder, "1_T_OUT.xlsx");
                     ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
-                    using (var package = new ExcelPackage(new FileInfo(_exchangeFilePath)))
+                    using (var package = new ExcelPackage(new FileInfo(fileExchange1)))
                     {
                         var ws = package.Workbook.Worksheets["1_T_OUT"] ?? package.Workbook.Worksheets.Add("1_T_OUT");
-                        //ws.Cells[1, 1].Value = "k";
-                        //ws.Cells[1, 2].Value = "S";
-                        //ws.Cells[1, 3].Value = "CV";
-
-                        //// thông số dải cảm biến
-                        //ws.Cells[1, 4].Value = "Cảm biến nhiệt độ môi trường (oC)";
-                        //ws.Cells[1, 5].Value = "Cảm biến độ ẩm môi trường (%)";
-                        //ws.Cells[1, 6].Value = "Cảm biến áp suất khí quyển (Pa)";
-                        //ws.Cells[1, 7].Value = "Cảm biến chênh lệch áp suất (Pa)";
-                        //ws.Cells[1, 8].Value = "Cảm biến áp suất tĩnh (Pa)";
-                        //ws.Cells[1, 9].Value = "Cảm biến độ rung";
-                        //ws.Cells[1, 10].Value = "Cảm biến độ ồn";
-                        //ws.Cells[1, 11].Value = "Số vòng quay (Tốc độ thực của guồng cánh)";
-                        //ws.Cells[1, 12].Value = "Cảm biến momen xoắn";
-                        //ws.Cells[1, 13].Value = "Phản hồi dòng điện (AO1_INV)";
-                        //ws.Cells[1, 14].Value = "Phản hồi công suất (AO2_INV)";
-                        //ws.Cells[1, 15].Value = "Phản hồi vị trí van (CV)";
-                        //ws.Cells[1, 16].Value = "Tần số";
-                        //ws.Cells[1, 17].Value = "Nhiệt độ gối trục";
-
                         for (int i = 0; i < Math.Min(2, _measures.Count); i++)
                         {
-                            // từ row 2 trong excel
                             var m = _measures[i];
                             ws.Cells[i + 1, 1].Value = m.k;
                             ws.Cells[i + 1, 2].Value = m.S;
@@ -364,61 +367,12 @@ namespace TESMEA_TMS.Services
                         ws.Cells[ws.Dimension.Address].AutoFitColumns();
                         package.Save();
                     }
+                    using (var package2 = new ExcelPackage(new FileInfo(fileExchange2)))
+                    {
+                        package2.Workbook.Worksheets.Add("Sheet1");
+                        package2.Save();
+                    }
                 }
-
-                //ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
-                //using (var package = new ExcelPackage(new FileInfo(_exchangeFilePath)))
-                //{
-                //    var ws = package.Workbook.Worksheets["1_T_OUT"] ?? package.Workbook.Worksheets.Add("1_T_OUT");
-                //    ws.Cells[1, 1].Value = "k";
-                //    ws.Cells[1, 2].Value = "S";
-                //    ws.Cells[1, 3].Value = "CV";
-
-                //    // thông số dải cảm biến
-                //    ws.Cells[1, 4].Value = "Cảm biến nhiệt độ môi trường (oC)";
-                //    ws.Cells[1, 5].Value = "Cảm biến độ ẩm môi trường (%)";
-                //    ws.Cells[1, 6].Value = "Cảm biến áp suất khí quyển (Pa)";
-                //    ws.Cells[1, 7].Value = "Cảm biến chênh lệch áp suất (Pa)";
-                //    ws.Cells[1, 8].Value = "Cảm biến áp suất tĩnh (Pa)";
-                //    ws.Cells[1, 9].Value = "Cảm biến độ rung";
-                //    ws.Cells[1, 10].Value = "Cảm biến độ ồn";
-                //    ws.Cells[1, 11].Value = "Số vòng quay (Tốc độ thực của guồng cánh)";
-                //    ws.Cells[1, 12].Value = "Cảm biến momen xoắn";
-                //    ws.Cells[1, 13].Value = "Phản hồi dòng điện (AO1_INV)";
-                //    ws.Cells[1, 14].Value = "Phản hồi công suất (AO2_INV)";
-                //    ws.Cells[1, 15].Value = "Phản hồi vị trí van (CV)";
-                //    //ws.Cells[1, 16].Value = "Tần số";
-                //    //ws.Cells[1, 17].Value = "Nhiệt độ gối trục";
-
-                //    // fill thông tin
-                //    for (int i = 0; i < Math.Min(2, _measures.Count); i++)
-                //    {
-                //        // từ row 2 trong excel
-                //        var m = _measures[i];
-                //        ws.Cells[i + 2, 1].Value = m.k;
-                //        ws.Cells[i + 2, 2].Value = m.S;
-                //        ws.Cells[i + 2, 3].Value = m.CV;
-
-                //        // Các cột cảm biến: dòng đầu lấy min, dòng thứ hai lấy max
-                //        ws.Cells[i + 2, 4].Value = i == 0 ? sensor.NhietDoMoiTruongMin : sensor.NhietDoMoiTruongMax;
-                //        ws.Cells[i + 2, 5].Value = i == 0 ? sensor.DoAmMoiTruongMin : sensor.DoAmMoiTruongMax;
-                //        ws.Cells[i + 2, 6].Value = i == 0 ? sensor.ApSuatKhiQuyenMin : sensor.ApSuatKhiQuyenMax;
-                //        ws.Cells[i + 2, 7].Value = i == 0 ? sensor.ChenhLechApSuatMin : sensor.ChenhLechApSuatMax;
-                //        ws.Cells[i + 2, 8].Value = i == 0 ? sensor.ApSuatTinhMin : sensor.ApSuatTinhMax;
-                //        ws.Cells[i + 2, 9].Value = i == 0 ? sensor.DoRungMin : sensor.DoRungMax;
-                //        ws.Cells[i + 2, 10].Value = i == 0 ? sensor.DoOnMin : sensor.DoOnMax;
-                //        ws.Cells[i + 2, 11].Value = i == 0 ? sensor.SoVongQuayMin : sensor.SoVongQuayMax;
-                //        ws.Cells[i + 2, 12].Value = i == 0 ? sensor.MomenMin : sensor.MomenMax;
-                //        ws.Cells[i + 2, 13].Value = i == 0 ? sensor.PhanHoiDongDienMin : sensor.PhanHoiDongDienMax;
-                //        ws.Cells[i + 2, 14].Value = i == 0 ? sensor.PhanHoiCongSuatMin : sensor.PhanHoiCongSuatMax;
-                //        ws.Cells[i + 2, 15].Value = i == 0 ? sensor.PhanHoiViTriVanMin : sensor.PhanHoiViTriVanMax;
-                //        //ws.Cells[i + 2, 16].Value = i == 0 ? sensor.TanSoMin : sensor.TanSoMax;
-                //        //ws.Cells[i + 2, 17].Value = i == 0 ? sensor.NhietDoGoiTrucMin : sensor.NhietDoGoiTrucMax;
-                //    }
-
-                //    ws.Cells[ws.Dimension.Address].AutoFitColumns();
-                //    package.Save();
-                //}
 
                 _connectCompletionSource = new TaskCompletionSource<bool>();
                 int timeoutMs = UserSetting.Instance.TimeoutMilliseconds;
@@ -483,7 +437,7 @@ namespace TESMEA_TMS.Services
             }
             catch (Exception ex)
             {
-                throw new BusinessException("Lỗi khi kết nối với Simatic: " + ex.Message);
+                throw;
             }
         }
 
@@ -641,10 +595,17 @@ namespace TESMEA_TMS.Services
 
             if (_fileFormat == "csv")
             {
-                // Ghi dữ liệu vào file CSV
                 using (var writer = new StreamWriter(exchangeFilePath, append: true))
                 {
-                    writer.WriteLine($"{param.k}({param.S}({param.CV}");
+
+                    if (_isComma)
+                    {
+                        writer.WriteLine($"{param.k},{param.S},{param.CV}");
+                    }
+                    else
+                    {
+                        writer.WriteLine($"{param.k};{param.S};{param.CV}");
+                    }
                 }
             }
             else
@@ -676,12 +637,13 @@ namespace TESMEA_TMS.Services
 
                     if (_fileFormat == "csv")
                     {
+                        char separator = _isComma ? ',' : ';';
                         using (var reader = new StreamReader(filePath))
                         {
                             string? line;
                             while ((line = await reader.ReadLineAsync()) != null)
                             {
-                                var values = line.Split(' ');
+                                var values = line.Split(separator);
                                 var result = new Measure
                                 {
                                     k = int.Parse(values[0]),

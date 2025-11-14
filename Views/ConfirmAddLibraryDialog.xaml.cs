@@ -6,33 +6,12 @@ using TESMEA_TMS.Helpers;
 namespace TESMEA_TMS.Views
 {
     /// <summary>
-    /// Interaction logic for ConfirmSaveDialog.xaml
+    /// Interaction logic for ConfirmAddLibraryDialog.xaml
     /// </summary>
-    public partial class ConfirmSaveDialog : Window, INotifyPropertyChanged
+    public partial class ConfirmAddLibraryDialog : Window, INotifyPropertyChanged
     {
-        private string _dialogTitle = "Nhập thông tin";
-        private string _message;
         private string _inputText;
 
-        public string DialogTitle
-        {
-            get => _dialogTitle;
-            set
-            {
-                _dialogTitle = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public string Message
-        {
-            get => _message;
-            set
-            {
-                _message = value;
-                OnPropertyChanged();
-            }
-        }
 
         public string InputText
         {
@@ -44,7 +23,7 @@ namespace TESMEA_TMS.Views
             }
         }
 
-        public ConfirmSaveDialog()
+        public ConfirmAddLibraryDialog()
         {
             InitializeComponent();
             DataContext = this;

@@ -70,6 +70,24 @@ namespace TESMEA_TMS.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Tạo tính toán.
+        /// </summary>
+        internal static string btn_Add_calculation {
+            get {
+                return ResourceManager.GetString("btn_Add_calculation", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Tạo dự án.
+        /// </summary>
+        internal static string btn_Add_project {
+            get {
+                return ResourceManager.GetString("btn_Add_project", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to QUAY LẠI.
         /// </summary>
         internal static string btn_Back {
@@ -228,6 +246,15 @@ namespace TESMEA_TMS.Localization {
         internal static string col_Delete {
             get {
                 return ResourceManager.GetString("col_Delete", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Tên library.
+        /// </summary>
+        internal static string col_Lib_name {
+            get {
+                return ResourceManager.GetString("col_Lib_name", resourceCulture);
             }
         }
         
@@ -844,6 +871,15 @@ namespace TESMEA_TMS.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Cảm biến nhiệt độ môi trường.
+        /// </summary>
+        internal static string lbl_Sensor_Amb_temp {
+            get {
+                return ResourceManager.GetString("lbl_Sensor_Amb_temp", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Cảm biến lưu lượng.
         /// </summary>
         internal static string lbl_Sensor_flow {
@@ -853,11 +889,29 @@ namespace TESMEA_TMS.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Cảm biến độ ẩm môi trường.
+        /// </summary>
+        internal static string lbl_Sensor_hu {
+            get {
+                return ResourceManager.GetString("lbl_Sensor_hu", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Cảm biến áp suất.
         /// </summary>
         internal static string lbl_Sensor_pressure {
             get {
                 return ResourceManager.GetString("lbl_Sensor_pressure", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Dải đo cảm biến (đơn vị đo - SI).
+        /// </summary>
+        internal static string lbl_Sensor_range {
+            get {
+                return ResourceManager.GetString("lbl_Sensor_range", resourceCulture);
             }
         }
         
@@ -939,6 +993,15 @@ namespace TESMEA_TMS.Localization {
         internal static string lbl_Torque_power_abs {
             get {
                 return ResourceManager.GetString("lbl_Torque_power_abs", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Tạo mới library.
+        /// </summary>
+        internal static string title_Lib_new {
+            get {
+                return ResourceManager.GetString("title_Lib_new", resourceCulture);
             }
         }
         

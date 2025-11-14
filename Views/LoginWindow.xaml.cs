@@ -40,5 +40,11 @@ namespace TESMEA_TMS.Views
                 // Let the event bubble up so the default button is triggered
             }
         }
+
+        private void ComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (_vm != null)
+                _vm.ExecuteSelectLanguageCommand();
+        }
     }
 }

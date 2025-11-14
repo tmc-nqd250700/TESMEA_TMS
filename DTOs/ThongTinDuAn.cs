@@ -1,4 +1,6 @@
-﻿namespace TESMEA_TMS.DTOs
+﻿using TESMEA_TMS.Configs;
+
+namespace TESMEA_TMS.DTOs
 {
     public class ThongTinDuAn
     {
@@ -31,7 +33,7 @@
         public string CoSoSanXuat { get; set; }
         public string KyHieu { get; set; }
         public int SoLuongMau { get; set; } = 1;
-        public string TinhTrangMau { get; set; } = "Mới";
+        public string TinhTrangMau { get; set; } = UserSetting.Instance.Language == "en" ? "New" : "Mới";
         public DateTime NgayNhanYeuCau { get; set; } = DateTime.Now;
         public DateTime NgayNhanMau { get; set; } = DateTime.Now;
         public DateTime NgayThuNghiem { get; set; } = DateTime.Now;

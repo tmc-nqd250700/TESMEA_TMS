@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:TESMEA_TMS.Views"
         xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
         xmlns:lex="http://wpflocalizeextension.codeplex.com"
-        lex:LocalizeDictionary.DesignCulture="vi"
+        lex:LocalizeDictionary.DesignCulture="en"
         lex:ResxLocalizationProvider.DefaultAssembly="TESMEA_TMS"
         lex:ResxLocalizationProvider.DefaultDictionary="Strings"
         mc:Ignorable="d"
@@ -22,11 +22,6 @@
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
-
-        <!--<TextBlock Grid.Row="0" 
-               Text="{Binding Message}" 
-               FontSize="14"
-               Margin="0 0 0 15"/>-->
 
         <StackPanel Grid.Row="0"  Orientation="Vertical">
             <TextBox Margin="0 5"

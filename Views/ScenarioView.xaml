@@ -331,11 +331,11 @@
                          md:ShadowAssist.ShadowDepth="Depth2"
                          MinWidth="100" Width="Auto"
                          FontSize="11"
-                         ToolTip="Tạo kịch bản mới"
+                         ToolTip="{lex:Loc btn_Add}"
                          Command="{Binding NewCommand}">
                         <StackPanel Orientation="Horizontal">
                             <md:PackIcon Kind="Plus" VerticalAlignment="Center" Margin="0 0 5 0"/>
-                            <TextBlock Text="Tạo mới"
+                            <TextBlock Text="{lex:Loc btn_Add}"
                                        TextTrimming="CharacterEllipsis"
                                        TextWrapping="NoWrap"
                                        VerticalAlignment="Center"/>
@@ -347,11 +347,11 @@
                          md:ShadowAssist.ShadowDepth="Depth2"
                          MinWidth="100" Width="Auto"
                          FontSize="11"
-                         ToolTip="Lưu các thay đổi"
+                         ToolTip="{lex:Loc btn_Save}"
                          Command="{Binding SaveCommand}">
                         <StackPanel Orientation="Horizontal">
                             <md:PackIcon Kind="ContentSave" VerticalAlignment="Center" Margin="0 0 5 0"/>
-                            <TextBlock Text="Lưu"
+                            <TextBlock Text="{lex:Loc btn_Save}"
                                        TextTrimming="CharacterEllipsis"
                                        TextWrapping="NoWrap"
                                        VerticalAlignment="Center"/>

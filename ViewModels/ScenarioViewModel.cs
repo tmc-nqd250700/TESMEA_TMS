@@ -5,6 +5,7 @@ using System.Windows.Input;
 using TESMEA_TMS.Configs;
 using TESMEA_TMS.DTOs;
 using TESMEA_TMS.Helpers;
+using TESMEA_TMS.Models.Entities;
 using TESMEA_TMS.Services;
 using TESMEA_TMS.Views;
 using Application = System.Windows.Application;
@@ -374,88 +375,24 @@ namespace TESMEA_TMS.ViewModels
                     return;
                 }
 
-                // 1. Xử lý xóa các scenario đánh dấu xóa (đã tồn tại trong DB)
-                var scenariosToDelete = Scenarios
-                    .Where(s => s.IsMarkedForDeletion && !s.IsNew)
-                    .ToList();
-
-                foreach (var scenario in scenariosToDelete)
+                var scenariosToUpdate = new List<ScenarioUpdateDto>();
+                foreach(var item in Scenarios)
                 {
-                    // Gọi service xóa
-                    await _parameterService.DeleteScenarioAsync(scenario.ScenarioId);
-                    Scenarios.Remove(scenario);
+                    var paramsToUpdate = ScenarioParams.Where(x => x.ScenarioId == item.ScenarioId).ToList();
+                    var scenarioToUpdate = new ScenarioUpdateDto
+                    {
+                        Scenario = item,
+                        Params = paramsToUpdate
+                    };
+                    scenariosToUpdate.Add(scenarioToUpdate);
+                }
+                if (!scenariosToUpdate.Any())
+                {
+                    MessageBoxHelper.ShowWarning("Không có thay đổi để lưu.");
+                    return;
                 }
 
-                // 2. Xóa các scenario mới bị đánh dấu xóa (chưa lưu DB)
-                var newScenariosToDelete = Scenarios
-                    .Where(s => s.IsMarkedForDeletion && s.IsNew)
-                    .ToList();
-
-                foreach (var scenario in newScenariosToDelete)
-                {
-                    Scenarios.Remove(scenario);
-                }
-
-                // 3. Lưu các scenario mới và đã chỉnh sửa
-                var scenariosToSave = Scenarios
-                    .Where(s => (s.IsNew || s.IsEdited) && !s.IsMarkedForDeletion)
-                    .ToList();
-
-
-                //foreach (var scenarioDto in scenariosToSave)
-                //{
-                //    var scenario = scenarioDto.ToEntity();
-
-                //    // Lấy params tương ứng
-                //    List<ScenarioParam> paramsToSave = null;
-
-                //    if (scenarioDto.IsNew)
-                //    {
-                //        // Scenario mới - lấy params từ ScenarioParams nếu đây là scenario đang xem
-                //        if (_currentViewedScenarioId == scenarioDto.ScenarioId)
-                //        {
-                //            paramsToSave = ScenarioParams
-                //                .Select(p => p.ToEntity())
-                //                .ToList();
-                //        }
-                //        else
-                //        {
-                //            paramsToSave = new List<ScenarioParam>();
-                //        }
-
-                //        // Gọi service insert
-                //        await _parameterService.InsertScenarioAsync(scenario, paramsToSave);
-                //    }
-                //    else if (scenarioDto.IsEdited)
-                //    {
-                //        // Scenario đã chỉnh sửa
-                //        scenario.ModifiedDate = DateTime.Now;
-                //        scenario.ModifiedUser = Environment.UserName;
-
-                //        // Nếu có thay đổi params
-                //        if (_scenariosWithChangedParams.Contains(scenarioDto.ScenarioId))
-                //        {
-                //            if (_currentViewedScenarioId == scenarioDto.ScenarioId)
-                //            {
-                //                paramsToSave = ScenarioParams
-                //                    .Select(p => p.ToEntity())
-                //                    .ToList();
-                //            }
-                //            else
-                //            {
-                //                // Load params từ DB
-                //                paramsToSave = await _parameterService.GetScenarioDetailAsync(scenarioDto.ScenarioId);
-                //            }
-                //        }
-
-                //        // Gọi service update
-                //        await _parameterService.UpdateScenarioAsync(scenario, paramsToSave);
-                //    }
-
-                //    // Reset flags
-                //    scenarioDto.IsNew = false;
-                //    scenarioDto.IsEdited = false;
-                //}
+                await _parameterService.UpdateScenarioAsync(scenariosToUpdate);
 
                 // Clear tracking
                 _scenariosWithChangedParams.Clear();
@@ -471,13 +408,12 @@ namespace TESMEA_TMS.ViewModels
             }
             catch (Exception ex)
             {
-                MessageBoxHelper.ShowError($"Lỗi khi lưu: {ex.Message}");
+                throw;
             }
         }
 
         private bool CanExecuteDeleteCommand(object parameter)
         {
-            // Parameter có thể là ScenarioDto object hoặc Guid
             if (parameter is ScenarioDto scenario)
             {
                 return !scenario.IsMarkedForDeletion;

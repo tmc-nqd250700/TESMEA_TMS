@@ -220,4 +220,10 @@ namespace TESMEA_TMS.DTOs
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
+
+    public class ScenarioUpdateDto
+    {
+        public ScenarioDto Scenario { get; set; }
+        public List<ScenarioParamDTO> Params { get; set; }
+    }
 }

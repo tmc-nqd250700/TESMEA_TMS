@@ -262,11 +262,8 @@ namespace TESMEA_TMS.ViewModels
                             .OfType<Window>()
                             .FirstOrDefault(w => w is TESMEA_TMS.Views.MainWindow);
 
-                var dialog = new ConfirmSaveDialog
-                {
-                    DialogTitle = "Tạo library mới",
-                    Message = "Nhập tên library:"
-                };
+                var dialog = new ConfirmAddLibraryDialog();
+               
                 if (mainWindow != null && mainWindow != dialog)
                 {
                     dialog.Owner = mainWindow;
@@ -443,7 +440,7 @@ namespace TESMEA_TMS.ViewModels
 
                 foreach (var library in librariesToDelete)
                 {
-                    await _parameterService.DeleteInputParamAsync(library.LibId);
+                    await _parameterService.DeleteLibraryAsync(library.LibId);
                     InputParameters.Remove(library);
                 }
 
@@ -486,21 +483,19 @@ namespace TESMEA_TMS.ViewModels
                         ongGioEntity = detail.Item3;
                     }
 
-                    //if (libraryDto.IsNew)
-                    //{
-                    //    // Insert mới
-                    //    await _parameterService.AddInputParamAsync(library, bienTanEntity, dongCoEntity,
-                    //        quatEntity, camBienEntity, ongGioEntity);
-                    //}
-                    //else if (libraryDto.IsEdited)
-                    //{
-                    //    // Update
-                    //    library.ModifiedDate = DateTime.Now;
-                    //    library.ModifiedUser = Environment.UserName;
+                    if (libraryDto.IsNew)
+                    {
+                        // Insert mới
+                        await _parameterService.AddLibraryAsync(library, bienTanEntity, camBienEntity, ongGioEntity);
+                    }
+                    else if (libraryDto.IsEdited)
+                    {
+                        // Update
+                        library.ModifiedDate = DateTime.Now;
+                        library.ModifiedUser = Environment.UserName;
 
-                    //    await _parameterService.UpdateInputParamAsync(library, bienTanEntity, dongCoEntity,
-                    //        quatEntity, camBienEntity, ongGioEntity);
-                    //}
+                        await _parameterService.UpdateLibraryAsync(library.LibId, bienTanEntity, camBienEntity, ongGioEntity);
+                    }
 
                     // Reset flags
                     libraryDto.IsNew = false;
@@ -509,10 +504,8 @@ namespace TESMEA_TMS.ViewModels
 
                 MessageBoxHelper.ShowSuccess("Lưu thành công!");
 
-                // Reload data
                 LoadData();
 
-                // Clear nếu library hiện tại đã bị xóa
                 if (CurrentParameter == null ||
                     !InputParameters.Any(p => p.LibId == CurrentParameter.LibId))
                 {

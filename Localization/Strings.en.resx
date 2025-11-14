@@ -397,7 +397,7 @@
     <value>New scenario</value>
   </data>
   <data name="lbl_Please_login" xml:space="preserve">
-    <value>Please login to continute</value>
+    <value>Please login to continue</value>
   </data>
   <data name="groupbox_Scenarios" xml:space="preserve">
     <value>Scenarios</value>
@@ -419,5 +419,26 @@
   </data>
   <data name="btn_Finish" xml:space="preserve">
     <value>FINISH</value>
+  </data>
+  <data name="btn_Add_project" xml:space="preserve">
+    <value>Create project</value>
+  </data>
+  <data name="btn_Add_calculation" xml:space="preserve">
+    <value>Create calculation</value>
+  </data>
+  <data name="col_Lib_name" xml:space="preserve">
+    <value>Library name</value>
+  </data>
+  <data name="lbl_Sensor_range" xml:space="preserve">
+    <value>Sensor measuring range (units - SI)</value>
+  </data>
+  <data name="lbl_Sensor_Amb_temp" xml:space="preserve">
+    <value>Ambient temperature sensor</value>
+  </data>
+  <data name="lbl_Sensor_hu" xml:space="preserve">
+    <value>Humidity sensor</value>
+  </data>
+  <data name="title_Lib_new" xml:space="preserve">
+    <value>New library</value>
   </data>
 </root>
