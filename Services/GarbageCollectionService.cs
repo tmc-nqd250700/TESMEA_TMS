@@ -28,7 +28,7 @@ namespace TESMEA_TMS.Services
         public async Task DeleteUserTempAsync()
         {
             DeleteAllContents(_localAppPath);
-            DeleteAllContents(UserSetting.TOMFAN_folder);
+            //DeleteAllContents(UserSetting.TOMFAN_folder);
             await Task.CompletedTask;
         }
 

@@ -18,11 +18,10 @@ namespace TESMEA_TMS.Services
 
         #region library gồm thông số biến tần, ống gió và cảm biến
         Task<List<Library>> GetLibrariesAsync();
-        Task<CamBien> GetCamBienByIdAsync(string id);
         Task<(BienTan, CamBien, OngGio)> GetLibraryByIdAsync(Guid id);
         Task AddInputParamAsync(Library inputParam, BienTan bienTan, CamBien camBien, OngGio ongGio);
-        Task UpdateInputParamAsync(Guid paramId, BienTan bienTan, CamBien camBien, OngGio ongGio);
-        Task DeleteInputParamAsync(Guid paramId);
+        Task UpdateInputParamAsync(Guid libId, BienTan bienTan, CamBien camBien, OngGio ongGio);
+        Task DeleteInputParamAsync(Guid libId);
         #endregion
     }
     public class ParameterService : RepositoryBase, IParameterService
@@ -33,6 +32,8 @@ namespace TESMEA_TMS.Services
             _dbContext = dbContext;
         }
 
+
+        // tạm: vì sqlite không thao tác được với guid nên tạm thời convert sang string để tìm kiếm
         #region Scneario implementation
         public async Task<List<Scenario>> GetScenariosAsync()
         {
@@ -40,7 +41,6 @@ namespace TESMEA_TMS.Services
             {
                 return await _dbContext.Scenarios.ToListAsync();
             });
-
         }
 
         public async Task<Scenario> GetScenarioAsync(string id)
@@ -55,7 +55,7 @@ namespace TESMEA_TMS.Services
         {
             return await ExecuteAsync(async () =>
             {
-                // tạm: vì sqlite không tìm được với guid
+                
                 return await _dbContext.ScenarioParams.Where(x => x.ScenarioId.ToString() == id.ToString()).ToListAsync();
             });
         }
@@ -66,7 +66,7 @@ namespace TESMEA_TMS.Services
             {
                 foreach(var item in scenarios)
                 {
-                    var exist = await _dbContext.Scenarios.FindAsync(item.ScenarioId);
+                    var exist = await _dbContext.Scenarios.Where(x => x.ScenarioId.ToString() == item.ScenarioId.ToString()).FirstOrDefaultAsync();
                     if (exist == null)
                     {
                         // Tạo mới
@@ -86,8 +86,12 @@ namespace TESMEA_TMS.Services
         {
             await ExecuteAsync(async () =>
             {
-                _dbContext.Scenarios.Remove(await _dbContext.Scenarios.FindAsync(id));
-                await _dbContext.SaveChangesAsync();
+                var exist = await _dbContext.Scenarios.Where(x => x.ScenarioId.ToString() == id.ToString()).FirstOrDefaultAsync();
+                if(exist != null)
+                {
+                    _dbContext.Scenarios.Remove(exist);
+                    await _dbContext.SaveChangesAsync();
+                }
             });
         }
         #endregion
@@ -101,21 +105,6 @@ namespace TESMEA_TMS.Services
             });
         }
 
-        public async Task<CamBien> GetCamBienByIdAsync(string libId)
-        {
-            try
-            {
-                return await ExecuteAsync(async () =>
-                {
-                    var camBien = await _dbContext.CamBiens.FirstOrDefaultAsync(x => x.LibId.ToString() == libId);
-                    return camBien;
-                });
-            }
-            catch (Exception ex)
-            {
-                return null;
-            }
-        }
         public async Task<(BienTan, CamBien, OngGio)> GetLibraryByIdAsync(Guid id)
         {
             try
@@ -169,12 +158,16 @@ namespace TESMEA_TMS.Services
 
             });
         }
-        public async Task DeleteInputParamAsync(Guid paramId)
+        public async Task DeleteInputParamAsync(Guid libId)
         {
             await ExecuteAsync(async () =>
             {
-                _dbContext.Libraries.Remove(await _dbContext.Libraries.FindAsync(paramId));
-                await _dbContext.SaveChangesAsync();
+                var exist = await _dbContext.Libraries.Where(x => x.LibId.ToString() == libId.ToString()).FirstOrDefaultAsync();
+                if(exist != null)
+                {
+                    _dbContext.Libraries.Remove(exist);
+                    await _dbContext.SaveChangesAsync();
+                }    
             });
         }
         #endregion

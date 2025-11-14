@@ -863,7 +863,7 @@ namespace TESMEA_TMS.ViewModels
                     TextVerticalAlignment = OxyPlot.VerticalAlignment.Middle
                 };
 
-                PowerPlotModel.Annotations.Add(annotation);
+                //PowerPlotModel.Annotations.Add(annotation);
 
 
                 #endregion
@@ -903,7 +903,8 @@ namespace TESMEA_TMS.ViewModels
                     {
                         Position = AxisPosition.Left,
                         Title = IsEn ? "Pressure (Pa)" : "Áp suất (Pa)",
-                        Minimum = 0,
+                        //Minimum = 0,
+                        Minimum = Math.Min(fitting.PsPoint_ft.Min(), fitting.PtPoint_ft.Min()),
                         Maximum = Math.Max(fitting.PsPoint_ft.Max(), fitting.PtPoint_ft.Max()) + yAxisEff.MajorStep,
                         MajorGridlineStyle = LineStyle.Solid,
                         MinorGridlineStyle = LineStyle.Dot,
@@ -914,7 +915,8 @@ namespace TESMEA_TMS.ViewModels
                 else
                 {
                     yAxisEff.Title = IsEn ? "Pressure (Pa)" : "Áp suất (Pa)";
-                    yAxisEff.Minimum = 0;
+                    //yAxisEff.Minimum = 0;
+                    yAxisEff.Minimum = Math.Min(fitting.PsPoint_ft.Min(), fitting.PtPoint_ft.Min());
                     yAxisEff.Maximum = Math.Max(fitting.PsPoint_ft.Max(), fitting.PtPoint_ft.Max()) + yAxisEff.MajorStep;
                 }
 
@@ -927,7 +929,7 @@ namespace TESMEA_TMS.ViewModels
                         Position = AxisPosition.Right,
                         Title = IsEn ? "Efficiency (%)" : "Hiệu suất (%)",
                         Minimum = 0,
-                        Maximum = Math.Max(fitting.EsPoint_ft.Max(), fitting.EtPoint_ft.Max()) + y2Axis.MajorStep,
+                        Maximum= 100,
                         MajorGridlineStyle = LineStyle.None,
                         MinorGridlineStyle = LineStyle.None,
                         TextColor = OxyColors.Blue,

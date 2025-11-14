@@ -204,19 +204,19 @@ namespace TESMEA_TMS.ViewModels
             {
                 var exchangeFolder = UserSetting.TOMFAN_folder;
 
-                if (Directory.Exists(exchangeFolder))
-                {
-                    // Xóa tất cả file
-                    foreach (var file in Directory.GetFiles(exchangeFolder))
-                    {
-                        try { File.Delete(file); } catch { /* ignore */ }
-                    }
-                    // Xóa tất cả thư mục con
-                    foreach (var dir in Directory.GetDirectories(exchangeFolder))
-                    {
-                        try { Directory.Delete(dir, true); } catch { /* ignore */ }
-                    }
-                }
+                //if (Directory.Exists(exchangeFolder))
+                //{
+                //    // Xóa tất cả file
+                //    foreach (var file in Directory.GetFiles(exchangeFolder))
+                //    {
+                //        try { File.Delete(file); } catch { /* ignore */ }
+                //    }
+                //    // Xóa tất cả thư mục con
+                //    foreach (var dir in Directory.GetDirectories(exchangeFolder))
+                //    {
+                //        try { Directory.Delete(dir, true); } catch { /* ignore */ }
+                //    }
+                //}
 
                 var projectFolder = ThongTinDuAn.ThamSo.DuongDanLuuDuAn;
                 if (string.IsNullOrEmpty(projectFolder) )

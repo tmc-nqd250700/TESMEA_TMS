@@ -90,42 +90,86 @@ namespace TESMEA_TMS.Views
             LoadTrendDataAndDraw(_currentK, SelectedPV);
         }
 
+        //public void LoadTrendDataAndDraw(int k, string pvType)
+        //{
+        // 
         public void LoadTrendDataAndDraw(int k, string pvType)
         {
+            var fileFormat = "csv"; // Temporary setting to "csv"
             var trendFolder = Path.Combine(UserSetting.TOMFAN_folder);
             if (!Directory.Exists(trendFolder)) return;
 
-            // Chỉ lấy file có k đúng với lựa chọn
-            var files = Directory.GetFiles(trendFolder, $"{k}.*.xlsx");
+            // Dynamically select files based on the file format
+            var files = Directory.GetFiles(trendFolder, $"{k}.*.{fileFormat}");
             if (files.Length == 0) return;
 
             var filePath = files[0];
             var trendList = new List<TrendTime>();
 
-            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
-            using (var package = new ExcelPackage(new FileInfo(filePath)))
+            if (fileFormat == "xlsx")
             {
-                var worksheet = package.Workbook.Worksheets.FirstOrDefault();
-                if (worksheet != null)
+                // Handle Excel files
+                ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+                using (var package = new ExcelPackage(new FileInfo(filePath)))
                 {
-                    for (int row = 3; row <= worksheet.Dimension.End.Row; row++)
+                    var worksheet = package.Workbook.Worksheets.FirstOrDefault();
+                    if (worksheet != null)
                     {
+                        for (int row = 3; row <= worksheet.Dimension.End.Row; row++)
+                        {
+                            var trend = new TrendTime
+                            {
+                                Index = int.TryParse(worksheet.Cells[row, 1].Text, out var idx) ? idx : 0,
+                                Time = float.TryParse(worksheet.Cells[row, 2].Text, out var time) ? time : 0,
+                                NhietDoMoiTruong_sen = float.TryParse(worksheet.Cells[row, 3].Text, out var pv1) ? pv1 : 0,
+                                DoAm_sen = float.TryParse(worksheet.Cells[row, 4].Text, out var pv2) ? pv2 : 0,
+                                ApSuatkhiQuyen_sen = float.TryParse(worksheet.Cells[row, 5].Text, out var pv3) ? pv3 : 0,
+                                ChenhLechApSuat_sen = float.TryParse(worksheet.Cells[row, 6].Text, out var pv4) ? pv4 : 0,
+                                ApSuatTinh_sen = float.TryParse(worksheet.Cells[row, 7].Text, out var pv5) ? pv5 : 0,
+                                DoRung_sen = float.TryParse(worksheet.Cells[row, 8].Text, out var pv6) ? pv6 : 0,
+                                DoOn_sen = float.TryParse(worksheet.Cells[row, 9].Text, out var pv7) ? pv7 : 0,
+                                SoVongQuay_sen = float.TryParse(worksheet.Cells[row, 10].Text, out var pv8) ? pv8 : 0,
+                                Momen_sen = float.TryParse(worksheet.Cells[row, 11].Text, out var pv9) ? pv9 : 0,
+                                DongDien_fb = float.TryParse(worksheet.Cells[row, 12].Text, out var fb1) ? fb1 : 0,
+                                CongSuat_fb = float.TryParse(worksheet.Cells[row, 13].Text, out var fb2) ? fb2 : 0,
+                                ViTriVan_fb = float.TryParse(worksheet.Cells[row, 14].Text, out var fb3) ? fb3 : 0,
+                            };
+                            trendList.Add(trend);
+                        }
+                    }
+                }
+            }
+            else if (fileFormat == "csv")
+            {
+                // Handle CSV files
+                using (var reader = new StreamReader(filePath))
+                {
+                    string? line;
+                    int row = 0;
+                    while ((line = reader.ReadLine()) != null)
+                    {
+                        row++;
+                        if (row < 3) continue; // Skip header rows
+
+                        var values = line.Split(',');
+                        if (values.Length < 14) continue; // Ensure sufficient columns
+
                         var trend = new TrendTime
                         {
-                            Index = int.TryParse(worksheet.Cells[row, 1].Text, out var idx) ? idx : 0,
-                            Time = float.TryParse(worksheet.Cells[row, 2].Text, out var time) ? time : 0,
-                            NhietDoMoiTruong_sen = float.TryParse(worksheet.Cells[row, 3].Text, out var pv1) ? pv1 : 0,
-                            DoAm_sen = float.TryParse(worksheet.Cells[row, 4].Text, out var pv2) ? pv2 : 0,
-                            ApSuatkhiQuyen_sen = float.TryParse(worksheet.Cells[row, 5].Text, out var pv3) ? pv3 : 0,
-                            ChenhLechApSuat_sen = float.TryParse(worksheet.Cells[row, 6].Text, out var pv4) ? pv4 : 0,
-                            ApSuatTinh_sen = float.TryParse(worksheet.Cells[row, 7].Text, out var pv5) ? pv5 : 0,
-                            DoRung_sen = float.TryParse(worksheet.Cells[row, 8].Text, out var pv6) ? pv6 : 0,
-                            DoOn_sen = float.TryParse(worksheet.Cells[row, 9].Text, out var pv7) ? pv7 : 0,
-                            SoVongQuay_sen = float.TryParse(worksheet.Cells[row, 10].Text, out var pv8) ? pv8 : 0,
-                            Momen_sen = float.TryParse(worksheet.Cells[row, 11].Text, out var pv9) ? pv9 : 0,
-                            DongDien_fb = float.TryParse(worksheet.Cells[row, 12].Text, out var fb1) ? fb1 : 0,
-                            CongSuat_fb = float.TryParse(worksheet.Cells[row, 13].Text, out var fb2) ? fb2 : 0,
-                            ViTriVan_fb = float.TryParse(worksheet.Cells[row, 14].Text, out var fb3) ? fb3 : 0,
+                            Index = int.TryParse(values[0], out var idx) ? idx : 0,
+                            Time = float.TryParse(values[1], out var time) ? time : 0,
+                            NhietDoMoiTruong_sen = float.TryParse(values[2], out var pv1) ? pv1 : 0,
+                            DoAm_sen = float.TryParse(values[3], out var pv2) ? pv2 : 0,
+                            ApSuatkhiQuyen_sen = float.TryParse(values[4], out var pv3) ? pv3 : 0,
+                            ChenhLechApSuat_sen = float.TryParse(values[5], out var pv4) ? pv4 : 0,
+                            ApSuatTinh_sen = float.TryParse(values[6], out var pv5) ? pv5 : 0,
+                            DoRung_sen = float.TryParse(values[7], out var pv6) ? pv6 : 0,
+                            DoOn_sen = float.TryParse(values[8], out var pv7) ? pv7 : 0,
+                            SoVongQuay_sen = float.TryParse(values[9], out var pv8) ? pv8 : 0,
+                            Momen_sen = float.TryParse(values[10], out var pv9) ? pv9 : 0,
+                            DongDien_fb = float.TryParse(values[11], out var fb1) ? fb1 : 0,
+                            CongSuat_fb = float.TryParse(values[12], out var fb2) ? fb2 : 0,
+                            ViTriVan_fb = float.TryParse(values[13], out var fb3) ? fb3 : 0,
                         };
                         trendList.Add(trend);
                     }
@@ -186,7 +230,6 @@ namespace TESMEA_TMS.Views
             }
             TrendPlotModel.InvalidatePlot(true);
         }
-
         private Dictionary<string, (float Max, float Min, float Average)> CalculateTrendStatistics(List<TrendTime> trendList, List<string> parameters)
         {
             var result = new Dictionary<string, (float Max, float Min, float Average)>();

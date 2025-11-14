@@ -12,7 +12,7 @@ namespace TESMEA_TMS.Services
     {
         Task StartAppAsync();
         Task StopAppAsync();
-        Task ConnectExchangeAsync(List<Measure> measures, BienTan inv, CamBien sensor, OngGio duct, ThongTinMauThuNghiem input, float maxmin, float timeRange, string fileFormat = "xlsx");
+        Task ConnectExchangeAsync(List<Measure> measures, BienTan inv, CamBien sensor, OngGio duct, ThongTinMauThuNghiem input, float maxmin, float timeRange, string fileFormat = "csv");
         Task StartExchangeAsync();
         Task StopExchangeAsync();
         bool IsAppRunning { get; }
@@ -45,7 +45,7 @@ namespace TESMEA_TMS.Services
         public ExternalAppService()
         {
             _exchangeFolder = UserSetting.TOMFAN_folder;
-            _exchangeFilePath = Path.Combine(_exchangeFolder, "1_T_OUT.xlsx");
+            _exchangeFilePath = Path.Combine(_exchangeFolder, "1_T_OUT.csv");
             _trendlineFolder = Path.Combine(_exchangeFolder, "Testdata");
         }
 
@@ -306,6 +306,7 @@ namespace TESMEA_TMS.Services
 
                 if (_fileFormat == "csv")
                 {
+                    _exchangeFilePath = Path.Combine(_exchangeFolder, "1_T_OUT.csv");
                     using (var writer = new StreamWriter(_exchangeFilePath))
                     {
                         for (int i = 0; i < Math.Min(2, _measures.Count); i++)
@@ -323,6 +324,7 @@ namespace TESMEA_TMS.Services
                 }
                 else
                 {
+                    _exchangeFilePath = Path.Combine(_exchangeFolder, "1_T_OUT.xlsx");
                     ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
                     using (var package = new ExcelPackage(new FileInfo(_exchangeFilePath)))
                     {
