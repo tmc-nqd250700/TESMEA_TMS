@@ -319,7 +319,7 @@ namespace TESMEA_TMS.Services
                 {
                     using (var writer = new StreamWriter(fileExchange1))
                     {
-                        if(_isComma)
+                        if (_isComma)
                         {
                             for (int i = 0; i < Math.Min(2, _measures.Count); i++)
                             {
@@ -339,7 +339,7 @@ namespace TESMEA_TMS.Services
                                 writer.WriteLine(row);
                             }
                         }
-                           
+
                     }
                     using (var writer2 = new StreamWriter(fileExchange2))
                     {
@@ -382,38 +382,52 @@ namespace TESMEA_TMS.Services
                 };
                 _watcher.Changed += async (s, e) =>
                 {
-                    if (_watcher == null) return;
-                    var results = await ReadSimaticResult(e.FullPath, _sensor);
-                    foreach (var m in results)
+                    if (_watcher == null || e.FullPath != fileExchange2) return;
+
+                    Task.Run(async () =>
                     {
-                        if (_measures.Take(2).Any(x => x.k == m.k))
+                        try
                         {
-                            var measure = _measures.FirstOrDefault(x => x.k == m.k);
-                            if (measure != null && measure.F != MeasureStatus.Completed)
+                            await Task.Delay(200);
+                            var results = await ReadSimaticConnection(e.FullPath, _sensor);
+                            lock (_measures)
                             {
-                                measure.F = MeasureStatus.Completed;
-                                //OnSimaticResultReceived?.Invoke(measure);
-                                receivedCount++;
-                                _currentIndex++;
+                                foreach (var m in results)
+                                {
+                                    if (_measures.Take(2).Any(x => x.k == m.k))
+                                    {
+                                        var measure = _measures.FirstOrDefault(x => x.k == m.k);
+                                        if (measure != null && measure.F != MeasureStatus.Completed)
+                                        {
+                                            measure.F = MeasureStatus.Completed;
+                                            //OnSimaticResultReceived?.Invoke(measure);
+                                            receivedCount++;
+                                            _currentIndex++;
+                                        }
+                                    }
+                                }
+                                // stop watcher khi đã nhận đủ 2 dòng
+                                if (receivedCount == 2)
+                                {
+                                    if (_watcher != null)
+                                    {
+                                        _watcher.EnableRaisingEvents = false;
+                                        _watcher.Dispose();
+                                        _watcher = null;
+                                    }
+                                    // khởi tạo mảng dữ liệu cho quá trình đo
+                                    DataProcess.Initialize(_measures.Count);
+                                    IsConnectedToSimatic = true;
+                                    OnSimaticConnectionChanged?.Invoke(true);
+                                    _connectCompletionSource?.TrySetResult(true);
+                                }
                             }
                         }
-                    }
-                    // stop watcher khi đã nhận đủ 2 dòng
-                    if (receivedCount == 2)
-                    {
-                        if (_watcher != null)
+                        catch (Exception ex)
                         {
-                            _watcher.EnableRaisingEvents = false;
-                            _watcher.Dispose();
-                            _watcher = null;
+                            throw ex;
                         }
-
-                        // khởi tạo mảng dữ liệu cho quá trình đo
-                        DataProcess.Initialize(_measures.Count);
-                        IsConnectedToSimatic = true;
-                        OnSimaticConnectionChanged?.Invoke(true);
-                        _connectCompletionSource?.TrySetResult(true);
-                    }
+                    });
                 };
                 _watcher.EnableRaisingEvents = true;
                 // Chờ kết nối hoặc timeout
@@ -435,7 +449,20 @@ namespace TESMEA_TMS.Services
             }
             catch (Exception ex)
             {
+                if (_watcher != null)
+                {
+                    _watcher.EnableRaisingEvents = false;
+                    _watcher.Dispose();
+                    _watcher = null;
+                }
                 throw;
+            }
+            finally
+            {
+                if (!IsConnectedToSimatic && _connectCompletionSource?.Task.IsCompleted == false)
+                {
+                    OnSimaticConnectionChanged?.Invoke(false);
+                }
             }
         }
 
@@ -620,6 +647,72 @@ namespace TESMEA_TMS.Services
                     package.Save();
                 }
             }
+        }
+
+        private async Task<List<Measure>> ReadSimaticConnection(string filePath, CamBien sen)
+        {
+            var measureResults = new List<Measure>();
+            int retryCount = 5;
+            int delayMs = 200;
+
+            for (int i = 0; i < retryCount; i++)
+            {
+                try
+                {
+
+                    if (_fileFormat == "csv")
+                    {
+                        char separator = _isComma ? ',' : ';';
+                        using (var reader = new StreamReader(filePath))
+                        {
+                            string? line;
+                            while ((line = await reader.ReadLineAsync()) != null)
+                            {
+                                var values = line.Split(separator);
+                                var result = new Measure
+                                {
+                                    k = int.Parse(values[0]),
+                                    S = float.Parse(values[1]),
+                                    CV = float.Parse(values[2])
+                                };
+
+                                measureResults.Add(result);
+                            }
+                        }
+                    }
+                    else
+                    {
+
+                        ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
+                        using (var package = new ExcelPackage(new FileInfo(filePath)))
+                        {
+                            var ws = package.Workbook.Worksheets.FirstOrDefault();
+                            if (ws == null) return measureResults;
+                            for (int row = 1; row <= ws.Dimension.End.Row; row++)
+                            {
+                                var result = new Measure
+                                {
+                                    k = int.TryParse(ws.Cells[row, 1].Text, out var k) ? k : 0,
+                                    S = float.TryParse(ws.Cells[row, 2].Text, out var s) ? s : 0,
+                                    CV = float.TryParse(ws.Cells[row, 3].Text, out var cv) ? cv : 0
+                                };
+                                measureResults.Add(result);
+                            }
+                        }
+                    }
+                    return measureResults;
+
+                }
+                catch (IOException)
+                {
+                    await Task.Delay(delayMs);
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception($"Lỗi đọc file 2_S_IN.{_fileFormat}: {ex.Message}");
+                }
+            }
+            throw new Exception($"Không thể đọc file 2_S_IN.{_fileFormat} sau nhiều lần thử lại (file có thể đang bị lock bởi process khác)");
         }
 
         private async Task<List<Measure>> ReadSimaticResult(string filePath, CamBien sen)
