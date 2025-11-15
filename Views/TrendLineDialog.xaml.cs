@@ -96,7 +96,7 @@ namespace TESMEA_TMS.Views
         public void LoadTrendDataAndDraw(int k, string pvType)
         {
             var fileFormat = "csv"; // Temporary setting to "csv"
-            var trendFolder = Path.Combine(UserSetting.TOMFAN_folder);
+            var trendFolder = Path.Combine(UserSetting.TOMFAN_folder, "Trend");
             if (!Directory.Exists(trendFolder)) return;
 
             // Dynamically select files based on the file format

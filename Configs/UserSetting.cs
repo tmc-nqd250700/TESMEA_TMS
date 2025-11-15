@@ -91,7 +91,7 @@ namespace TESMEA_TMS.Configs
             return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "TESMEA_TMS");
         }
 
-        public static string TOMFAN_folder = @"C:\temp";
+        public static string TOMFAN_folder = @"C:\TOMFAN";
        
         #endregion
     }

@@ -202,22 +202,6 @@ namespace TESMEA_TMS.ViewModels
         {
             try
             {
-                var exchangeFolder = UserSetting.TOMFAN_folder;
-
-                if (Directory.Exists(exchangeFolder))
-                {
-                    // Xóa tất cả file
-                    foreach (var file in Directory.GetFiles(exchangeFolder))
-                    {
-                        try { File.Delete(file); } catch { /* ignore */ }
-                    }
-                    // Xóa tất cả thư mục con
-                    foreach (var dir in Directory.GetDirectories(exchangeFolder))
-                    {
-                        try { Directory.Delete(dir, true); } catch { /* ignore */ }
-                    }
-                }
-
                 var projectFolder = ThongTinDuAn.ThamSo.DuongDanLuuDuAn;
                 if (string.IsNullOrEmpty(projectFolder) )
                 {
@@ -242,42 +226,42 @@ namespace TESMEA_TMS.ViewModels
                     return;
                 }
 
-                /// Tạo folder user trong folder Testdata, sau đó tạo file giống report có dạng {stt}_{timestamp}.xlsx trong folder user thuộc folder Testdata có dạng ẩn và bảo mật chỉ administrators mới có thể can thiệp
-                // Testdata
-                var testDataFolder = Path.Combine(exchangeFolder, "Testdata");
-                var userFolder = Path.Combine(testDataFolder, "User");
-                if (!Directory.Exists(testDataFolder))
-                {
-                    Directory.CreateDirectory(testDataFolder);
-                    Directory.CreateDirectory(userFolder);
-                    var dirInfo = new DirectoryInfo(userFolder);
-                    dirInfo.Attributes |= FileAttributes.Hidden;
+                ///// Tạo folder user trong folder Testdata, sau đó tạo file giống report có dạng {stt}_{timestamp}.xlsx trong folder user thuộc folder Testdata có dạng ẩn và bảo mật chỉ administrators mới có thể can thiệp
+                //// Testdata
+                //var testDataFolder = Path.Combine(exchangeFolder, "Testdata");
+                //var userFolder = Path.Combine(testDataFolder, "User");
+                //if (!Directory.Exists(testDataFolder))
+                //{
+                //    Directory.CreateDirectory(testDataFolder);
+                //    Directory.CreateDirectory(userFolder);
+                //    var dirInfo = new DirectoryInfo(userFolder);
+                //    dirInfo.Attributes |= FileAttributes.Hidden;
 
-                    //// Set folder administrators only permissions
-                    //var dirSecurity = dirInfo.GetAccessControl();
-                    //dirSecurity.SetAccessRuleProtection(true, false); // Disable inheritance
-                    //var adminSid = new SecurityIdentifier(WellKnownSidType.BuiltinAdministratorsSid, null);
-                    //var accessRule = new FileSystemAccessRule(
-                    //    adminSid,
-                    //    FileSystemRights.FullControl,
-                    //    InheritanceFlags.ContainerInherit | InheritanceFlags.ObjectInherit,
-                    //    PropagationFlags.None,
-                    //    AccessControlType.Allow);
-                    //dirSecurity.SetAccessRule(accessRule);
-                    //dirInfo.SetAccessControl(dirSecurity);
-                }
+                //    //// Set folder administrators only permissions
+                //    //var dirSecurity = dirInfo.GetAccessControl();
+                //    //dirSecurity.SetAccessRuleProtection(true, false); // Disable inheritance
+                //    //var adminSid = new SecurityIdentifier(WellKnownSidType.BuiltinAdministratorsSid, null);
+                //    //var accessRule = new FileSystemAccessRule(
+                //    //    adminSid,
+                //    //    FileSystemRights.FullControl,
+                //    //    InheritanceFlags.ContainerInherit | InheritanceFlags.ObjectInherit,
+                //    //    PropagationFlags.None,
+                //    //    AccessControlType.Allow);
+                //    //dirSecurity.SetAccessRule(accessRule);
+                //    //dirInfo.SetAccessControl(dirSecurity);
+                //}
 
-                ///// Sau sẽ thay bằng logic chọn kiểu dữ liệu test từ màn hình
-                //int fileCount = Directory.GetFiles(userFolder, "*.xlsx").Length;
-                //// Create Excel file
-                //string fileName = $"{fileCount + 1}_{DateTime.Now:ddMMyyyy_HHmmss}.xlsx";
-                //_fileService.CreateExcelFile(Path.Combine(userFolder, fileName), "Testdata");
+                /////// Sau sẽ thay bằng logic chọn kiểu dữ liệu test từ màn hình
+                ////int fileCount = Directory.GetFiles(userFolder, "*.xlsx").Length;
+                ////// Create Excel file
+                ////string fileName = $"{fileCount + 1}_{DateTime.Now:ddMMyyyy_HHmmss}.xlsx";
+                ////_fileService.CreateExcelFile(Path.Combine(userFolder, fileName), "Testdata");
 
-                var ukFolder = Path.Combine(userFolder, "UK");
-                if (!Directory.Exists(ukFolder))
-                {
-                    Directory.CreateDirectory(ukFolder);
-                }
+                //var ukFolder = Path.Combine(userFolder, "UK");
+                //if (!Directory.Exists(ukFolder))
+                //{
+                //    Directory.CreateDirectory(ukFolder);
+                //}
 
 
                 var locator = ((App)System.Windows.Application.Current).Resources["Locator"] as ViewModelLocator;

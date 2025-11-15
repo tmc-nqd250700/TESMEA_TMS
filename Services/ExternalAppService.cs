@@ -40,13 +40,11 @@ namespace TESMEA_TMS.Services
         private List<Measure> _simaticResults = new List<Measure>();
         private FileSystemWatcher _watcher;
         private string _exchangeFolder;
-        private string _trendlineFolder;
         private string _fileFormat = "xlsx";
         private bool _isComma = true;
         public ExternalAppService()
         {
             _exchangeFolder = UserSetting.TOMFAN_folder;
-            _trendlineFolder = Path.Combine(_exchangeFolder, "Testdata");
         }
 
         public async Task StartAppAsync()
@@ -301,11 +299,19 @@ namespace TESMEA_TMS.Services
                 _simaticResults.Clear();
                 if (!Directory.Exists(_exchangeFolder))
                 {
-                    Directory.CreateDirectory(_exchangeFolder);
+                    throw new BusinessException("Thư mục trao đổi dữ liệu với Simatic không tồn tại");
                 }
+
                 var fileExchange1 = Path.Combine(_exchangeFolder, $"1_T_OUT.{_fileFormat}");
                 var fileExchange2 = Path.Combine(_exchangeFolder, $"2_S_IN.{_fileFormat}");
-
+                if (!File.Exists(fileExchange1))
+                {
+                    throw new BusinessException($"File 1_T_OUT.{_fileFormat} không tồn tại trong thư mục trao đổi dữ liệu với Simatic");
+                }
+                if (!File.Exists(fileExchange2))
+                {
+                    throw new BusinessException($"File 2_S_IN.{_fileFormat} không tồn tại trong thư mục trao đổi dữ liệu với Simatic");
+                }
 
                 if (Common.IsFileLocked(fileExchange1))
                 {

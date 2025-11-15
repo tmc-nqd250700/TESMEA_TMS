@@ -68,10 +68,11 @@ public partial class App : Application
 
 
             // folder TOMFAN lưu các file exchange, trendline
-            if (!Directory.Exists(UserSetting.TOMFAN_folder))
+            var exchangeFolder = UserSetting.TOMFAN_folder;
+            if (!Directory.Exists(exchangeFolder))
             {
-                Directory.CreateDirectory(UserSetting.TOMFAN_folder);
-                var dirInfo = new DirectoryInfo(UserSetting.TOMFAN_folder);
+                Directory.CreateDirectory(exchangeFolder);
+                var dirInfo = new DirectoryInfo(exchangeFolder);
                 dirInfo.Attributes |= FileAttributes.Hidden;
 
                 // Set folder administrators only permissions
@@ -86,10 +87,59 @@ public partial class App : Application
                     AccessControlType.Allow);
                 dirSecurity.SetAccessRule(accessRule);
                 dirInfo.SetAccessControl(dirSecurity);
-            }
-                
 
-            // navigate to login
+                // Create folder trend and 2 files to exchange
+                Directory.CreateDirectory(Path.Combine(exchangeFolder, "Trend"));
+                using (var writer2 = new StreamWriter(Path.Combine(exchangeFolder, "1_T_OUT.csv")))
+                {
+                }
+
+                using (var writer2 = new StreamWriter(Path.Combine(exchangeFolder, "2_S_IN.csv")))
+                {
+                }
+            }
+            else
+            {
+                // check if files exist then clear content, otherwise create new files
+                var files = Directory.GetFiles(exchangeFolder, "*.csv");
+                if (files.Length == 0)
+                {
+                    using (var writer2 = new StreamWriter(Path.Combine(exchangeFolder, "1_T_OUT.csv")))
+                    {
+                    }
+
+                    using (var writer2 = new StreamWriter(Path.Combine(exchangeFolder, "2_S_IN.csv")))
+                    {
+                    }
+                }
+                else
+                {
+                    foreach (var file in Directory.GetFiles(exchangeFolder))
+                    {
+                        try { File.WriteAllText(file, string.Empty); } catch { /* ignore */ }
+                    }
+
+                }
+
+                // same with Trend folder
+                if (!Directory.Exists(Path.Combine(exchangeFolder, "Trend")))
+                {
+                    Directory.CreateDirectory(Path.Combine(exchangeFolder, "Trend"));
+                }
+                else
+                {
+                    // delete all files in Trend folder
+                    foreach (var file in Directory.GetFiles(Path.Combine(exchangeFolder, "Trend")))
+                    {
+                        try { File.Delete(file); } catch { /* ignore */ }
+                    }
+                }
+            }
+
+
+
+                // navigate to login
+                
             navigationService.ShowLoginWindow();
         }
         catch (Exception ex)
