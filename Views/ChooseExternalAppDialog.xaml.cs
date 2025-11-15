@@ -20,13 +20,29 @@ namespace TESMEA_TMS.Views
             var ofd = new OpenFileDialog
             {
                 //Filter = "Executable Files (*.exe)|*.exe",
-                Title = "Chọn file thực thi Simetric/PLC"
+                Title = "Chọn file dự án Simetric/PLC"
             };
             if (ofd.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
                 if (_vm != null)
                 {
                     _vm.SimaticPath = ofd.FileName;
+                }
+            }
+        }
+
+        private void txtWinccPath_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            var ofd = new OpenFileDialog
+            {
+                //Filter = "Executable Files (*.exe)|*.exe",
+                Title = "Chọn file thực thi WinCC"
+            };
+            if (ofd.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            {
+                if (_vm != null)
+                {
+                    _vm.WinCCPath = ofd.FileName;
                 }
             }
         }

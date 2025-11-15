@@ -9,7 +9,7 @@
         lex:ResxLocalizationProvider.DefaultAssembly="TESMEA_TMS"
         lex:ResxLocalizationProvider.DefaultDictionary="Strings"
         mc:Ignorable="d"
-        Height="200" Width="300"
+        Height="250" Width="300"
         Icon="/Assets/Images/tcm_logo.PNG"
         WindowStartupLocation="CenterScreen"
         ResizeMode="NoResize"
@@ -17,6 +17,14 @@
         DataContext="{Binding ChooseExternalAppViewModel, Source={StaticResource Locator}}">
     <StackPanel Margin="15">
         <TextBlock Text="{lex:Loc lbl_Simatic_path}"  FontWeight="SemiBold" FontSize="15" />
+
+        <TextBox Margin="5 20" x:Name="txtWinccPath"
+         IsReadOnly="True"
+         md:HintAssist.Hint="Đường dẫn tới phần mềm WinCC"
+         ToolTip="{Binding WinCCPath}"
+         PreviewMouseLeftButtonDown="txtWinccPath_PreviewMouseLeftButtonDown"
+         Text="{Binding WinCCPath, Mode=TwoWay}"/>
+
         <TextBox Margin="5 20" x:Name="txtSimaticPath"
                  IsReadOnly="True"
                  md:HintAssist.Hint="{lex:Loc lbl_Simatic_path}"

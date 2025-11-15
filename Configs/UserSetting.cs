@@ -10,6 +10,8 @@ namespace TESMEA_TMS.Configs
         public string CurrentVersion { get; set; }
         public string LastUpdate { get; set; }
         public string SimaticPath { get; set; } = "";
+        public string SimaticExePath { get; set; } = "";
+        public string SimaticProjectPath { get; set; } = "";
         public string DbPath { get; set; } = "";
         public string Scada_ReportTemplatePath { get; set; } = "";
         public int TimeoutMilliseconds { get; set; } = 10000;

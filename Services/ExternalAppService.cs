@@ -1,4 +1,5 @@
 ﻿using OfficeOpenXml;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
@@ -49,29 +50,24 @@ namespace TESMEA_TMS.Services
 
         public async Task StartAppAsync()
         {
-            string simaticPath = UserSetting.Instance.SimaticPath;
+            string simaticExePath = UserSetting.Instance.SimaticExePath;
+            string simaticProjectPath = UserSetting.Instance.SimaticProjectPath;
 
-            if (string.IsNullOrEmpty(simaticPath) || !File.Exists(simaticPath))
+
+            // 1. Kiểm tra File Thực thi WinCC
+            if (string.IsNullOrEmpty(simaticExePath) || !File.Exists(simaticExePath))
             {
-                MessageBoxHelper.ShowWarning("Đường dẫn app Simatic không tồn tại");
+                MessageBoxHelper.ShowWarning("Đường dẫn file thực thi WinCC (.exe) không tồn tại");
                 return;
             }
-            //foreach (var proc in Process.GetProcessesByName(Path.GetFileNameWithoutExtension(simaticPath)))
-            //{
-            //    try
-            //    {
-            //        if (proc.MainModule.FileName.Equals(simaticPath, StringComparison.OrdinalIgnoreCase))
-            //        {
-            //            proc.Kill(true);
-            //            proc.WaitForExit(2000);
-            //        }
-            //    }
-            //    catch
-            //    {
 
-            //    }
-            //}
-            foreach (var proc in Process.GetProcessesByName(Path.GetFileNameWithoutExtension(simaticPath)))
+            // 2. Kiểm tra File Dự án (Để chắc chắn có thể mở được)
+            if (string.IsNullOrEmpty(simaticProjectPath) || !File.Exists(simaticProjectPath))
+            {
+                MessageBoxHelper.ShowWarning("Đường dẫn file dự án Simatic/WinCC không tồn tại");
+                return;
+            }
+            foreach (var proc in Process.GetProcessesByName(Path.GetFileNameWithoutExtension(simaticExePath)))
             {
                 try
                 {
@@ -86,7 +82,7 @@ namespace TESMEA_TMS.Services
                         continue;
                     }
 
-                    if (fileName.Equals(simaticPath, StringComparison.OrdinalIgnoreCase) && !proc.HasExited)
+                    if (fileName.Equals(simaticExePath, StringComparison.OrdinalIgnoreCase) && !proc.HasExited)
                     {
                         proc.Kill(true);
                         proc.WaitForExit(2000);
@@ -106,8 +102,9 @@ namespace TESMEA_TMS.Services
             {
                 _process = new Process
                 {
-                    StartInfo = new ProcessStartInfo(simaticPath)
+                    StartInfo = new ProcessStartInfo(simaticExePath)
                     {
+                        Arguments = $"\"{simaticProjectPath}\"",
                         UseShellExecute = false,
                         CreateNoWindow = false,
                         WindowStyle = ProcessWindowStyle.Normal
@@ -133,41 +130,36 @@ namespace TESMEA_TMS.Services
                     MessageBoxHelper.ShowError("Hết thời gian chờ khởi động phần mềm Simatic");
                 }
             }
-            //catch (Win32Exception ex)
-            //{
-            //    await StopAppAsync();
-            //    MessageBoxHelper.ShowError("Lỗi hệ thống khi khởi động phần mềm Simatic");
-            //}
-            //catch (UnauthorizedAccessException ex)
-            //{
-            //    await StopAppAsync();
-            //    MessageBoxHelper.ShowError("Không đủ quyền để khởi động phần mềm Simatic");
-            //}
-            //catch (InvalidOperationException ex)
-            //{
-            //    await StopAppAsync();
-            //    MessageBoxHelper.ShowError("Thao tác không hợp lệ với process Simatic");
-            //}
-            //catch (OperationCanceledException ex)
-            //{
-            //    await StopAppAsync();
-            //    MessageBoxHelper.ShowError("Thao tác khởi động phần mềm Simatic bị hủy");
-            //}
-            //catch (AggregateException ex)
-            //{
-            //    await StopAppAsync();
-            //    MessageBoxHelper.ShowError("Có lỗi bất đồng bộ khi khởi động phần mềm Simatic");
-            //}
-            //catch (NotSupportedException ex)
-            //{
-            //    await StopAppAsync();
-            //    MessageBoxHelper.ShowError("Đường dẫn hoặc thao tác không được hỗ trợ");
-            //}
-            //catch (Exception ex)
-            //{
-            //    await StopAppAsync();
-            //    MessageBoxHelper.ShowError("Lỗi khi khởi động phần mềm Simatic");
-            //}
+            catch (Win32Exception ex)
+            {
+                await StopAppAsync();
+                MessageBoxHelper.ShowError("Lỗi hệ thống khi khởi động phần mềm Simatic");
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                await StopAppAsync();
+                MessageBoxHelper.ShowError("Không đủ quyền để khởi động phần mềm Simatic");
+            }
+            catch (InvalidOperationException ex)
+            {
+                await StopAppAsync();
+                MessageBoxHelper.ShowError("Thao tác không hợp lệ với process Simatic");
+            }
+            catch (OperationCanceledException ex)
+            {
+                await StopAppAsync();
+                MessageBoxHelper.ShowError("Thao tác khởi động phần mềm Simatic bị hủy");
+            }
+            catch (AggregateException ex)
+            {
+                await StopAppAsync();
+                MessageBoxHelper.ShowError("Có lỗi bất đồng bộ khi khởi động phần mềm Simatic");
+            }
+            catch (NotSupportedException ex)
+            {
+                await StopAppAsync();
+                MessageBoxHelper.ShowError("Đường dẫn hoặc thao tác không được hỗ trợ");
+            }
             catch (Exception ex)
             {
                 await StopAppAsync();

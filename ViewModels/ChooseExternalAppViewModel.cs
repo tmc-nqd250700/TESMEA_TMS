@@ -8,6 +8,17 @@ namespace TESMEA_TMS.ViewModels
 {
     public class ChooseExternalAppViewModel : ViewModelBase
     {
+        private string _winCCPath;
+        public string WinCCPath
+        {
+            get => _winCCPath;
+            set
+            {
+                _winCCPath = value;
+                OnPropertyChanged(nameof(WinCCPath));
+            }
+        }
+
         private string _simaticPath;
         public string SimaticPath
         {
@@ -33,7 +44,7 @@ namespace TESMEA_TMS.ViewModels
 
         private bool CanExecuteCommand(object obj)
         {
-            return !string.IsNullOrEmpty(SimaticPath);
+            return !string.IsNullOrEmpty(SimaticPath) && !string.IsNullOrEmpty(WinCCPath);
         }
 
         private void ExecuteSaveCommand(object obj)
@@ -50,10 +61,11 @@ namespace TESMEA_TMS.ViewModels
             }
             var setting = Configs.UserSetting.Load();
             setting.SimaticPath = SimaticPath;
+            setting.SimaticProjectPath = SimaticPath;
             setting.Save();
             
             // Showing main window after saving
-            _appNavigationService.ShowMainWindow();
+            _appNavigationService.RestartApplication();
         }
     }
 }
