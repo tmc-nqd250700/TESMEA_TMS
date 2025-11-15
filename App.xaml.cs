@@ -76,20 +76,23 @@ public partial class App : Application
                 dirInfo.Attributes |= FileAttributes.Hidden;
 
                 // Set folder administrators only permissions
-                var dirSecurity = dirInfo.GetAccessControl();
-                dirSecurity.SetAccessRuleProtection(true, false);
-                var adminSid = new SecurityIdentifier(WellKnownSidType.BuiltinAdministratorsSid, null);
-                var accessRule = new FileSystemAccessRule(
-                    adminSid,
-                    FileSystemRights.FullControl,
-                    InheritanceFlags.ContainerInherit | InheritanceFlags.ObjectInherit,
-                    PropagationFlags.None,
-                    AccessControlType.Allow);
-                dirSecurity.SetAccessRule(accessRule);
-                dirInfo.SetAccessControl(dirSecurity);
+                //var dirSecurity = dirInfo.GetAccessControl();
+                //dirSecurity.SetAccessRuleProtection(true, false);
+                //var adminSid = new SecurityIdentifier(WellKnownSidType.BuiltinAdministratorsSid, null);
+                //var accessRule = new FileSystemAccessRule(
+                //    adminSid,
+                //    FileSystemRights.FullControl,
+                //    InheritanceFlags.ContainerInherit | InheritanceFlags.ObjectInherit,
+                //    PropagationFlags.None,
+                //    AccessControlType.Allow);
+                //dirSecurity.SetAccessRule(accessRule);
+                //dirInfo.SetAccessControl(dirSecurity);
 
                 // Create folder trend and 2 files to exchange
-                Directory.CreateDirectory(Path.Combine(exchangeFolder, "Trend"));
+                if (!Directory.Exists(Path.Combine(exchangeFolder, "Trend")))
+                {
+                    Directory.CreateDirectory(Path.Combine(exchangeFolder, "Trend"));
+                }
                 using (var writer2 = new StreamWriter(Path.Combine(exchangeFolder, "1_T_OUT.csv")))
                 {
                 }
