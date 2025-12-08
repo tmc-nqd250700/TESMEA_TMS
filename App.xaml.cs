@@ -1,8 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using System.Globalization;
 using System.IO;
-using System.Security.AccessControl;
-using System.Security.Principal;
 using System.Windows;
 using TESMEA_TMS.Configs;
 using TESMEA_TMS.Helpers;
@@ -25,7 +23,7 @@ public partial class App : Application
         CultureInfo culture;
         if (setting.Language == "vi")
         {
-            culture = new CultureInfo("vi-VN");
+            culture = new CultureInfo("vi");
         }
         else if (setting.Language == "en")
         {

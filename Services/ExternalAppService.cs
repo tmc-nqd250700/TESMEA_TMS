@@ -41,11 +41,13 @@ namespace TESMEA_TMS.Services
         private List<Measure> _simaticResults = new List<Measure>();
         private FileSystemWatcher _watcher;
         private string _exchangeFolder;
+        private string _trendFolder;
         private string _fileFormat = "xlsx";
         private bool _isComma = true;
         public ExternalAppService()
         {
             _exchangeFolder = UserSetting.TOMFAN_folder;
+            _trendFolder = Path.Combine(_exchangeFolder, "Trend");
         }
 
         public async Task StartAppAsync()
@@ -109,9 +111,16 @@ namespace TESMEA_TMS.Services
                         CreateNoWindow = false,
                         WindowStyle = ProcessWindowStyle.Normal
                     }
+
+                    //StartInfo = new ProcessStartInfo(simaticProjectPath)
+                    //{
+                    //    UseShellExecute = false,
+                    //    CreateNoWindow = false,
+                    //    WindowStyle = ProcessWindowStyle.Normal
+                    //}
                 };
                 _process.StartInfo.UseShellExecute = false;
-                // Đăng ký event để monitor process
+                // đăng ký event để monitor process
                 _process.Exited += (s, e) =>
                 {
                     System.Diagnostics.Debug.WriteLine($"Simatic process exited unexpectedly at {DateTime.Now}");
@@ -482,6 +491,11 @@ namespace TESMEA_TMS.Services
                     return;
                 }
 
+
+                // tạo thư mục lưu trend nếu chưa có
+                if (!Directory.Exists(_trendFolder))
+                    Directory.CreateDirectory(_trendFolder);
+
                 // dispose watcher cũ
                 if (_watcher != null)
                 {
@@ -492,14 +506,18 @@ namespace TESMEA_TMS.Services
 
                 // lưu dải đo
                 List<Measure> currentRange = new List<Measure>();
+                int sIndex = 0;
+                int cvIndex = 0;
                 double currentS = _measures[_currentIndex].S;
                 int startIndex = 2; // track index của điểm bắt đầu trong dải đo
                 int timeoutMs = UserSetting.Instance.TimeoutMilliseconds;
 
+                // tạo file trend cho line đầu tiên
+                using (var fs = File.Create(Path.Combine(_trendFolder, $"00.{_fileFormat}"))) { }
+
                 // break khi eStop
                 if (_measures == null) return;
                 if (_currentIndex < 2) _currentIndex = 2;
-
                 for (int i = _currentIndex; i < _measures.Count; i++)
                 {
                     var measure = _measures[i];
@@ -537,7 +555,14 @@ namespace TESMEA_TMS.Services
                                     currentRange.Clear();
                                     currentS = _measures[i].S;
                                     startIndex = i;
+                                    sIndex++;
+                                    cvIndex = 0;
                                 }
+
+                                string fileName = $"{sIndex}{cvIndex}.{_fileFormat}";
+                                string filePath = Path.Combine(_trendFolder, fileName);
+                                using (var fs = File.Create(filePath)) { }
+                                cvIndex++;
 
                                 var measurePoint = DataProcess.OnePointMeasure(matchingResult, _inv, _sensor, _duct, _input);
                                 var paramShow = DataProcess.ParaShow(matchingResult, _inv, _sensor, _duct, _input);
