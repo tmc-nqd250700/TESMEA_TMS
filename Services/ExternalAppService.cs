@@ -424,6 +424,76 @@ namespace TESMEA_TMS.Services
                                         _watcher.Dispose();
                                         _watcher = null;
                                     }
+
+
+                                    try
+                                    {
+                                        static bool FloatEqual(float a, float b, float tol = 0.001f) => Math.Abs(a - b) <= tol;
+
+                                        var file1FirstTwo = _measures.Take(2).ToList();
+                                        var file2Results = results; // kết quả vừa đọc từ 2_S_IN
+
+                                        bool allMatch = true;
+                                        foreach (var m1 in file1FirstTwo)
+                                        {
+                                            var match = file2Results.FirstOrDefault(r => r.k == m1.k);
+                                            if (match == null || !FloatEqual(m1.S, match.S) || !FloatEqual(m1.CV, match.CV))
+                                            {
+                                                allMatch = false;
+                                                break;
+                                            }
+                                        }
+
+                                        int flag = allMatch ? 0 : 1;
+
+                                        // ghi flag vào fileExchange1 - phía simatic yêu cầu
+                                        if (_fileFormat == "csv")
+                                        {
+                                            char sep = _isComma ? ',' : ';';
+                                            try
+                                            {
+                                                var lines = File.Exists(fileExchange1) ? File.ReadAllLines(fileExchange1).ToList() : new List<string>();
+                                                if (lines.Count >= 2)
+                                                {
+                                                    var cols = lines[1].Split(sep);
+                                                    if (cols.Length >= 5)
+                                                    {
+                                                        cols[4] = flag.ToString(CultureInfo.InvariantCulture);
+                                                        lines[1] = string.Join(sep.ToString(), cols);
+                                                        File.WriteAllLines(fileExchange1, lines);
+                                                    }
+                                                }
+                                            }
+                                            catch (Exception ex)
+                                            {
+                                                throw ex;
+                                            }
+                                        }
+                                        else
+                                        {
+                                            try
+                                            {
+                                                ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
+                                                using (var package = new ExcelPackage(new FileInfo(fileExchange1)))
+                                                {
+                                                    var ws = package.Workbook.Worksheets["1_T_OUT"] ?? package.Workbook.Worksheets.Add("1_T_OUT");
+                                                    ws.Cells[2, 5].Value = flag;
+                                                    ws.Cells[ws.Dimension.Address].AutoFitColumns();
+                                                    package.Save();
+                                                }
+                                            }
+                                            catch(Exception ex)
+                                            {
+                                                throw ex;
+                                            }
+                                        }
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        throw ex;
+                                    }
+
+
                                     // khởi tạo mảng dữ liệu cho quá trình đo
                                     DataProcess.Initialize(_measures.Count);
                                     IsConnectedToSimatic = true;
