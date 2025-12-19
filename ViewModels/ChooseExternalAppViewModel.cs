@@ -61,8 +61,7 @@ namespace TESMEA_TMS.ViewModels
             }
             var setting = Configs.UserSetting.Load();
             setting.SimaticPath = SimaticPath;
-            setting.SimaticProjectPath = SimaticPath;
-            setting.SimaticExePath = WinCCPath;
+            setting.WinccExePath = WinCCPath;
             setting.Save();
             
             // Showing main window after saving

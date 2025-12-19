@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
+using System.Text;
 using TESMEA_TMS.Configs;
 using TESMEA_TMS.DTOs;
 using TESMEA_TMS.Helpers;
@@ -52,12 +53,12 @@ namespace TESMEA_TMS.Services
 
         public async Task StartAppAsync()
         {
-            string simaticExePath = UserSetting.Instance.SimaticExePath;
-            string simaticProjectPath = UserSetting.Instance.SimaticProjectPath;
+            string winccExePath = UserSetting.Instance.WinccExePath;
+            string simaticProjectPath = UserSetting.Instance.SimaticPath;
 
 
             // 1. Kiểm tra File Thực thi WinCC
-            if (string.IsNullOrEmpty(simaticExePath) || !File.Exists(simaticExePath))
+            if (string.IsNullOrEmpty(winccExePath) || !File.Exists(winccExePath))
             {
                 MessageBoxHelper.ShowWarning("Đường dẫn file thực thi WinCC (.exe) không tồn tại");
                 return;
@@ -69,7 +70,7 @@ namespace TESMEA_TMS.Services
                 MessageBoxHelper.ShowWarning("Đường dẫn file dự án Simatic/WinCC không tồn tại");
                 return;
             }
-            foreach (var proc in Process.GetProcessesByName(Path.GetFileNameWithoutExtension(simaticExePath)))
+            foreach (var proc in Process.GetProcessesByName(Path.GetFileNameWithoutExtension(simaticProjectPath)))
             {
                 try
                 {
@@ -84,7 +85,7 @@ namespace TESMEA_TMS.Services
                         continue;
                     }
 
-                    if (fileName.Equals(simaticExePath, StringComparison.OrdinalIgnoreCase) && !proc.HasExited)
+                    if (fileName.Equals(simaticProjectPath, StringComparison.OrdinalIgnoreCase) && !proc.HasExited)
                     {
                         proc.Kill(true);
                         proc.WaitForExit(2000);
@@ -104,20 +105,20 @@ namespace TESMEA_TMS.Services
             {
                 _process = new Process
                 {
-                    StartInfo = new ProcessStartInfo(simaticExePath)
-                    {
-                        Arguments = $"\"{simaticProjectPath}\"",
-                        UseShellExecute = false,
-                        CreateNoWindow = false,
-                        WindowStyle = ProcessWindowStyle.Normal
-                    }
-
-                    //StartInfo = new ProcessStartInfo(simaticProjectPath)
+                    //StartInfo = new ProcessStartInfo(simaticExePath)
                     //{
+                    //    Arguments = $"\"{simaticProjectPath}\"",
                     //    UseShellExecute = false,
                     //    CreateNoWindow = false,
                     //    WindowStyle = ProcessWindowStyle.Normal
                     //}
+
+                    StartInfo = new ProcessStartInfo(simaticProjectPath)
+                    {
+                        UseShellExecute = false,
+                        CreateNoWindow = false,
+                        WindowStyle = ProcessWindowStyle.Normal
+                    }
                 };
                 _process.StartInfo.UseShellExecute = false;
                 // đăng ký event để monitor process
@@ -314,44 +315,82 @@ namespace TESMEA_TMS.Services
                     throw new BusinessException($"File 2_S_IN.{_fileFormat} không tồn tại trong thư mục trao đổi dữ liệu với Simatic");
                 }
 
-                if (Common.IsFileLocked(fileExchange1))
-                {
-                    throw new BusinessException($"File 1_T_OUT.{_fileFormat} đang được mở bởi ứng dụng khác, vui lòng tắt trước khi thực hiện");
-                }
+                //if (Common.IsFileLocked(fileExchange1))
+                //{
+                //    throw new BusinessException($"File 1_T_OUT.{_fileFormat} đang được mở bởi ứng dụng khác, vui lòng tắt trước khi thực hiện");
+                //}
 
-                if (Common.IsFileLocked(fileExchange2))
-                {
-                    throw new BusinessException($"File 2_S_IN.{_fileFormat} đang được mở bởi ứng dụng khác, vui lòng tắt trước khi thực hiện");
-                }
+                //if (Common.IsFileLocked(fileExchange2))
+                //{
+                //    throw new BusinessException($"File 2_S_IN.{_fileFormat} đang được mở bởi ứng dụng khác, vui lòng tắt trước khi thực hiện");
+                //}
 
                 if (_fileFormat == "csv")
                 {
-                    using (var writer = new StreamWriter(fileExchange1))
-                    {
-                        if (_isComma)
-                        {
-                            for (int i = 0; i < Math.Min(2, _measures.Count); i++)
-                            {
-                                var m = _measures[i];
-                                var col4 = i == 0 ? maxmin.ToString(CultureInfo.InvariantCulture) : timeRange.ToString(CultureInfo.InvariantCulture);
-                                var row = $"{m.k},{m.S},{m.CV},{col4}";
-                                writer.WriteLine(row);
-                            }
-                        }
-                        else
-                        {
-                            for (int i = 0; i < Math.Min(2, _measures.Count); i++)
-                            {
-                                var m = _measures[i];
-                                var col4 = i == 0 ? maxmin.ToString(CultureInfo.InvariantCulture) : timeRange.ToString(CultureInfo.InvariantCulture);
-                                var row = $"{m.k};{m.S};{m.CV};{col4}";
-                                writer.WriteLine(row);
-                            }
-                        }
+                    //using (var writer = new StreamWriter(fileExchange1))
+                    //{
+                    //    if (_isComma)
+                    //    {
+                    //        for (int i = 0; i < Math.Min(2, _measures.Count); i++)
+                    //        {
+                    //            var m = _measures[i];
+                    //            var col4 = i == 0 ? maxmin.ToString(CultureInfo.InvariantCulture) : timeRange.ToString(CultureInfo.InvariantCulture);
+                    //            var row = $"{m.k} {m.S} {m.CV} {col4}";
+                    //            writer.WriteLine(row);
+                    //        }
+                    //    }
+                    //    else
+                    //    {
+                    //        for (int i = 0; i < Math.Min(2, _measures.Count); i++)
+                    //        {
+                    //            var m = _measures[i];
+                    //            var col4 = i == 0 ? maxmin.ToString(CultureInfo.InvariantCulture) : timeRange.ToString(CultureInfo.InvariantCulture);
+                    //            var row = $"{m.k};{m.S};{m.CV};{col4}";
+                    //            writer.WriteLine(row);
+                    //        }
+                    //    }
 
-                    }
-                    using (var writer2 = new StreamWriter(fileExchange2))
+                    //}
+                    //using (var writer2 = new StreamWriter(fileExchange2))
+                    //{
+                    //}
+                    char sep = _isComma ? ' ' : ';';
+                    int attempts = 5;
+                    int delayMs = 200;
+                    string[] linesToWrite = new string[Math.Min(2, _measures.Count)];
+                    for (int i = 0; i < linesToWrite.Length; i++)
                     {
+                        var m = _measures[i];
+                        var col4 = i == 0 ? maxmin.ToString(CultureInfo.InvariantCulture) : timeRange.ToString(CultureInfo.InvariantCulture);
+                        linesToWrite[i] = $"{m.k}{sep}{m.S}{sep}{m.CV}{sep}{col4}";
+                    }
+                    for (int attempt = 0; attempt < attempts; attempt++)
+                    {
+                        try
+                        {
+                            using (var fs = new FileStream(fileExchange1, FileMode.Create, FileAccess.Write, FileShare.ReadWrite))
+                            using (var sw = new StreamWriter(fs, Encoding.UTF8))
+                            {
+                                foreach (var line in linesToWrite)
+                                {
+                                    sw.WriteLine(line);
+                                }
+                                sw.Flush();
+                                try { fs.Flush(true); } catch { }
+                            }
+                        }
+                        catch (IOException)
+                        {
+                            if (attempt == attempts - 1) throw;
+                            await Task.Delay(delayMs);
+                            delayMs = Math.Min(2000, delayMs * 2);
+                        }
+                        catch (UnauthorizedAccessException ex)
+                        {
+                            if (attempt == attempts - 1) throw;
+                            await Task.Delay(delayMs);
+                            delayMs = Math.Min(2000, delayMs * 2);
+                        }
                     }
                 }
                 else
@@ -449,16 +488,23 @@ namespace TESMEA_TMS.Services
                                         // ghi flag vào fileExchange1 - phía simatic yêu cầu
                                         if (_fileFormat == "csv")
                                         {
-                                            char sep = _isComma ? ',' : ';';
+                                            char sep = _isComma ? ' ' : ';';
                                             try
                                             {
                                                 var lines = File.Exists(fileExchange1) ? File.ReadAllLines(fileExchange1).ToList() : new List<string>();
                                                 if (lines.Count >= 2)
                                                 {
-                                                    var cols = lines[1].Split(sep);
-                                                    if (cols.Length >= 5)
+                                                    var cols = lines[1].Split(sep).ToList();
+                                                    if (cols.Count == 4)
                                                     {
-                                                        cols[4] = flag.ToString(CultureInfo.InvariantCulture);
+                                                        cols.Add(flag.ToString(CultureInfo.InvariantCulture)); // thêm cột 5
+                                                    }
+                                                    else if (cols.Count >= 5)
+                                                    {
+                                                        cols[4] = flag.ToString(CultureInfo.InvariantCulture); // cập nhật cột 5
+                                                    }
+                                                    if (cols.Count >= 5)
+                                                    {
                                                         lines[1] = string.Join(sep.ToString(), cols);
                                                         File.WriteAllLines(fileExchange1, lines);
                                                     }
@@ -482,7 +528,7 @@ namespace TESMEA_TMS.Services
                                                     package.Save();
                                                 }
                                             }
-                                            catch(Exception ex)
+                                            catch (Exception ex)
                                             {
                                                 throw ex;
                                             }
@@ -720,7 +766,7 @@ namespace TESMEA_TMS.Services
 
                     if (_isComma)
                     {
-                        writer.WriteLine($"{param.k},{param.S},{param.CV}");
+                        writer.WriteLine($"{param.k} {param.S} {param.CV}");
                     }
                     else
                     {
@@ -757,8 +803,10 @@ namespace TESMEA_TMS.Services
 
                     if (_fileFormat == "csv")
                     {
-                        char separator = _isComma ? ',' : ';';
-                        using (var reader = new StreamReader(filePath))
+                        char separator = _isComma ? ' ' : ';';
+
+                        using (var fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                        using (var reader = new StreamReader(fs))
                         {
                             string? line;
                             while ((line = await reader.ReadLineAsync()) != null)
@@ -823,8 +871,10 @@ namespace TESMEA_TMS.Services
 
                     if (_fileFormat == "csv")
                     {
-                        char separator = _isComma ? ',' : ';';
-                        using (var reader = new StreamReader(filePath))
+                        char separator = _isComma ? ' ' : ';';
+
+                        using (var fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                        using (var reader = new StreamReader(fs))
                         {
                             string? line;
                             while ((line = await reader.ReadLineAsync()) != null)

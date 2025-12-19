@@ -226,7 +226,7 @@ public partial class App : Application
         this.DispatcherUnhandledException += (s, exArgs) =>
         {
             System.Windows.MessageBox.Show(
-                $"Lỗi hệ thống: {exArgs.Exception.Message}\n{exArgs.Exception.StackTrace}",
+                $"Lỗi hệ thống: {exArgs.Exception.Message}",
                 "Lỗi hệ thống",
                 MessageBoxButton.OK,
                 MessageBoxImage.Error);

@@ -151,8 +151,8 @@ namespace TESMEA_TMS.Views
                         row++;
                         if (row < 3) continue; // Skip header rows
 
-                        var values = line.Split(',');
-                        if (values.Length < 14) continue; // Ensure sufficient columns
+                        var values = line.Split(' ');
+                        if (values.Length < 14) continue;
 
                         var trend = new TrendTime
                         {
