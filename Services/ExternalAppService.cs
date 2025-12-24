@@ -8,6 +8,7 @@ using TESMEA_TMS.Configs;
 using TESMEA_TMS.DTOs;
 using TESMEA_TMS.Helpers;
 using TESMEA_TMS.Models.Entities;
+using LicenseContext = OfficeOpenXml.LicenseContext;
 
 namespace TESMEA_TMS.Services
 {
@@ -15,7 +16,7 @@ namespace TESMEA_TMS.Services
     {
         Task StartAppAsync();
         Task StopAppAsync();
-        Task ConnectExchangeAsync(List<Measure> measures, BienTan inv, CamBien sensor, OngGio duct, ThongTinMauThuNghiem input, float maxmin, float timeRange, string fileFormat = "csv");
+        Task ConnectExchangeAsync(List<Measure> measures, BienTan inv, CamBien sensor, OngGio duct, ThongTinMauThuNghiem input, float maxmin, float timeRange);
         Task StartExchangeAsync();
         Task StopExchangeAsync();
         bool IsAppRunning { get; }
@@ -43,7 +44,6 @@ namespace TESMEA_TMS.Services
         private FileSystemWatcher _watcher;
         private string _exchangeFolder;
         private string _trendFolder;
-        private string _fileFormat = "xlsx";
         private bool _isComma = true;
         public ExternalAppService()
         {
@@ -128,17 +128,17 @@ namespace TESMEA_TMS.Services
                 };
                 _process.EnableRaisingEvents = true;
                 _process.Start();
-                var started = await Task.Run(() =>
-                {
-                    return _process.WaitForInputIdle(UserSetting.Instance.TimeoutMilliseconds);
-                }, _cts.Token);
+                //var started = await Task.Run(() =>
+                //{
+                //    return _process.WaitForInputIdle(UserSetting.Instance.TimeoutMilliseconds);
+                //}, _cts.Token);
 
-                if (!started)
-                {
-                    // timeout exception
-                    await StopAppAsync();
-                    MessageBoxHelper.ShowError("Hết thời gian chờ khởi động phần mềm Simatic");
-                }
+                //if (!started)
+                //{
+                //    // timeout exception
+                //    await StopAppAsync();
+                //    MessageBoxHelper.ShowError("Hết thời gian chờ khởi động phần mềm Simatic");
+                //}
             }
             catch (Win32Exception ex)
             {
@@ -285,302 +285,58 @@ namespace TESMEA_TMS.Services
         public bool IsConnectedToSimatic { get; set; } = false;
         private TaskCompletionSource<bool>? _connectCompletionSource;
 
-        public async Task ConnectExchangeAsync(List<Measure> measures, BienTan inv, CamBien sensor, OngGio duct, ThongTinMauThuNghiem input, float maxmin, float timeRange, string fileFormat)
+        public async Task ConnectExchangeAsync(List<Measure> measures, BienTan inv, CamBien sensor, OngGio duct, ThongTinMauThuNghiem input, float maxmin, float timeRange)
         {
             try
             {
-
                 _measures = measures;
                 _inv = inv;
                 _sensor = sensor;
                 _duct = duct;
                 _input = input;
-                _fileFormat = fileFormat;
 
-                _currentIndex = 0;
+                if (!Directory.Exists(_exchangeFolder)) throw new BusinessException("Thư mục trao đổi dữ liệu với Simatic không tồn tại");
+
                 _simaticResults.Clear();
-                if (!Directory.Exists(_exchangeFolder))
-                {
-                    throw new BusinessException("Thư mục trao đổi dữ liệu với Simatic không tồn tại");
-                }
-
-                var fileExchange1 = Path.Combine(_exchangeFolder, $"1_T_OUT.{_fileFormat}");
-                var fileExchange2 = Path.Combine(_exchangeFolder, $"2_S_IN.{_fileFormat}");
-                if (!File.Exists(fileExchange1))
-                {
-                    throw new BusinessException($"File 1_T_OUT.{_fileFormat} không tồn tại trong thư mục trao đổi dữ liệu với Simatic");
-                }
-                if (!File.Exists(fileExchange2))
-                {
-                    throw new BusinessException($"File 2_S_IN.{_fileFormat} không tồn tại trong thư mục trao đổi dữ liệu với Simatic");
-                }
-
-                //if (Common.IsFileLocked(fileExchange1))
-                //{
-                //    throw new BusinessException($"File 1_T_OUT.{_fileFormat} đang được mở bởi ứng dụng khác, vui lòng tắt trước khi thực hiện");
-                //}
-
-                //if (Common.IsFileLocked(fileExchange2))
-                //{
-                //    throw new BusinessException($"File 2_S_IN.{_fileFormat} đang được mở bởi ứng dụng khác, vui lòng tắt trước khi thực hiện");
-                //}
-
-                if (_fileFormat == "csv")
-                {
-                    //using (var writer = new StreamWriter(fileExchange1))
-                    //{
-                    //    if (_isComma)
-                    //    {
-                    //        for (int i = 0; i < Math.Min(2, _measures.Count); i++)
-                    //        {
-                    //            var m = _measures[i];
-                    //            var col4 = i == 0 ? maxmin.ToString(CultureInfo.InvariantCulture) : timeRange.ToString(CultureInfo.InvariantCulture);
-                    //            var row = $"{m.k} {m.S} {m.CV} {col4}";
-                    //            writer.WriteLine(row);
-                    //        }
-                    //    }
-                    //    else
-                    //    {
-                    //        for (int i = 0; i < Math.Min(2, _measures.Count); i++)
-                    //        {
-                    //            var m = _measures[i];
-                    //            var col4 = i == 0 ? maxmin.ToString(CultureInfo.InvariantCulture) : timeRange.ToString(CultureInfo.InvariantCulture);
-                    //            var row = $"{m.k};{m.S};{m.CV};{col4}";
-                    //            writer.WriteLine(row);
-                    //        }
-                    //    }
-
-                    //}
-                    //using (var writer2 = new StreamWriter(fileExchange2))
-                    //{
-                    //}
-                    char sep = _isComma ? ' ' : ';';
-                    int attempts = 5;
-                    int delayMs = 200;
-                    string[] linesToWrite = new string[Math.Min(2, _measures.Count)];
-                    for (int i = 0; i < linesToWrite.Length; i++)
-                    {
-                        var m = _measures[i];
-                        var col4 = i == 0 ? maxmin.ToString(CultureInfo.InvariantCulture) : timeRange.ToString(CultureInfo.InvariantCulture);
-                        linesToWrite[i] = $"{m.k}{sep}{m.S}{sep}{m.CV}{sep}{col4}";
-                    }
-                    for (int attempt = 0; attempt < attempts; attempt++)
-                    {
-                        try
-                        {
-                            using (var fs = new FileStream(fileExchange1, FileMode.Create, FileAccess.Write, FileShare.ReadWrite))
-                            using (var sw = new StreamWriter(fs, Encoding.UTF8))
-                            {
-                                foreach (var line in linesToWrite)
-                                {
-                                    sw.WriteLine(line);
-                                }
-                                sw.Flush();
-                                try { fs.Flush(true); } catch { }
-                            }
-                        }
-                        catch (IOException)
-                        {
-                            if (attempt == attempts - 1) throw;
-                            await Task.Delay(delayMs);
-                            delayMs = Math.Min(2000, delayMs * 2);
-                        }
-                        catch (UnauthorizedAccessException ex)
-                        {
-                            if (attempt == attempts - 1) throw;
-                            await Task.Delay(delayMs);
-                            delayMs = Math.Min(2000, delayMs * 2);
-                        }
-                    }
-                }
-                else
-                {
-                    ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
-                    using (var package = new ExcelPackage(new FileInfo(fileExchange1)))
-                    {
-                        var ws = package.Workbook.Worksheets["1_T_OUT"] ?? package.Workbook.Worksheets.Add("1_T_OUT");
-                        for (int i = 0; i < Math.Min(2, _measures.Count); i++)
-                        {
-                            var m = _measures[i];
-                            ws.Cells[i + 1, 1].Value = m.k;
-                            ws.Cells[i + 1, 2].Value = m.S;
-                            ws.Cells[i + 1, 3].Value = m.CV;
-                        }
-
-                        ws.Cells[1, 4].Value = maxmin;
-                        ws.Cells[2, 4].Value = timeRange;
-
-                        ws.Cells[ws.Dimension.Address].AutoFitColumns();
-                        package.Save();
-                    }
-                    using (var package2 = new ExcelPackage(new FileInfo(fileExchange2)))
-                    {
-                        package2.Workbook.Worksheets.Add("Sheet1");
-                        package2.Save();
-                    }
-                }
-
-                _connectCompletionSource = new TaskCompletionSource<bool>();
+                int connectedRows = 0;
                 int timeoutMs = UserSetting.Instance.TimeoutMilliseconds;
-                int receivedCount = 0;
+                // lấy 2 row đầu để check kết nối
+                int connectRows = Math.Min(2, _measures.Count);
 
-                _watcher = new FileSystemWatcher(_exchangeFolder, $"2_S_IN.{_fileFormat}")
+                for (int i = 0; i < connectRows; i++)
                 {
-                    NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.Size
-                };
-                _watcher.Changed += async (s, e) =>
+                    var m = _measures[i];
+                    float col4 = (i == 0) ? maxmin : timeRange;
+                    await WriteDataToFilesAsync(m, col4);
+                    // Chờ phản hồi từ file 2_S_IN.csv
+                    var result = await WaitForResultAsync(m.k, isConnection: true);
+                    if (result == null || Math.Abs(result.S - m.S) > 0.01)
+                        throw new Exception($"Không thể kết nối. Dòng {m.k} không khớp dữ liệu.");
+
+                    m.F = MeasureStatus.Completed;
+                    connectedRows++;
+                }
+
+                if (connectedRows == connectRows)
                 {
-                    if (_watcher == null || e.FullPath != fileExchange2) return;
-
-                    Task.Run(async () =>
-                    {
-                        try
-                        {
-                            await Task.Delay(200);
-                            var results = await ReadSimaticConnection(e.FullPath, _sensor);
-                            lock (_measures)
-                            {
-                                foreach (var m in results)
-                                {
-                                    if (_measures.Take(2).Any(x => x.k == m.k))
-                                    {
-                                        var measure = _measures.FirstOrDefault(x => x.k == m.k);
-                                        if (measure != null && measure.F != MeasureStatus.Completed)
-                                        {
-                                            measure.F = MeasureStatus.Completed;
-                                            //OnSimaticResultReceived?.Invoke(measure);
-                                            receivedCount++;
-                                            _currentIndex++;
-                                        }
-                                    }
-                                }
-                                // stop watcher khi đã nhận đủ 2 dòng
-                                if (receivedCount == 2)
-                                {
-                                    if (_watcher != null)
-                                    {
-                                        _watcher.EnableRaisingEvents = false;
-                                        _watcher.Dispose();
-                                        _watcher = null;
-                                    }
-
-
-                                    try
-                                    {
-                                        static bool FloatEqual(float a, float b, float tol = 0.001f) => Math.Abs(a - b) <= tol;
-
-                                        var file1FirstTwo = _measures.Take(2).ToList();
-                                        var file2Results = results; // kết quả vừa đọc từ 2_S_IN
-
-                                        bool allMatch = true;
-                                        foreach (var m1 in file1FirstTwo)
-                                        {
-                                            var match = file2Results.FirstOrDefault(r => r.k == m1.k);
-                                            if (match == null || !FloatEqual(m1.S, match.S) || !FloatEqual(m1.CV, match.CV))
-                                            {
-                                                allMatch = false;
-                                                break;
-                                            }
-                                        }
-
-                                        int flag = allMatch ? 0 : 1;
-
-                                        // ghi flag vào fileExchange1 - phía simatic yêu cầu
-                                        if (_fileFormat == "csv")
-                                        {
-                                            char sep = _isComma ? ' ' : ';';
-                                            try
-                                            {
-                                                var lines = File.Exists(fileExchange1) ? File.ReadAllLines(fileExchange1).ToList() : new List<string>();
-                                                if (lines.Count >= 2)
-                                                {
-                                                    var cols = lines[1].Split(sep).ToList();
-                                                    if (cols.Count == 4)
-                                                    {
-                                                        cols.Add(flag.ToString(CultureInfo.InvariantCulture)); // thêm cột 5
-                                                    }
-                                                    else if (cols.Count >= 5)
-                                                    {
-                                                        cols[4] = flag.ToString(CultureInfo.InvariantCulture); // cập nhật cột 5
-                                                    }
-                                                    if (cols.Count >= 5)
-                                                    {
-                                                        lines[1] = string.Join(sep.ToString(), cols);
-                                                        File.WriteAllLines(fileExchange1, lines);
-                                                    }
-                                                }
-                                            }
-                                            catch (Exception ex)
-                                            {
-                                                throw ex;
-                                            }
-                                        }
-                                        else
-                                        {
-                                            try
-                                            {
-                                                ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
-                                                using (var package = new ExcelPackage(new FileInfo(fileExchange1)))
-                                                {
-                                                    var ws = package.Workbook.Worksheets["1_T_OUT"] ?? package.Workbook.Worksheets.Add("1_T_OUT");
-                                                    ws.Cells[2, 5].Value = flag;
-                                                    ws.Cells[ws.Dimension.Address].AutoFitColumns();
-                                                    package.Save();
-                                                }
-                                            }
-                                            catch (Exception ex)
-                                            {
-                                                throw ex;
-                                            }
-                                        }
-                                    }
-                                    catch (Exception ex)
-                                    {
-                                        throw ex;
-                                    }
-
-
-                                    // khởi tạo mảng dữ liệu cho quá trình đo
-                                    DataProcess.Initialize(_measures.Count);
-                                    IsConnectedToSimatic = true;
-                                    OnSimaticConnectionChanged?.Invoke(true);
-                                    _connectCompletionSource?.TrySetResult(true);
-                                }
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            throw ex;
-                        }
-                    });
-                };
-                _watcher.EnableRaisingEvents = true;
-                // Chờ kết nối hoặc timeout
-                var completedTask = await Task.WhenAny(_connectCompletionSource.Task, Task.Delay(timeoutMs));
-                if (completedTask != _connectCompletionSource.Task)
-                {
-                    // Timeout
-                    if (_watcher != null)
-                    {
-                        _watcher.EnableRaisingEvents = false;
-                        _watcher.Dispose();
-                        _watcher = null;
-                    }
-                    IsConnectedToSimatic = false;
-                    OnSimaticConnectionChanged?.Invoke(false);
-                    throw new TimeoutException("Kết nối Simatic bị timeout");
+                    DataProcess.Initialize(_measures.Count);
+                    IsConnectedToSimatic = true;
+                    OnSimaticConnectionChanged?.Invoke(true);
+                    _currentIndex = connectedRows;
                 }
 
             }
+            catch(BusinessException)
+            {
+                throw;
+            }
             catch (Exception ex)
             {
-                if (_watcher != null)
-                {
-                    _watcher.EnableRaisingEvents = false;
-                    _watcher.Dispose();
-                    _watcher = null;
-                }
-                throw;
+#if DEBUG
+                throw new BusinessException("Lỗi khi kết nối tới Simatic: " + ex.Message);
+#else
+                return;
+#endif
             }
             finally
             {
@@ -600,132 +356,34 @@ namespace TESMEA_TMS.Services
                     MessageBoxHelper.ShowWarning("Chưa kết nối với Simatic. Vui lòng thực hiện kết nối trước khi trao đổi dữ liệu.");
                     return;
                 }
-
-                if (!_measures.Any())
-                {
-                    MessageBoxHelper.ShowWarning("Dữ liệu scenario trống");
-                    return;
-                }
-
-
                 // tạo thư mục lưu trend nếu chưa có
                 if (!Directory.Exists(_trendFolder))
+
+
                     Directory.CreateDirectory(_trendFolder);
-
-                // dispose watcher cũ
-                if (_watcher != null)
-                {
-                    _watcher.EnableRaisingEvents = false;
-                    _watcher.Dispose();
-                    _watcher = null;
-                }
-
-                // lưu dải đo
-                List<Measure> currentRange = new List<Measure>();
-                int sIndex = 0;
-                int cvIndex = 0;
-                double currentS = _measures[_currentIndex].S;
-                int startIndex = 2; // track index của điểm bắt đầu trong dải đo
-                int timeoutMs = UserSetting.Instance.TimeoutMilliseconds;
-
-                // tạo file trend cho line đầu tiên
-                using (var fs = File.Create(Path.Combine(_trendFolder, $"00.{_fileFormat}"))) { }
-
-                // break khi eStop
-                if (_measures == null) return;
-                if (_currentIndex < 2) _currentIndex = 2;
                 for (int i = _currentIndex; i < _measures.Count; i++)
                 {
-                    var measure = _measures[i];
-                    var completionSource = new TaskCompletionSource<bool>();
-                    bool isResultProcessed = false;
-                    _watcher = new FileSystemWatcher(_exchangeFolder, $"2_S_IN.{_fileFormat}")
+                    var m = _measures[i];
+                    await WriteDataToFilesAsync(m);
+                    var result = await WaitForResultAsync(m.k, isConnection: false);
+
+                    if (result != null)
                     {
-                        NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.Size
-                    };
+                        m.F = MeasureStatus.Completed;
+                        _simaticResults.Add(result);
 
-                    _watcher.Changed += async (s, e) =>
-                    {
-                        try
-                        {
-                            if (_measures == null) return;
-                            if (isResultProcessed) return;
-                            var results = await ReadSimaticResult(e.FullPath, _sensor);
-                            var expectedK = _measures[i].k;
-                            var matchingResult = results.FirstOrDefault(r => r.k == expectedK);
+                        var measurePoint = DataProcess.OnePointMeasure(result, _inv, _sensor, _duct, _input);
+                        OnMeasurePointCompleted?.Invoke(measurePoint, DataProcess.ParaShow(result, _inv, _sensor, _duct, _input));
 
-                            if (matchingResult != null && !currentRange.Any(m => m.k == expectedK))
-                            {
-                                ((FileSystemWatcher)s).EnableRaisingEvents = false;
-
-                                isResultProcessed = true;
-
-                                _measures[i].F = MeasureStatus.Completed;
-                                _simaticResults.Add(matchingResult);
-                                OnSimaticResultReceived?.Invoke(_measures[i]);
-
-                                if (_measures[i].S != currentS)
-                                {
-                                    var fitting = DataProcess.FittingFC(currentRange.Count, startIndex);
-                                    OnMeasureRangeCompleted?.Invoke(fitting, currentRange.LastOrDefault());
-                                    currentRange.Clear();
-                                    currentS = _measures[i].S;
-                                    startIndex = i;
-                                    sIndex++;
-                                    cvIndex = 0;
-                                }
-
-                                string fileName = $"{sIndex}{cvIndex}.{_fileFormat}";
-                                string filePath = Path.Combine(_trendFolder, fileName);
-                                using (var fs = File.Create(filePath)) { }
-                                cvIndex++;
-
-                                var measurePoint = DataProcess.OnePointMeasure(matchingResult, _inv, _sensor, _duct, _input);
-                                var paramShow = DataProcess.ParaShow(matchingResult, _inv, _sensor, _duct, _input);
-                                OnMeasurePointCompleted?.Invoke(measurePoint, paramShow);
-                                if (!currentRange.Any(m => m.k == _measures[i].k))
-                                {
-                                    currentRange.Add(_measures[i]);
-                                }
-                                completionSource.TrySetResult(true);
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-#if DEBUG
-                            throw new BusinessException("Lỗi khi xử lý kết quả từ Simatic: " + ex.Message);
-#else
-                            return;
-#endif
-                        }
-                    };
-
-                    _watcher.EnableRaisingEvents = true;
-
-                    // gửi dòng hiện tại
-                    WriteMeasureRow(_exchangeFolder, _measures[i]);
-
-                    // chờ kết quả hoặc timeout
-                    var completedTask = await Task.WhenAny(completionSource.Task, Task.Delay(timeoutMs));
-
-                    // Dispose watcher cho dòng này
-                    _watcher.EnableRaisingEvents = false;
-                    _watcher.Dispose();
-                    _watcher = null;
-
-                    if (completedTask != completionSource.Task)
-                    {
-                        // Timeout
-                        _measures[i].F = MeasureStatus.Error;
-                        OnSimaticResultReceived?.Invoke(_measures[i]);
+                        OnSimaticResultReceived?.Invoke(m);
                     }
+                    else
+                    {
+                        m.F = MeasureStatus.Error;
+                        OnSimaticResultReceived?.Invoke(m);
+                    }
+
                     await Task.Delay(500);
-                }
-                if (currentRange.Count > 0)
-                {
-                    var fitting = DataProcess.FittingFC(currentRange.Count, startIndex);
-                    OnMeasureRangeCompleted?.Invoke(fitting, currentRange.LastOrDefault());
-                    currentRange.Clear();
                 }
                 OnSimaticExchangeCompleted?.Invoke(_simaticResults);
             }
@@ -755,205 +413,122 @@ namespace TESMEA_TMS.Services
             IsConnectedToSimatic = false;
         }
 
-        private void WriteMeasureRow(string exchangeFolder, Measure param)
-        {
-            string exchangeFilePath = Path.Combine(exchangeFolder, $"1_T_OUT.{_fileFormat}");
-
-            if (_fileFormat == "csv")
-            {
-                using (var writer = new StreamWriter(exchangeFilePath, append: true))
-                {
-
-                    if (_isComma)
-                    {
-                        writer.WriteLine($"{param.k} {param.S} {param.CV}");
-                    }
-                    else
-                    {
-                        writer.WriteLine($"{param.k};{param.S};{param.CV}");
-                    }
-                }
-            }
-            else
-            {
-                ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
-                using (var package = new ExcelPackage(new FileInfo(exchangeFilePath)))
-                {
-                    var ws = package.Workbook.Worksheets["1_T_OUT"] ?? package.Workbook.Worksheets.Add("1_T_OUT");
-                    int row = param.k;
-                    ws.Cells[row, 1].Value = param.k;
-                    ws.Cells[row, 2].Value = param.S;
-                    ws.Cells[row, 3].Value = param.CV;
-                    ws.Cells[ws.Dimension.Address].AutoFitColumns();
-                    package.Save();
-                }
-            }
-        }
-
-        private async Task<List<Measure>> ReadSimaticConnection(string filePath, CamBien sen)
-        {
-            var measureResults = new List<Measure>();
-            int retryCount = 5;
-            int delayMs = 200;
-
-            for (int i = 0; i < retryCount; i++)
-            {
-                try
-                {
-
-                    if (_fileFormat == "csv")
-                    {
-                        char separator = _isComma ? ' ' : ';';
-
-                        using (var fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
-                        using (var reader = new StreamReader(fs))
-                        {
-                            string? line;
-                            while ((line = await reader.ReadLineAsync()) != null)
-                            {
-                                var values = line.Split(separator);
-                                var result = new Measure
-                                {
-                                    k = int.Parse(values[0]),
-                                    S = float.Parse(values[1]),
-                                    CV = float.Parse(values[2])
-                                };
-
-                                measureResults.Add(result);
-                            }
-                        }
-                    }
-                    else
-                    {
-
-                        ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
-                        using (var package = new ExcelPackage(new FileInfo(filePath)))
-                        {
-                            var ws = package.Workbook.Worksheets.FirstOrDefault();
-                            if (ws == null) return measureResults;
-                            for (int row = 1; row <= ws.Dimension.End.Row; row++)
-                            {
-                                var result = new Measure
-                                {
-                                    k = int.TryParse(ws.Cells[row, 1].Text, out var k) ? k : 0,
-                                    S = float.TryParse(ws.Cells[row, 2].Text, out var s) ? s : 0,
-                                    CV = float.TryParse(ws.Cells[row, 3].Text, out var cv) ? cv : 0
-                                };
-                                measureResults.Add(result);
-                            }
-                        }
-                    }
-                    return measureResults;
-
-                }
-                catch (IOException)
-                {
-                    await Task.Delay(delayMs);
-                }
-                catch (Exception ex)
-                {
-                    throw new Exception($"Lỗi đọc file 2_S_IN.{_fileFormat}: {ex.Message}");
-                }
-            }
-            throw new Exception($"Không thể đọc file 2_S_IN.{_fileFormat} sau nhiều lần thử lại (file có thể đang bị lock bởi process khác)");
-        }
-
-        private async Task<List<Measure>> ReadSimaticResult(string filePath, CamBien sen)
-        {
-            var measureResults = new List<Measure>();
-            int retryCount = 5;
-            int delayMs = 200;
-
-            for (int i = 0; i < retryCount; i++)
-            {
-                try
-                {
-
-                    if (_fileFormat == "csv")
-                    {
-                        char separator = _isComma ? ' ' : ';';
-
-                        using (var fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
-                        using (var reader = new StreamReader(fs))
-                        {
-                            string? line;
-                            while ((line = await reader.ReadLineAsync()) != null)
-                            {
-                                var values = line.Split(separator);
-                                var result = new Measure
-                                {
-                                    k = int.Parse(values[0]),
-                                    S = float.Parse(values[1]),
-                                    CV = float.Parse(values[2]),
-                                    NhietDoMoiTruong_sen = CalcSimatic(sen.NhietDoMoiTruongMin, sen.NhietDoMoiTruongMax, float.Parse(values[3])),
-                                    DoAm_sen = CalcSimatic(sen.DoAmMoiTruongMin, sen.DoAmMoiTruongMax, float.Parse(values[4])),
-                                    ApSuatkhiQuyen_sen = CalcSimatic(sen.ApSuatKhiQuyenMin, sen.ApSuatKhiQuyenMax, float.Parse(values[5])),
-                                    ChenhLechApSuat_sen = CalcSimatic(sen.ChenhLechApSuatMin, sen.ChenhLechApSuatMax, float.Parse(values[6])),
-                                    ApSuatTinh_sen = CalcSimatic(sen.ApSuatTinhMin, sen.ApSuatTinhMax, float.Parse(values[7])),
-                                    DoRung_sen = CalcSimatic(sen.DoRungMin, sen.DoRungMax, float.Parse(values[8])),
-                                    DoOn_sen = CalcSimatic(sen.DoOnMin, sen.DoOnMax, float.Parse(values[9])),
-                                    SoVongQuay_sen = CalcSimatic(sen.SoVongQuayMin, sen.SoVongQuayMax, float.Parse(values[10])),
-                                    Momen_sen = CalcSimatic(sen.MomenMin, sen.MomenMax, float.Parse(values[11])),
-                                    DongDien_fb = CalcSimatic(sen.PhanHoiDongDienMin, sen.PhanHoiDongDienMax, float.Parse(values[12])),
-                                    CongSuat_fb = CalcSimatic(sen.PhanHoiCongSuatMin, sen.PhanHoiCongSuatMax, float.Parse(values[13])),
-                                    ViTriVan_fb = CalcSimatic(sen.PhanHoiViTriVanMin, sen.PhanHoiViTriVanMax, float.Parse(values[14]))
-                                };
-
-                                measureResults.Add(result);
-                            }
-                        }
-                    }
-                    else
-                    {
-
-                        ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
-                        using (var package = new ExcelPackage(new FileInfo(filePath)))
-                        {
-                            var ws = package.Workbook.Worksheets.FirstOrDefault();
-                            if (ws == null) return measureResults;
-                            for (int row = 1; row <= ws.Dimension.End.Row; row++)
-                            {
-                                var result = new Measure
-                                {
-                                    k = int.TryParse(ws.Cells[row, 1].Text, out var k) ? k : 0,
-                                    S = float.TryParse(ws.Cells[row, 2].Text, out var s) ? s : 0,
-                                    CV = float.TryParse(ws.Cells[row, 3].Text, out var cv) ? cv : 0,
-                                    NhietDoMoiTruong_sen = CalcSimatic(sen.NhietDoMoiTruongMin, sen.NhietDoMoiTruongMax, float.TryParse(ws.Cells[row, 4].Text, out var pv1) ? pv1 : 0),
-                                    DoAm_sen = CalcSimatic(sen.DoAmMoiTruongMin, sen.DoAmMoiTruongMax, float.TryParse(ws.Cells[row, 5].Text, out var pv2) ? pv2 : 0),
-                                    ApSuatkhiQuyen_sen = CalcSimatic(sen.ApSuatKhiQuyenMin, sen.ApSuatKhiQuyenMax, float.TryParse(ws.Cells[row, 6].Text, out var pv3) ? pv3 : 0),
-                                    ChenhLechApSuat_sen = CalcSimatic(sen.ChenhLechApSuatMin, sen.ChenhLechApSuatMax, float.TryParse(ws.Cells[row, 7].Text, out var pv4) ? pv4 : 0),
-                                    ApSuatTinh_sen = CalcSimatic(sen.ApSuatTinhMin, sen.ApSuatTinhMax, float.TryParse(ws.Cells[row, 8].Text, out var pv5) ? pv5 : 0),
-                                    DoRung_sen = CalcSimatic(sen.DoRungMin, sen.DoRungMax, float.TryParse(ws.Cells[row, 9].Text, out var pv6) ? pv6 : 0),
-                                    DoOn_sen = CalcSimatic(sen.DoOnMin, sen.DoOnMax, float.TryParse(ws.Cells[row, 10].Text, out var pv7) ? pv7 : 0),
-                                    SoVongQuay_sen = CalcSimatic(sen.SoVongQuayMin, sen.SoVongQuayMax, float.TryParse(ws.Cells[row, 11].Text, out var pv8) ? pv8 : 0),
-                                    Momen_sen = CalcSimatic(sen.MomenMin, sen.MomenMax, float.TryParse(ws.Cells[row, 12].Text, out var pv9) ? pv9 : 0),
-                                    DongDien_fb = CalcSimatic(sen.PhanHoiDongDienMin, sen.PhanHoiDongDienMax, float.TryParse(ws.Cells[row, 13].Text, out var pv10) ? pv10 : 0),
-                                    CongSuat_fb = CalcSimatic(sen.PhanHoiCongSuatMin, sen.PhanHoiCongSuatMax, float.TryParse(ws.Cells[row, 14].Text, out var pv11) ? pv11 : 0),
-                                    ViTriVan_fb = CalcSimatic(sen.PhanHoiViTriVanMin, sen.PhanHoiViTriVanMax, float.TryParse(ws.Cells[row, 15].Text, out var pv12) ? pv12 : 0),
-                                    TanSo_fb = CalcSimatic(sen.PhanHoiTanSoMin, sen.PhanHoiTanSoMax, float.TryParse(ws.Cells[row, 2].Text, out var pv13) ? pv13 : 0), // sử dụng cột S để lấy tần số
-                                };
-                                measureResults.Add(result);
-                            }
-                        }
-                    }
-                    return measureResults;
-
-                }
-                catch (IOException)
-                {
-                    await Task.Delay(delayMs);
-                }
-                catch (Exception ex)
-                {
-                    throw new Exception($"Lỗi đọc file 2_S_IN.{_fileFormat}: {ex.Message}");
-                }
-            }
-            throw new Exception($"Không thể đọc file 2_S_IN.{_fileFormat} sau nhiều lần thử lại (file có thể đang bị lock bởi process khác)");
-        }
-
         private float CalcSimatic(float minValue, float maxValue, float percent)
         {
             return minValue + (maxValue - minValue) * percent / 100f;
+        }
+
+        private async Task<bool> ExecuteWithRetryAsync(Func<Task> action, int retries = 5, int delay = 200)
+        {
+            for (int i = 0; i < retries; i++)
+            {
+                try
+                {
+                    await action();
+                    return true;
+                }
+                catch (IOException)
+                { 
+                    await Task.Delay(delay);
+                }
+            }
+            return false;
+        }
+
+        private async Task WriteDataToFilesAsync(Measure m, float col4Value = 0)
+        {
+            string xlsxPath = Path.Combine(_exchangeFolder, "1_T_OUT.xlsx");
+            string csvPath = Path.Combine(_exchangeFolder, "1_T_OUT.csv");
+            char sep = _isComma ? ' ' : ';';
+
+            // ghi vào file csv
+            await ExecuteWithRetryAsync(async () => {
+                using (var fs = new FileStream(csvPath, FileMode.Append, FileAccess.Write, FileShare.ReadWrite))
+                using (var sw = new StreamWriter(fs, Encoding.UTF8))
+                {
+                    await sw.WriteLineAsync($"{m.k}{sep}{m.S}{sep}{m.CV}{sep}{col4Value}");
+                }
+            });
+
+            await ExecuteWithRetryAsync(async () => {
+                ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+                byte[] bin;
+                using (var package = new ExcelPackage())
+                {
+                    var ws = package.Workbook.Worksheets.Add("1_T_OUT");
+                    ws.Cells[1, 1].Value = m.k;
+                    ws.Cells[1, 2].Value = m.S;
+                    ws.Cells[1, 3].Value = m.CV;
+                    ws.Cells[1, 4].Value = col4Value;
+                    bin = await package.GetAsByteArrayAsync();
+                }
+
+                using (var fs = new FileStream(xlsxPath, FileMode.Create, FileAccess.Write, FileShare.ReadWrite))
+                {
+                    await fs.WriteAsync(bin, 0, bin.Length);
+                }
+            });
+        }
+
+        private async Task<Measure?> WaitForResultAsync(int expectedK, bool isConnection)
+        {
+            string path2 = Path.Combine(_exchangeFolder, "2_S_IN.csv");
+            var sw = Stopwatch.StartNew();
+            char sep = _isComma ? ' ' : ';';
+
+            while (sw.ElapsedMilliseconds < UserSetting.Instance.TimeoutMilliseconds)
+            {
+                try
+                {
+                    if (File.Exists(path2))
+                    {
+                        using (var fs = new FileStream(path2, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                        using (var sr = new StreamReader(fs))
+                        {
+                            string? line;
+                            while ((line = await sr.ReadLineAsync()) != null)
+                            {
+                                var parts = line.Split(sep);
+                                if (parts.Length < 3) continue;
+
+                                if (int.TryParse(parts[0], out int k) && k == expectedK)
+                                {
+                                    var m = new Measure
+                                    {
+                                        k = k,
+                                        S = float.Parse(parts[1], CultureInfo.InvariantCulture),
+                                        CV = float.Parse(parts[2], CultureInfo.InvariantCulture)
+                                    };
+
+
+                                    // tính toán dữ liệu từ dữ liệu chốt trung bình
+                                    if (!isConnection && parts.Length >= 15)
+                                    {
+                                        m.NhietDoMoiTruong_sen = CalcSimatic(_sensor.NhietDoMoiTruongMin, _sensor.NhietDoMoiTruongMax, float.Parse(parts[3], CultureInfo.InvariantCulture));
+                                        m.DoAm_sen = CalcSimatic(_sensor.DoAmMoiTruongMin, _sensor.DoAmMoiTruongMax, float.Parse(parts[4], CultureInfo.InvariantCulture));
+                                        m.ApSuatkhiQuyen_sen = CalcSimatic(_sensor.ApSuatKhiQuyenMin, _sensor.ApSuatKhiQuyenMax, float.Parse(parts[5], CultureInfo.InvariantCulture));
+                                        m.ChenhLechApSuat_sen = CalcSimatic(_sensor.ChenhLechApSuatMin, _sensor.ChenhLechApSuatMax, float.Parse(parts[6], CultureInfo.InvariantCulture));
+                                        m.ApSuatTinh_sen = CalcSimatic(_sensor.ApSuatTinhMin, _sensor.ApSuatTinhMax, float.Parse(parts[7], CultureInfo.InvariantCulture));
+                                        m.DoRung_sen = CalcSimatic(_sensor.DoRungMin, _sensor.DoRungMax, float.Parse(parts[8], CultureInfo.InvariantCulture));
+                                        m.DoOn_sen = CalcSimatic(_sensor.DoOnMin, _sensor.DoOnMax, float.Parse(parts[9], CultureInfo.InvariantCulture));
+                                        m.SoVongQuay_sen = CalcSimatic(_sensor.SoVongQuayMin, _sensor.SoVongQuayMax, float.Parse(parts[10], CultureInfo.InvariantCulture));
+                                        m.Momen_sen = CalcSimatic(_sensor.MomenMin, _sensor.MomenMax, float.Parse(parts[11], CultureInfo.InvariantCulture));
+                                        m.DongDien_fb = CalcSimatic(_sensor.PhanHoiDongDienMin, _sensor.PhanHoiDongDienMax, float.Parse(parts[12], CultureInfo.InvariantCulture));
+                                        m.CongSuat_fb = CalcSimatic(_sensor.PhanHoiCongSuatMin, _sensor.PhanHoiCongSuatMax, float.Parse(parts[13], CultureInfo.InvariantCulture));
+                                        m.ViTriVan_fb = CalcSimatic(_sensor.PhanHoiViTriVanMin, _sensor.PhanHoiViTriVanMax, float.Parse(parts[14], CultureInfo.InvariantCulture));
+                                        m.TanSo_fb = CalcSimatic(_sensor.PhanHoiTanSoMin, _sensor.PhanHoiTanSoMax, float.Parse(parts[1], CultureInfo.InvariantCulture));
+                                    }
+                                    return m;
+                                }
+                            }
+                        }
+                    }
+                }
+                catch (IOException) { /* File đang bị WinCC lock, đợi vòng lặp sau */ }
+
+                await Task.Delay(200); // Polling interval
+            }
+            return null; // Timeout
         }
 
         public event Action<bool> OnSimaticConnectionChanged;

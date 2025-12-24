@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using OfficeOpenXml;
 using System.Globalization;
 using System.IO;
 using System.Windows;
@@ -98,6 +99,17 @@ public partial class App : Application
                 using (var writer2 = new StreamWriter(Path.Combine(exchangeFolder, "2_S_IN.csv")))
                 {
                 }
+
+                string xlsxPath = Path.Combine(exchangeFolder, "1_T_OUT.xlsx");
+                if (!File.Exists(xlsxPath))
+                {
+                    ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
+                    using (var package = new ExcelPackage(new FileInfo(xlsxPath)))
+                    {
+                        package.Workbook.Worksheets.Add("1_T_OUT");
+                        package.Save();
+                    }
+                }
             }
             else
             {
@@ -117,22 +129,33 @@ public partial class App : Application
                 {
                     foreach (var file in Directory.GetFiles(exchangeFolder))
                     {
-                        try { File.WriteAllText(file, string.Empty); } catch { /* ignore */ }
+                        try { File.WriteAllText(file, string.Empty); } catch {  }
                     }
 
                 }
 
-                // same with Trend folder
+                string xlsxPath = Path.Combine(exchangeFolder, "1_T_OUT.xlsx");
+                if (!File.Exists(xlsxPath))
+                {
+                    ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
+                    using (var package = new ExcelPackage(new FileInfo(xlsxPath)))
+                    {
+                        package.Workbook.Worksheets.Add("1_T_OUT");
+                        package.Save();
+                    }
+                }
+
+                // trend folder
                 if (!Directory.Exists(Path.Combine(exchangeFolder, "Trend")))
                 {
                     Directory.CreateDirectory(Path.Combine(exchangeFolder, "Trend"));
                 }
                 else
                 {
-                    // delete all files in Trend folder
+                    // delete all files in trend folder
                     foreach (var file in Directory.GetFiles(Path.Combine(exchangeFolder, "Trend")))
                     {
-                        try { File.Delete(file); } catch { /* ignore */ }
+                        try { File.Delete(file); } catch {  }
                     }
                 }
             }

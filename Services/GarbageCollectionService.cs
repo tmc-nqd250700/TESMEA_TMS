@@ -36,7 +36,7 @@ namespace TESMEA_TMS.Services
             ClearFileContents(UserSetting.TOMFAN_folder);
             foreach (var file in Directory.GetFiles(Path.Combine(UserSetting.TOMFAN_folder, "Trend")))
             {
-                try { File.Delete(file); } catch { /* ignore */ }
+                try { File.Delete(file); } catch {  }
             }
             await Task.CompletedTask;
         }
@@ -48,12 +48,12 @@ namespace TESMEA_TMS.Services
                 // Xóa tất cả file
                 foreach (var file in Directory.GetFiles(folderPath))
                 {
-                    try { File.Delete(file); } catch { /* ignore */ }
+                    try { File.Delete(file); } catch {  }
                 }
                 // Xóa tất cả thư mục con
                 foreach (var dir in Directory.GetDirectories(folderPath))
                 {
-                    try { Directory.Delete(dir, true); } catch { /* ignore */ }
+                    try { Directory.Delete(dir, true); } catch {  }
                 }
             }
         }

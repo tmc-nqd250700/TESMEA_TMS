@@ -408,7 +408,7 @@ namespace TESMEA_TMS.ViewModels
                     // Xóa tất cả file
                     foreach (var file in Directory.GetFiles(UserSetting.TOMFAN_folder))
                     {
-                        try { File.WriteAllText(file, string.Empty); } catch { /* ignore */ }
+                        try { File.WriteAllText(file, string.Empty); } catch {  }
                     }
                     // Xóa tất cả thư mục con
                     foreach (var dir in Directory.GetDirectories(UserSetting.TOMFAN_folder))
@@ -561,11 +561,11 @@ namespace TESMEA_TMS.ViewModels
                 // Xóa tất cả file
                 foreach (var file in Directory.GetFiles(UserSetting.TOMFAN_folder))
                 {
-                    try { File.WriteAllText(file, string.Empty); } catch { /* ignore */ }
+                    try { File.WriteAllText(file, string.Empty); } catch {  }
                 }
                 foreach (var file in Directory.GetFiles(UserSetting.TOMFAN_folder))
                 {
-                    try { File.Delete(file); } catch { /* ignore */ }
+                    try { File.Delete(file); } catch {  }
                 }
             }
             _externalAppService.StopExchangeAsync().Wait();
