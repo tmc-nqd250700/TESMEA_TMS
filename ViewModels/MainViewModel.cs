@@ -101,13 +101,13 @@ namespace TESMEA_TMS.ViewModels
                 CurrentDateTime = DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss");
             };
             timer.Start();
-            await _externalAppService.StartAppAsync();
-            _simaticMonitorTimer = new DispatcherTimer
-            {
-                Interval = TimeSpan.FromSeconds(10)
-            };
-            _simaticMonitorTimer.Tick += SimaticMonitorTimer_Tick;
-            _simaticMonitorTimer.Start();
+            //await _externalAppService.StartAppAsync();
+            //_simaticMonitorTimer = new DispatcherTimer
+            //{
+            //    Interval = TimeSpan.FromSeconds(10)
+            //};
+            //_simaticMonitorTimer.Tick += SimaticMonitorTimer_Tick;
+            //_simaticMonitorTimer.Start();
         }
 
 

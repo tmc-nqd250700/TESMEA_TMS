@@ -303,19 +303,38 @@ namespace TESMEA_TMS.Services
                 // lấy 2 row đầu để check kết nối
                 int connectRows = Math.Min(2, _measures.Count);
 
+                var mConnects = measures.Take(2).ToArray();
+                await WriteDataConnectionToFilesAsync(mConnects, maxmin, timeRange);
+                await StartAppAsync();
+                // Chờ phản hồi từ file 2_S_IN.csv
+                var resultMeasures = await WaitForConnectResultAsync();
+                if (resultMeasures == null || resultMeasures.Length != connectRows)
+                    throw new Exception("Không thể kết nối. Không đủ dữ liệu phản hồi từ Simatic");
+
                 for (int i = 0; i < connectRows; i++)
                 {
                     var m = _measures[i];
-                    float col4 = (i == 0) ? maxmin : timeRange;
-                    await WriteDataToFilesAsync(m, col4);
-                    // Chờ phản hồi từ file 2_S_IN.csv
-                    var result = await WaitForResultAsync(m.k, isConnection: true);
-                    if (result == null || Math.Abs(result.S - m.S) > 0.01)
-                        throw new Exception($"Không thể kết nối. Dòng {m.k} không khớp dữ liệu.");
+                    var result = resultMeasures[i];
+                    if (Math.Abs(result.S - m.S) > 0.01)
+                        throw new Exception($"Không thể kết nối. Dòng {m.k} không khớp dữ liệu");
 
                     m.F = MeasureStatus.Completed;
                     connectedRows++;
                 }
+
+                //for (int i = 0; i < connectRows; i++)
+                //{
+                //    var m = _measures[i];
+                //    float col4 = (i == 0) ? maxmin : timeRange;
+                //    await WriteDataConnectionToFilesAsync(m, col4);
+                //    // Chờ phản hồi từ file 2_S_IN.csv
+                //    var result = await WaitForResultAsync(m.k, isConnection: true);
+                //    if (result == null || Math.Abs(result.S - m.S) > 0.01)
+                //        throw new Exception($"Không thể kết nối. Dòng {m.k} không khớp dữ liệu.");
+
+                //    m.F = MeasureStatus.Completed;
+                //    connectedRows++;
+                //}
 
                 if (connectedRows == connectRows)
                 {
@@ -365,7 +384,7 @@ namespace TESMEA_TMS.Services
                 {
                     var m = _measures[i];
                     await WriteDataToFilesAsync(m);
-                    var result = await WaitForResultAsync(m.k, isConnection: false);
+                    var result = await WaitForResultAsync(m.k);
 
                     if (result != null)
                     {
@@ -435,7 +454,99 @@ namespace TESMEA_TMS.Services
             return false;
         }
 
-        private async Task WriteDataToFilesAsync(Measure m, float col4Value = 0)
+
+        private async Task WriteDataConnectionToFilesAsync(Measure[] mConnects, float maxmin, float timeRange)
+        {
+            if (mConnects.Length != 2) throw new BusinessException("Số dòng kết nối không đúng");
+
+            string xlsxPath = Path.Combine(_exchangeFolder, "1_T_OUT.xlsx");
+            string csvPath = Path.Combine(_exchangeFolder, "1_T_OUT.csv");
+            char sep = _isComma ? ' ' : ';';
+
+            // ghi vào file csv
+            await ExecuteWithRetryAsync(async () => {
+                using (var fs = new FileStream(csvPath, FileMode.Append, FileAccess.Write, FileShare.ReadWrite))
+                using (var sw = new StreamWriter(fs, Encoding.UTF8))
+                {
+                    await sw.WriteLineAsync($"{mConnects[0].k}{sep}{mConnects[0].S}{sep}{mConnects[0].CV}{sep}{maxmin}");
+                    await sw.WriteLineAsync($"{mConnects[1].k}{sep}{mConnects[1].S}{sep}{mConnects[1].CV}{sep}{timeRange}");
+                }
+            });
+
+            await ExecuteWithRetryAsync(async () => {
+                ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+                byte[] bin;
+                using (var package = new ExcelPackage())
+                {
+                    var ws = package.Workbook.Worksheets.Add("1_T_OUT");
+
+                    ws.Cells[1, 1].Value = mConnects[0].k;
+                    ws.Cells[1, 2].Value = mConnects[0].S;
+                    ws.Cells[1, 3].Value = mConnects[0].CV;
+                    ws.Cells[1, 4].Value = maxmin;
+
+                    ws.Cells[2, 1].Value = mConnects[1].k;
+                    ws.Cells[2, 2].Value = mConnects[1].S;
+                    ws.Cells[2, 3].Value = mConnects[1].CV;
+                    ws.Cells[2, 4].Value = timeRange;
+
+
+                    bin = await package.GetAsByteArrayAsync();
+                }
+
+                using (var fs = new FileStream(xlsxPath, FileMode.Create, FileAccess.Write, FileShare.ReadWrite))
+                {
+                    await fs.WriteAsync(bin, 0, bin.Length);
+                }
+            });
+        }
+
+        private async Task<Measure[]?> WaitForConnectResultAsync()
+        {
+            string path2 = Path.Combine(_exchangeFolder, "2_S_IN.csv");
+            var sw = Stopwatch.StartNew();
+            char sep = _isComma ? ' ' : ';';
+
+            while (sw.ElapsedMilliseconds < UserSetting.Instance.TimeoutMilliseconds)
+            {
+                try
+                {
+                    if (File.Exists(path2))
+                    {
+                        using (var fs = new FileStream(path2, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                        using (var sr = new StreamReader(fs))
+                        {
+                            var measures = new List<Measure>();
+                            string? line;
+                            while ((line = await sr.ReadLineAsync()) != null && measures.Count < 2)
+                            {
+                                var parts = line.Split(sep);
+                                if (parts.Length < 3) continue;
+
+                                if (int.TryParse(parts[0], out int k))
+                                {
+                                    var m = new Measure
+                                    {
+                                        k = k,
+                                        S = float.Parse(parts[1], CultureInfo.InvariantCulture),
+                                        CV = float.Parse(parts[2], CultureInfo.InvariantCulture)
+                                    };
+                                    measures.Add(m);
+                                }
+                            }
+                            if (measures.Count == 2)
+                                return measures.ToArray();
+                        }
+                    }
+                }
+                catch (IOException) { /* File đang bị WinCC lock, đợi vòng lặp sau */ }
+
+                await Task.Delay(200); // Polling interval
+            }
+            return null; // Timeout
+        }
+
+        private async Task WriteDataToFilesAsync(Measure m)
         {
             string xlsxPath = Path.Combine(_exchangeFolder, "1_T_OUT.xlsx");
             string csvPath = Path.Combine(_exchangeFolder, "1_T_OUT.csv");
@@ -446,7 +557,7 @@ namespace TESMEA_TMS.Services
                 using (var fs = new FileStream(csvPath, FileMode.Append, FileAccess.Write, FileShare.ReadWrite))
                 using (var sw = new StreamWriter(fs, Encoding.UTF8))
                 {
-                    await sw.WriteLineAsync($"{m.k}{sep}{m.S}{sep}{m.CV}{sep}{col4Value}");
+                    await sw.WriteLineAsync($"{m.k}{sep}{m.S}{sep}{m.CV}{sep}");
                 }
             });
 
@@ -459,7 +570,6 @@ namespace TESMEA_TMS.Services
                     ws.Cells[1, 1].Value = m.k;
                     ws.Cells[1, 2].Value = m.S;
                     ws.Cells[1, 3].Value = m.CV;
-                    ws.Cells[1, 4].Value = col4Value;
                     bin = await package.GetAsByteArrayAsync();
                 }
 
@@ -470,7 +580,7 @@ namespace TESMEA_TMS.Services
             });
         }
 
-        private async Task<Measure?> WaitForResultAsync(int expectedK, bool isConnection)
+        private async Task<Measure?> WaitForResultAsync(int expectedK)
         {
             string path2 = Path.Combine(_exchangeFolder, "2_S_IN.csv");
             var sw = Stopwatch.StartNew();
@@ -502,7 +612,7 @@ namespace TESMEA_TMS.Services
 
 
                                     // tính toán dữ liệu từ dữ liệu chốt trung bình
-                                    if (!isConnection && parts.Length >= 15)
+                                    if (parts.Length >= 15)
                                     {
                                         m.NhietDoMoiTruong_sen = CalcSimatic(_sensor.NhietDoMoiTruongMin, _sensor.NhietDoMoiTruongMax, float.Parse(parts[3], CultureInfo.InvariantCulture));
                                         m.DoAm_sen = CalcSimatic(_sensor.DoAmMoiTruongMin, _sensor.DoAmMoiTruongMax, float.Parse(parts[4], CultureInfo.InvariantCulture));
