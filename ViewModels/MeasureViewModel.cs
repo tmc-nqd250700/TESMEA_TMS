@@ -432,6 +432,7 @@ namespace TESMEA_TMS.ViewModels
         private bool CanReset(object obj) => _isCompleted && !_isMeasuring;
         private bool CanTrend(object obj) => SelectedMeasure != null && (TrendLineDialog == null || !TrendLineDialog.IsLoaded);
 
+
         private async void ExecuteConnectCommand(object obj)
         {
             var splashViewModel = new ProgressSplashViewModel
@@ -440,18 +441,7 @@ namespace TESMEA_TMS.ViewModels
                 IsIndeterminate = true
             };
             var splash = new Views.CustomControls.ProgressSplashContent { DataContext = splashViewModel };
-
-            // Sử dụng DialogSession để bắt sự kiện đóng dialog
-            bool isCancelled = false;
-            await DialogHost.Show(splash, "MainDialogHost",
-                (sender, args) =>
-                {
-                    if (args.Session?.IsEnded == true && args.Parameter is bool isCanceled && isCanceled)
-                    {
-                        isCancelled = true;
-                    }
-                });
-
+            var dialogTask = DialogHost.Show(splash, "MainDialogHost");
             try
             {
                 (var bienTan, _camBien, var ongGio) = await _parameterService.GetLibraryByIdAsync(Guid.Parse(ThongTinDuAn.ThamSo.KieuKiemThu));
@@ -483,14 +473,6 @@ namespace TESMEA_TMS.ViewModels
                 if (DialogHost.IsDialogOpen("MainDialogHost"))
                     DialogHost.Close("MainDialogHost");
                 throw;
-            }
-            finally
-            {
-                // Nếu dialog bị hủy/cancel thì gọi StopAppAsync
-                if (isCancelled)
-                {
-                    await _externalAppService.StopAppAsync();
-                }
             }
 
         }
