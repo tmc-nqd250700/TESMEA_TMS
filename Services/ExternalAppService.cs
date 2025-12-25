@@ -329,6 +329,11 @@ namespace TESMEA_TMS.Services
                     var m = _measures[i];
                     float col4 = (i == 0) ? maxmin : timeRange;
                     await WriteDataToFilesAsync(m, col4);
+                    // start tu row dau tien
+                    if(i == 0)
+                    {
+                        await StartAppAsync();
+                    }
                     var result = await WaitForResultAsync(m.k, isConnection: true);
                     if (result == null || Math.Abs(result.S - m.S) > 0.01)
                         throw new Exception($"Không thể kết nối. Dòng {m.k} không khớp dữ liệu.");

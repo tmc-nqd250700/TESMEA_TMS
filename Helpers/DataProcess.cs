@@ -656,7 +656,7 @@ namespace TESMEA_TMS.Helpers
 #if DEBUG
                 throw new BusinessException("Lỗi khi tính toán tại một điểm đo: " + ex.Message);
 #else
-                return;
+                return null;
 #endif
 
             }
