@@ -105,7 +105,7 @@ namespace TESMEA_TMS.Services
             {
                 _process = new Process
                 {
-                    //StartInfo = new ProcessStartInfo(simaticExePath)
+                    //StartInfo = new ProcessStartInfo(winccExePath)
                     //{
                     //    Arguments = $"\"{simaticProjectPath}\"",
                     //    UseShellExecute = false,
@@ -304,8 +304,10 @@ namespace TESMEA_TMS.Services
                 int connectRows = Math.Min(2, _measures.Count);
 
                 var mConnects = measures.Take(2).ToArray();
-                await WriteDataConnectionToFilesAsync(mConnects, maxmin, timeRange);
-                await StartAppAsync();
+                if(await WriteDataConnectionToFilesAsync(mConnects, maxmin, timeRange))
+                {
+                    await StartAppAsync();
+                }    
                 // Chờ phản hồi từ file 2_S_IN.csv
                 var resultMeasures = await WaitForConnectResultAsync();
                 if (resultMeasures == null || resultMeasures.Length != connectRows)
@@ -455,50 +457,60 @@ namespace TESMEA_TMS.Services
         }
 
 
-        private async Task WriteDataConnectionToFilesAsync(Measure[] mConnects, float maxmin, float timeRange)
+        private async Task<bool> WriteDataConnectionToFilesAsync(Measure[] mConnects, float maxmin, float timeRange)
         {
-            if (mConnects.Length != 2) throw new BusinessException("Số dòng kết nối không đúng");
+            try
+            {
+                if (mConnects.Length != 2) throw new BusinessException("Số dòng kết nối không đúng");
 
-            string xlsxPath = Path.Combine(_exchangeFolder, "1_T_OUT.xlsx");
-            string csvPath = Path.Combine(_exchangeFolder, "1_T_OUT.csv");
-            char sep = _isComma ? ' ' : ';';
+                string xlsxPath = Path.Combine(_exchangeFolder, "1_T_OUT.xlsx");
+                string csvPath = Path.Combine(_exchangeFolder, "1_T_OUT.csv");
+                char sep = _isComma ? ' ' : ';';
 
-            // ghi vào file csv
-            await ExecuteWithRetryAsync(async () => {
-                using (var fs = new FileStream(csvPath, FileMode.Append, FileAccess.Write, FileShare.ReadWrite))
-                using (var sw = new StreamWriter(fs, Encoding.UTF8))
+                // ghi vào file csv
+                await ExecuteWithRetryAsync(async () =>
                 {
-                    await sw.WriteLineAsync($"{mConnects[0].k}{sep}{mConnects[0].S}{sep}{mConnects[0].CV}{sep}{maxmin}");
-                    await sw.WriteLineAsync($"{mConnects[1].k}{sep}{mConnects[1].S}{sep}{mConnects[1].CV}{sep}{timeRange}");
-                }
-            });
+                    using (var fs = new FileStream(csvPath, FileMode.Append, FileAccess.Write, FileShare.ReadWrite))
+                    using (var sw = new StreamWriter(fs, Encoding.UTF8))
+                    {
+                        await sw.WriteLineAsync($"{mConnects[0].k}{sep}{mConnects[0].S}{sep}{mConnects[0].CV}{sep}{maxmin}");
+                        await sw.WriteLineAsync($"{mConnects[1].k}{sep}{mConnects[1].S}{sep}{mConnects[1].CV}{sep}{timeRange}");
+                    }
+                });
 
-            await ExecuteWithRetryAsync(async () => {
-                ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
-                byte[] bin;
-                using (var package = new ExcelPackage())
+                await ExecuteWithRetryAsync(async () =>
                 {
-                    var ws = package.Workbook.Worksheets.Add("1_T_OUT");
+                    ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+                    byte[] bin;
+                    using (var package = new ExcelPackage())
+                    {
+                        var ws = package.Workbook.Worksheets.Add("1_T_OUT");
 
-                    ws.Cells[1, 1].Value = mConnects[0].k;
-                    ws.Cells[1, 2].Value = mConnects[0].S;
-                    ws.Cells[1, 3].Value = mConnects[0].CV;
-                    ws.Cells[1, 4].Value = maxmin;
+                        ws.Cells[1, 1].Value = mConnects[0].k;
+                        ws.Cells[1, 2].Value = mConnects[0].S;
+                        ws.Cells[1, 3].Value = mConnects[0].CV;
+                        ws.Cells[1, 4].Value = maxmin;
 
-                    ws.Cells[2, 1].Value = mConnects[1].k;
-                    ws.Cells[2, 2].Value = mConnects[1].S;
-                    ws.Cells[2, 3].Value = mConnects[1].CV;
-                    ws.Cells[2, 4].Value = timeRange;
+                        ws.Cells[2, 1].Value = mConnects[1].k;
+                        ws.Cells[2, 2].Value = mConnects[1].S;
+                        ws.Cells[2, 3].Value = mConnects[1].CV;
+                        ws.Cells[2, 4].Value = timeRange;
 
 
-                    bin = await package.GetAsByteArrayAsync();
-                }
+                        bin = await package.GetAsByteArrayAsync();
+                    }
 
-                using (var fs = new FileStream(xlsxPath, FileMode.Create, FileAccess.Write, FileShare.ReadWrite))
-                {
-                    await fs.WriteAsync(bin, 0, bin.Length);
-                }
-            });
+                    using (var fs = new FileStream(xlsxPath, FileMode.Create, FileAccess.Write, FileShare.ReadWrite))
+                    {
+                        await fs.WriteAsync(bin, 0, bin.Length);
+                    }
+                });
+                return true;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
 
         private async Task<Measure[]?> WaitForConnectResultAsync()
@@ -553,11 +565,29 @@ namespace TESMEA_TMS.Services
             char sep = _isComma ? ' ' : ';';
 
             // ghi vào file csv
+            List<string> lines = new List<string>();
+            if (File.Exists(csvPath))
+            {
+                using (var fs = new FileStream(csvPath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                using (var sr = new StreamReader(fs, Encoding.UTF8))
+                {
+                    string? line;
+                    while ((line = await sr.ReadLineAsync()) != null)
+                    {
+                        lines.Add(line);
+                    }
+                }
+            }
+            while (lines.Count < m.k)
+                lines.Add("");
+            lines[m.k - 1] = $"{m.k}{sep}{m.S}{sep}{m.CV}{sep}";
+
             await ExecuteWithRetryAsync(async () => {
                 using (var fs = new FileStream(csvPath, FileMode.Append, FileAccess.Write, FileShare.ReadWrite))
                 using (var sw = new StreamWriter(fs, Encoding.UTF8))
                 {
-                    await sw.WriteLineAsync($"{m.k}{sep}{m.S}{sep}{m.CV}{sep}");
+                    foreach (var l in lines)
+                        await sw.WriteLineAsync(l);
                 }
             });
 

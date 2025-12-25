@@ -440,7 +440,18 @@ namespace TESMEA_TMS.ViewModels
                 IsIndeterminate = true
             };
             var splash = new Views.CustomControls.ProgressSplashContent { DataContext = splashViewModel };
-            var dialogTask = DialogHost.Show(splash, "MainDialogHost");
+
+            // Sử dụng DialogSession để bắt sự kiện đóng dialog
+            bool isCancelled = false;
+            await DialogHost.Show(splash, "MainDialogHost",
+                (sender, args) =>
+                {
+                    if (args.Session?.IsEnded == true && args.Parameter is bool isCanceled && isCanceled)
+                    {
+                        isCancelled = true;
+                    }
+                });
+
             try
             {
                 (var bienTan, _camBien, var ongGio) = await _parameterService.GetLibraryByIdAsync(Guid.Parse(ThongTinDuAn.ThamSo.KieuKiemThu));
@@ -473,6 +484,15 @@ namespace TESMEA_TMS.ViewModels
                     DialogHost.Close("MainDialogHost");
                 throw;
             }
+            finally
+            {
+                // Nếu dialog bị hủy/cancel thì gọi StopAppAsync
+                if (isCancelled)
+                {
+                    await _externalAppService.StopAppAsync();
+                }
+            }
+
         }
 
         private async void ExecuteStartCommand(object obj)
