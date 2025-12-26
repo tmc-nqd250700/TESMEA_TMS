@@ -340,7 +340,7 @@ namespace TESMEA_TMS.Services
 
                     m.F = MeasureStatus.Completed;
                     connectedRows++;
-                    await Task.Delay(500);
+                    await Task.Delay(5000);
                 }
 
                 if (connectedRows == connectRows)
