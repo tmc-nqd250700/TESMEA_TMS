@@ -29,16 +29,16 @@ namespace TESMEA_TMS.Services
 
         public async Task DeleteUserTempAsync()
         {
-            // delete local app folders, files
-            DeleteAllContents(_localAppPath);
+            //// delete local app folders, files
+            //DeleteAllContents(_localAppPath);
 
-            // delete trend folder
-            ClearFileContents(UserSetting.TOMFAN_folder);
-            foreach (var file in Directory.GetFiles(Path.Combine(UserSetting.TOMFAN_folder, "Trend")))
-            {
-                try { File.Delete(file); } catch {  }
-            }
-            await Task.CompletedTask;
+            //// delete trend folder
+            //ClearFileContents(UserSetting.TOMFAN_folder);
+            //foreach (var file in Directory.GetFiles(Path.Combine(UserSetting.TOMFAN_folder, "Trend")))
+            //{
+            //    try { File.Delete(file); } catch {  }
+            //}
+            //await Task.CompletedTask;
         }
 
         private void DeleteAllContents(string folderPath)

@@ -153,7 +153,7 @@ namespace TESMEA_TMS.ViewModels
 
             try
             {
-                await _externalAppService.StartAppAsync();
+                //await _externalAppService.StartAppAsync();
                 if (_restartCts.Token.IsCancellationRequested) return;
                 Application.Current.Dispatcher.Invoke(() =>
                 {
