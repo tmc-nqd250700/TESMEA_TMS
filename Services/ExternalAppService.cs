@@ -443,7 +443,7 @@ namespace TESMEA_TMS.Services
             return minValue + (maxValue - minValue) * percent / 100f;
         }
 
-        private async Task<bool> ExecuteWithRetryAsync(Func<Task> action, int retries = 5, int delay = 200)
+        private async Task<bool> ExecuteWithRetryAsync(Func<Task> action, int retries = 20, int delay = 200)
         {
             for (int i = 0; i < retries; i++)
             {
@@ -454,6 +454,7 @@ namespace TESMEA_TMS.Services
                 }
                 catch (IOException)
                 {
+                    if (i == retries - 1) throw;
                     await Task.Delay(delay);
                 }
             }
@@ -467,74 +468,135 @@ namespace TESMEA_TMS.Services
             char sep = _isComma ? ' ' : ';';
 
             // ghi vào file csv
-            await ExecuteWithRetryAsync(async () =>
-            {
-                //using (var fs = new FileStream(csvPath, FileMode.Append, FileAccess.Write, FileShare.ReadWrite))
-                //using (var sw = new StreamWriter(fs, Encoding.UTF8))
-                //{
-                //    await sw.WriteLineAsync($"{m.k}{sep}{m.S}{sep}{m.CV}{sep}{col4Value}");
-                //}
-                // Đọc toàn bộ file vào list
-                List<string> lines = new List<string>();
-                if (File.Exists(csvPath))
-                {
-                    using (var fs = new FileStream(csvPath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
-                    using (var sr = new StreamReader(fs, Encoding.UTF8))
-                    {
-                        string? line;
-                        while ((line = await sr.ReadLineAsync()) != null)
-                        {
-                            lines.Add(line);
-                        }
-                    }
-                }
+            //await ExecuteWithRetryAsync(async () =>
+            //{
+            //    //using (var fs = new FileStream(csvPath, FileMode.Append, FileAccess.Write, FileShare.ReadWrite))
+            //    //using (var sw = new StreamWriter(fs, Encoding.UTF8))
+            //    //{
+            //    //    await sw.WriteLineAsync($"{m.k}{sep}{m.S}{sep}{m.CV}{sep}{col4Value}");
+            //    //}
+            //    // Đọc toàn bộ file vào list
+            //    List<string> lines = new List<string>();
+            //    if (File.Exists(csvPath))
+            //    {
+            //        using (var fs = new FileStream(csvPath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+            //        using (var sr = new StreamReader(fs, Encoding.UTF8))
+            //        {
+            //            string? line;
+            //            while ((line = await sr.ReadLineAsync()) != null)
+            //            {
+            //                lines.Add(line);
+            //            }
+            //        }
+            //    }
 
-                // Đảm bảo số dòng >= k
-                int rowIndex = m.k - 1;
-                while (lines.Count <= rowIndex)
-                {
-                    lines.Add(""); // Thêm dòng trống nếu thiếu
-                }
+            //    // Đảm bảo số dòng >= k
+            //    int rowIndex = m.k - 1;
+            //    while (lines.Count <= rowIndex)
+            //    {
+            //        lines.Add(""); // Thêm dòng trống nếu thiếu
+            //    }
 
-                // Ghi đè dòng thứ k
-                lines[rowIndex] = $"{m.k}{sep}{m.S}{sep}{m.CV}{sep}{col4Value}";
+            //    // Ghi đè dòng thứ k
+            //    lines[rowIndex] = $"{m.k}{sep}{m.S}{sep}{m.CV}{sep}{col4Value}";
 
-                // Ghi lại toàn bộ file
-                using (var fs = new FileStream(csvPath, FileMode.Create, FileAccess.Write, FileShare.ReadWrite))
-                using (var sw = new StreamWriter(fs, Encoding.UTF8))
-                {
-                    foreach (var l in lines)
-                        await sw.WriteLineAsync(l);
-                }
-            });
+            //    // Ghi lại toàn bộ file
+            //    using (var fs = new FileStream(csvPath, FileMode.Create, FileAccess.Write, FileShare.ReadWrite))
+            //    using (var sw = new StreamWriter(fs, Encoding.UTF8))
+            //    {
+            //        foreach (var l in lines)
+            //            await sw.WriteLineAsync(l);
+            //    }
+            //});
 
+            //await ExecuteWithRetryAsync(async () =>
+            //{
+            //    ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+            //    using (var package = new ExcelPackage())
+            //    {
+            //        // Mở file nếu đã tồn tại
+            //        if (File.Exists(xlsxPath))
+            //        {
+            //            using (var fs = new FileStream(xlsxPath, FileMode.Open, FileAccess.ReadWrite, FileShare.ReadWrite))
+            //            {
+            //                await package.LoadAsync(fs);
+            //            }
+            //        }
+
+            //        var ws = package.Workbook.Worksheets.FirstOrDefault() ?? package.Workbook.Worksheets.Add("1_T_OUT");
+
+            //        // Cập nhật dòng m.k
+            //        ws.Cells[m.k, 1].Value = m.k;
+            //        ws.Cells[m.k, 2].Value = m.S;
+            //        ws.Cells[m.k, 3].Value = m.CV;
+            //        ws.Cells[m.k, 4].Value = col4Value;
+
+            //        // Lưu lại file
+            //        using (var fs = new FileStream(xlsxPath, FileMode.Create, FileAccess.Write, FileShare.ReadWrite))
+            //        {
+            //            await package.SaveAsAsync(fs);
+            //        }
+            //    }
+            //});
+
+            //await ExecuteWithRetryAsync(async () =>
+            //{
+            //    ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+
+            //    byte[] bin;
+            //    using (var package = new ExcelPackage(new FileInfo(xlsxPath)))
+            //    {
+            //        var ws = package.Workbook.Worksheets.FirstOrDefault() ?? package.Workbook.Worksheets.Add("1_T_OUT");
+
+            //        // Cập nhật dòng mới
+            //        ws.Cells[m.k, 1].Value = m.k;
+            //        ws.Cells[m.k, 2].Value = m.S;
+            //        ws.Cells[m.k, 3].Value = m.CV;
+            //        ws.Cells[m.k, 4].Value = col4Value;
+
+            //        bin = await package.GetAsByteArrayAsync();
+            //    }
+
+            //    using (var fs = new FileStream(xlsxPath, FileMode.Open, FileAccess.Write, FileShare.ReadWrite))
+            //    {
+            //        await fs.WriteAsync(bin, 0, bin.Length);
+            //        await fs.FlushAsync();
+            //    }
+            //});
+
+            // nhớ yêu cầu wincc chuyển sang readonly 
             await ExecuteWithRetryAsync(async () =>
             {
                 ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
-                using (var package = new ExcelPackage())
+                byte[] fileData;
+
+                using (var fs = new FileStream(xlsxPath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
                 {
-                    // Mở file nếu đã tồn tại
-                    if (File.Exists(xlsxPath))
+                    using (var package = new ExcelPackage())
                     {
-                        using (var fs = new FileStream(xlsxPath, FileMode.Open, FileAccess.ReadWrite, FileShare.ReadWrite))
-                        {
-                            await package.LoadAsync(fs);
-                        }
+                        // nạp toàn bộ vào RAM
+                        await package.LoadAsync(fs);
+                        var ws = package.Workbook.Worksheets.FirstOrDefault() ?? package.Workbook.Worksheets.Add("1_T_OUT");
+
+                        // Cập nhật dữ liệu trên RAM
+                        ws.Cells[m.k, 1].Value = m.k;
+                        ws.Cells[m.k, 2].Value = m.S;
+                        ws.Cells[m.k, 3].Value = m.CV;
+                        ws.Cells[m.k, 4].Value = col4Value;
+
+                        // Xuất ra mảng byte
+                        fileData = await package.GetAsByteArrayAsync(); 
                     }
+                } 
+                // Stream đọc đóng tại đây, file được giải phóng ngay lập tức
 
-                    var ws = package.Workbook.Worksheets.FirstOrDefault() ?? package.Workbook.Worksheets.Add("1_T_OUT");
-
-                    // Cập nhật dòng m.k
-                    ws.Cells[m.k, 1].Value = m.k;
-                    ws.Cells[m.k, 2].Value = m.S;
-                    ws.Cells[m.k, 3].Value = m.CV;
-                    ws.Cells[m.k, 4].Value = col4Value;
-
-                    // Lưu lại file
-                    using (var fs = new FileStream(xlsxPath, FileMode.Create, FileAccess.Write, FileShare.ReadWrite))
-                    {
-                        await package.SaveAsAsync(fs);
-                    }
+                //  Ghi đè
+                using (var fs = new FileStream(xlsxPath, FileMode.Open, FileAccess.Write, FileShare.ReadWrite))
+                {
+                    // Xóa nội dung cũ và ghi mới từ đầu
+                    fs.SetLength(0);
+                    await fs.WriteAsync(fileData, 0, fileData.Length);
+                    await fs.FlushAsync();
                 }
             });
         }
