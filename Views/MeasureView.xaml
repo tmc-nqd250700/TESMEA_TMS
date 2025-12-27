@@ -98,11 +98,12 @@
                 <GroupBox Header="{lex:Loc groupbox_Action}" Grid.Row="1" Margin="5">
                     <StackPanel>
                         <UniformGrid Columns="3">
-                            <Button Grid.Row="0" Grid.Column="0" Content="CONNECT" Margin="0 0 5 5" Command="{Binding ConnectCommand}" Padding="0"/>
-                            <Button Grid.Row="0" Grid.Column="1" Content="START" Margin="0 0 5 5" Command="{Binding StartCommand}"/>
-                            <Button Grid.Row="0" Grid.Column="2" Content="ESTOP" Margin="0 0 5 5" Style="{StaticResource ForceStopButtonStyle}" Command="{Binding StopCommand}"/>
-                            <Button Grid.Row="0" Grid.Column="3" Content="TREND" Margin="0 0 5 5" Command="{Binding TrendCommand}"/>
-                            <Button Grid.Row="0" Grid.Column="3" Content="RESET" Margin="0 0 5 5" Command="{Binding ResetCommand}" Style="{StaticResource SolidButtonStyle}"/>
+                            <Button Content="CONNECT" Margin="0 0 5 5" Command="{Binding ConnectCommand}" Padding="0"/>
+                            <Button Content="CONNECT_2" Margin="0 0 5 5" Command="{Binding ConnectCommand2}" Padding="0"/>
+                            <Button Content="START" Margin="0 0 5 5" Command="{Binding StartCommand}"/>
+                            <Button Content="ESTOP" Margin="0 0 5 5" Style="{StaticResource ForceStopButtonStyle}" Command="{Binding StopCommand}"/>
+                            <Button Content="TREND" Margin="0 0 5 5" Command="{Binding TrendCommand}"/>
+                            <Button Content="RESET" Margin="0 0 5 5" Command="{Binding ResetCommand}" Style="{StaticResource SolidButtonStyle}"/>
                         </UniformGrid>
                         <UniformGrid Columns="2" Visibility="{Binding IsTorqueVisible, Converter={StaticResource BoolToVisibilityConverter}}">
                             <RadioButton Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Margin="0 5" GroupName="torqueCheck" Content="Không momen xoắn" IsChecked="{Binding IsTorque, Converter={StaticResource BooleanReverseConverter}, Mode=TwoWay}"/>

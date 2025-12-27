@@ -45,6 +45,7 @@ namespace TESMEA_TMS.ViewModels
         public bool CanMeasure => !_isMeasuring && _externalAppService.IsConnectedToSimatic;
 
         private bool _isConnected;
+        private bool _isConnectedRow1;
         private bool _isCompleted;
         private CamBien _camBien { get; set; } = new CamBien();
 
@@ -140,6 +141,7 @@ namespace TESMEA_TMS.ViewModels
 
         // Commands
         public ICommand ConnectCommand { get; }
+        public ICommand ConnectCommand2 { get; }
         public ICommand StartCommand { get; }
         public ICommand StopCommand { get; }
         public ICommand ResetCommand { get; }
@@ -192,6 +194,8 @@ namespace TESMEA_TMS.ViewModels
             SelectedReportTemplate.Value = ReportTemplates[0].Value;
 
             ConnectCommand = new ViewModelCommand(CanConnect, ExecuteConnectCommand);
+            ConnectCommand2 = new ViewModelCommand(CanConnect2, ExecuteConnectCommand2);
+
             StartCommand = new ViewModelCommand(CanStart, ExecuteStartCommand);
             StopCommand = new ViewModelCommand(CanStop, ExecuteStopCommand);
             ResetCommand = new ViewModelCommand(CanReset, ExecuteResetCommand);
@@ -387,8 +391,6 @@ namespace TESMEA_TMS.ViewModels
             EfficiencyPlotModel.Series.Add(totalEfficiencySeries);
         }
 
-
-
         private void ExecuteFinishCommand(object obj)
         {
             var isFinish = MessageBoxHelper.ShowQuestion("Bạn có chắc chắn muốn hoàn thành đo kiểm và quay lại trang chính không?");
@@ -408,7 +410,7 @@ namespace TESMEA_TMS.ViewModels
                     // Xóa tất cả file
                     foreach (var file in Directory.GetFiles(UserSetting.TOMFAN_folder))
                     {
-                        try { File.WriteAllText(file, string.Empty); } catch {  }
+                        try { File.WriteAllText(file, string.Empty); } catch { }
                     }
                     // Xóa tất cả thư mục con
                     foreach (var dir in Directory.GetDirectories(UserSetting.TOMFAN_folder))
@@ -426,12 +428,52 @@ namespace TESMEA_TMS.ViewModels
             ThongTinDoKiem = new ThongTinDoKiem();
             ThongTinDuAn = new ThongTinDuAn();
         }
-        private bool CanConnect(object obj) => !_isConnected;
-        private bool CanStart(object obj) => _isConnected && !_isMeasuring && !_isCompleted;
+        private bool CanConnect(object obj) => !_isConnected && !_isConnectedRow1;
+        private bool CanConnect2(object obj) => !_isConnected && _isConnectedRow1;
+        private bool CanStart(object obj) => _isConnected && _isConnectedRow1 && !_isMeasuring && !_isCompleted;
         private bool CanStop(object obj) => _isMeasuring;
         private bool CanReset(object obj) => _isCompleted && !_isMeasuring;
         private bool CanTrend(object obj) => SelectedMeasure != null && (TrendLineDialog == null || !TrendLineDialog.IsLoaded);
 
+        private async void ExecuteConnectCommand2(object obj)
+        {
+            var splashViewModel = new ProgressSplashViewModel
+            {
+                Message = "Đang kiểm tra kết nối với Simatic...",
+                IsIndeterminate = true
+            };
+            var splash = new Views.CustomControls.ProgressSplashContent { DataContext = splashViewModel };
+            var dialogTask = DialogHost.Show(splash, "MainDialogHost");
+            try
+            {
+                if (!MeasureRows.Where(x => x.k == 2).Any())
+                {
+                    throw new BusinessException("Không có dữ liệu cho dòng kết nối thứ 2");
+                }
+                SelectedMeasure = MeasureRows.Where(x => x.k == 2).First();
+                var scenario = await _parameterService.GetScenarioAsync(ThongTinDuAn.ThamSo.KichBan);
+                if (scenario == null)
+                {
+                    throw new BusinessException("Không tìm thấy kịch bản đo kiểm");
+                }
+
+                if (await _externalAppService.ConnectExchangeAsync(SelectedMeasure, scenario.TimeRange))
+                {
+                    _isConnected = true;
+                    _isCompleted = false;
+                    if (DialogHost.IsDialogOpen("MainDialogHost"))
+                        DialogHost.Close("MainDialogHost");
+                    OnPropertyChanged(nameof(SimaticStatus));
+                }
+
+            }
+            catch (Exception ex)
+            {
+                if (DialogHost.IsDialogOpen("MainDialogHost"))
+                    DialogHost.Close("MainDialogHost");
+                throw;
+            }
+        }
 
         private async void ExecuteConnectCommand(object obj)
         {
@@ -462,7 +504,7 @@ namespace TESMEA_TMS.ViewModels
                 }
 
                 await _externalAppService.ConnectExchangeAsync(MeasureRows.ToList(), bienTan, _camBien, ongGio, ThongTinDuAn.ThongTinMauThuNghiem, scenario.StandardDeviation, scenario.TimeRange);
-                _isConnected = true;
+                _isConnectedRow1 = true;
                 _isCompleted = false;
                 if (DialogHost.IsDialogOpen("MainDialogHost"))
                     DialogHost.Close("MainDialogHost");
@@ -563,11 +605,11 @@ namespace TESMEA_TMS.ViewModels
                 // Xóa tất cả file
                 foreach (var file in Directory.GetFiles(UserSetting.TOMFAN_folder))
                 {
-                    try { File.WriteAllText(file, string.Empty); } catch {  }
+                    try { File.WriteAllText(file, string.Empty); } catch { }
                 }
                 foreach (var file in Directory.GetFiles(UserSetting.TOMFAN_folder))
                 {
-                    try { File.Delete(file); } catch {  }
+                    try { File.Delete(file); } catch { }
                 }
             }
             _externalAppService.StopExchangeAsync().Wait();
@@ -659,7 +701,7 @@ namespace TESMEA_TMS.ViewModels
                 //var powerSeries = PowerPlotModel.Series.OfType<ScatterSeries>().FirstOrDefault();
                 //if (powerSeries == null) return;
                 //powerSeries.Points.Add(new ScatterPoint(response.Airflow, response.Power));
-                
+
                 if (_powerScatterLiveSeries == null)
                 {
                     _powerScatterLiveSeries = PowerPlotModel.Series.OfType<ScatterSeries>().FirstOrDefault();
@@ -680,8 +722,8 @@ namespace TESMEA_TMS.ViewModels
                     yAxisPw.Maximum = response.Power + yAxisPw.MajorStep;
                 }
 
-                
-                
+
+
                 #endregion
 
                 #region Eff Plot
@@ -813,7 +855,7 @@ namespace TESMEA_TMS.ViewModels
                     MarkerFill = OxyColors.Red,
                     MarkerStroke = OxyColors.Red,
                     MarkerSize = 4,
-                    Title = "", 
+                    Title = "",
                 };
 
                 LineSeries pwLine = new LineSeries
@@ -832,7 +874,7 @@ namespace TESMEA_TMS.ViewModels
                         pwSeries.Points.Add(new ScatterPoint(fitting.Ope_FlowPoint[i], fitting.Ope_PrPoint[i]));
                         pwLine.Points.Add(new DataPoint(fitting.FlowPoint_ft[i], fitting.PrPoint_ft[i]));
                     }
-                    
+
                 }
                 else
                 {
@@ -936,7 +978,7 @@ namespace TESMEA_TMS.ViewModels
                         Position = AxisPosition.Right,
                         Title = IsEn ? "Efficiency (%)" : "Hiệu suất (%)",
                         Minimum = 0,
-                        Maximum= 100,
+                        Maximum = 100,
                         MajorGridlineStyle = LineStyle.None,
                         MinorGridlineStyle = LineStyle.None,
                         TextColor = OxyColors.Blue,
@@ -1035,8 +1077,8 @@ namespace TESMEA_TMS.ViewModels
 
                     staticPressureLine.Points.Add(new DataPoint(fitting.FlowPoint_ft[i], fitting.PsPoint_ft[i])); // Ps Fitting
                     totalPressureLine.Points.Add(new DataPoint(fitting.FlowPoint_ft[i], fitting.PtPoint_ft[i])); // Pt Fitting
-                   
-                    
+
+
                     if (!IsTorque)
                     {
                         staticEfficiencyScatter.Points.Add(new ScatterPoint(fitting.Ope_FlowPoint[i], fitting.Ope_EsPoint[i])); // Es
