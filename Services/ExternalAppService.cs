@@ -52,20 +52,21 @@ namespace TESMEA_TMS.Services
             _trendFolder = Path.Combine(_exchangeFolder, "Trend");
         }
 
+        // mở wincc
         public async Task StartAppAsync()
         {
             string winccExePath = UserSetting.Instance.WinccExePath;
             string simaticProjectPath = UserSetting.Instance.SimaticPath;
 
 
-            // 1. Kiểm tra File Thực thi WinCC
+            // Kiểm tra File Thực thi WinCC
             if (string.IsNullOrEmpty(winccExePath) || !File.Exists(winccExePath))
             {
                 MessageBoxHelper.ShowWarning("Đường dẫn file thực thi WinCC (.exe) không tồn tại");
                 return;
             }
 
-            // 2. Kiểm tra File Dự án (Để chắc chắn có thể mở được)
+            // Kiểm tra File Dự án (Để chắc chắn có thể mở được)
             if (string.IsNullOrEmpty(simaticProjectPath) || !File.Exists(simaticProjectPath))
             {
                 MessageBoxHelper.ShowWarning("Đường dẫn file dự án Simatic/WinCC không tồn tại");
@@ -178,6 +179,7 @@ namespace TESMEA_TMS.Services
             }
         }
 
+        // stop wincc
         public async Task StopAppAsync()
         {
             try
@@ -243,6 +245,7 @@ namespace TESMEA_TMS.Services
             }
         }
 
+        // kiểm tra trạng thái wincc
         public bool IsAppRunning
         {
             get
@@ -286,6 +289,7 @@ namespace TESMEA_TMS.Services
         public bool IsConnectedToSimatic { get; set; } = false;
         private TaskCompletionSource<bool>? _connectCompletionSource;
 
+        // kết nối dòng 1
         public async Task<bool> ConnectExchangeAsync(List<Measure> measures, BienTan inv, CamBien sensor, OngGio duct, ThongTinMauThuNghiem input, float maxmin, float timeRange)
         {
             try
@@ -314,8 +318,8 @@ namespace TESMEA_TMS.Services
                 var result = await WaitForResultAsync(m.k, isConnection: true);
                 if (result == null || Math.Abs(result.S - m.S) > 0.01)
                 {
-                    string errorMsg = result == null ? "Timeout (Không có phản hồi)" : $"Dữ liệu không khớp (S_gửi={m.S}, S_nhận={result.S})";
-                    WriteTomfanLog($"[ERROR] Kết nối thất bại tại dòng k={m.k}: {errorMsg}");
+                    string errorMsg = result == null ? "Timeout" : $"Dữ liệu không khớp (S_gửi={m.S}, S_nhận={result.S})";
+                    WriteTomfanLog($"Kết nối thất bại tại dòng k={m.k}: {errorMsg}");
                     throw new Exception($"Không thể kết nối. Dòng {m.k} lỗi: {errorMsg}");
                 }
 
@@ -331,14 +335,15 @@ namespace TESMEA_TMS.Services
             }
         }
 
+        // kết nối dòng 2
         public async Task<bool> ConnectExchangeAsync(Measure measure, float timeRange)
         {
             try
             {
-                WriteTomfanLog("========== BẮT ĐẦU QUY TRÌNH KẾT NỐI (CONNECT) ==========");
+                WriteTomfanLog("========== BẮT ĐẦU QUY TRÌNH KẾT NỐI ==========");
                 if (!Directory.Exists(_exchangeFolder))
                 {
-                    WriteTomfanLog($"[FATAL] Thư mục trao đổi không tồn tại: {_exchangeFolder}");
+                    WriteTomfanLog($"Thư mục trao đổi không tồn tại: {_exchangeFolder}");
                     throw new BusinessException("Thư mục trao đổi dữ liệu với Simatic không tồn tại");
                 }
 
@@ -349,7 +354,7 @@ namespace TESMEA_TMS.Services
                 if (result == null || Math.Abs(result.S - measure.S) > 0.01)
                 {
                     string errorMsg = result == null ? "Timeout (Không có phản hồi)" : $"Dữ liệu không khớp (S_gửi={measure.S}, S_nhận={result.S})";
-                    WriteTomfanLog($"[ERROR] Kết nối thất bại tại dòng k={measure.k}: {errorMsg}");
+                    WriteTomfanLog($"Kết nối thất bại tại dòng k={measure.k}: {errorMsg}");
                     throw new Exception($"Không thể kết nối. Dòng {measure.k} lỗi: {errorMsg}");
                 }
 
@@ -359,22 +364,24 @@ namespace TESMEA_TMS.Services
                 IsConnectedToSimatic = true;
                 OnSimaticConnectionChanged?.Invoke(true);
                 _currentIndex = measure.k;
-                WriteTomfanLog("SUCCESS: Đã thiết lập kết nối với Simatic thành công.");
+                WriteTomfanLog("Đã thiết lập kết nối với Simatic thành công.");
                 return true;
             }
             catch (Exception ex)
             {
-                WriteTomfanLog($"[CRITICAL] Lỗi trong ConnectExchangeAsync: {ex.Message}");
+                WriteTomfanLog($"Lỗi trong ConnectExchangeAsync: {ex.Message}");
                 throw;
             }
         }
+
+        // đo kiểm từ dòng 3
         public async Task StartExchangeAsync()
         {
             try
             {
                 if (!IsConnectedToSimatic)
                 {
-                    WriteTomfanLog("[WARN] StartExchange bị từ chối: Chưa kết nối Simatic.");
+                    WriteTomfanLog("StartExchange bị từ chối: Chưa kết nối Simatic.");
                     MessageBoxHelper.ShowWarning("Chưa kết nối với Simatic.");
                     return;
                 }
@@ -387,7 +394,7 @@ namespace TESMEA_TMS.Services
                 for (int i = _currentIndex; i < _measures.Count; i++)
                 {
                     var m = _measures[i];
-                    WriteTomfanLog($"Processing: Đang xử lý điểm đo k={m.k}/{_measures.Count}");
+                    WriteTomfanLog($"Đang xử lý điểm đo k={m.k}/{_measures.Count}");
 
                     await WriteDataToFilesAsync(m);
 
@@ -396,7 +403,7 @@ namespace TESMEA_TMS.Services
 
                     if (result != null)
                     {
-                        WriteTomfanLog($"Received: Đã nhận kết quả k={m.k}. Tiến hành tính toán PointMeasure.");
+                        WriteTomfanLog($"Đã nhận kết quả k={m.k}. Tiến hành tính toán PointMeasure.");
                         m.F = MeasureStatus.Completed;
                         _simaticResults.Add(result);
 
@@ -404,11 +411,11 @@ namespace TESMEA_TMS.Services
                         OnMeasurePointCompleted?.Invoke(measurePoint, DataProcess.ParaShow(result, _inv, _sensor, _duct, _input));
                         OnSimaticResultReceived?.Invoke(m);
 
-                        WriteTomfanLog($"Done: Hoàn tất điểm đo k={m.k}. Nghỉ 5s...");
+                        WriteTomfanLog($"Hoàn tất điểm đo k={m.k}. Nghỉ 5s...");
                     }
                     else
                     {
-                        WriteTomfanLog($"[ERROR]: Điểm đo k={m.k} thất bại do Timeout.");
+                        WriteTomfanLog($"Điểm đo k={m.k} thất bại do Timeout.");
                         m.F = MeasureStatus.Error;
                         OnSimaticResultReceived?.Invoke(m);
                     }
@@ -421,10 +428,12 @@ namespace TESMEA_TMS.Services
             }
             catch (Exception ex)
             {
-                WriteTomfanLog($"[CRITICAL] Lỗi trong StartExchangeAsync: {ex.Message}");
+                WriteTomfanLog($"Lỗi trong StartExchangeAsync: {ex.Message}");
                 throw;
             }
         }
+
+        // estop
         public async Task StopExchangeAsync()
         {
             if (_watcher != null)
@@ -439,11 +448,13 @@ namespace TESMEA_TMS.Services
             IsConnectedToSimatic = false;
         }
 
+        // tính giá trị trả về từ %
         private float CalcSimatic(float minValue, float maxValue, float percent)
         {
             return minValue + (maxValue - minValue) * percent / 100f;
         }
 
+        // retry n lần nếu file bị khóa
         private async Task<bool> ExecuteWithRetryAsync(Func<Task> action, int retries = 20, int delay = 200)
         {
             for (int i = 0; i < retries; i++)
@@ -455,10 +466,10 @@ namespace TESMEA_TMS.Services
                 }
                 catch (IOException ex)
                 {
-                    WriteTomfanLog($"[RETRY {i + 1}/{retries}] File đang bị khóa bởi WinCC: {ex.Message}");
+                    WriteTomfanLog($"retry {i + 1}/{retries}: File đang bị khóa bởi WinCC: {ex.Message}");
                     if (i == retries - 1)
                     {
-                        WriteTomfanLog("[FATAL] Đã thử lại tối đa nhưng vẫn không thể truy cập file.");
+                        WriteTomfanLog("Đã thử lại tối đa nhưng vẫn không thể truy cập file.");
                         throw;
                     }
                     await Task.Delay(delay);
@@ -467,62 +478,99 @@ namespace TESMEA_TMS.Services
             return false;
         }
 
+        // ghi dữ liệu vào file 1.csv, 1.xlsx
         private async Task WriteDataToFilesAsync(Measure m, float col4Value = 0)
         {
-            string xlsxPath = Path.Combine(_exchangeFolder, "1_T_OUT.xlsx");
-            string csvPath = Path.Combine(_exchangeFolder, "1_T_OUT.csv");
-            char sep = _isComma ? ' ' : ';';
-
-            WriteTomfanLog($">>> Ghi dữ liệu dòng k={m.k} (S={m.S}, CV={m.CV})");
-
-            // Ghi CSV
-            await ExecuteWithRetryAsync(async () =>
+            try
             {
-                List<string> lines = new List<string>();
-                if (File.Exists(csvPath))
+                string xlsxPath = Path.Combine(_exchangeFolder, "1_T_OUT.xlsx");
+                string csvPath = Path.Combine(_exchangeFolder, "1_T_OUT.csv");
+                char sep = _isComma ? ' ' : ';';
+                string tempCsvPath = csvPath + ".tmp";
+                string tempXlsxPath = xlsxPath + ".tmp";
+                WriteTomfanLog($">>> Ghi dữ liệu dòng k={m.k} (S={m.S}, CV={m.CV})");
+
+                // Ghi CSV
+                int rowIdx = m.k > 0 ? m.k : 1;
+                await ExecuteWithRetryAsync(async () =>
                 {
-                    lines = (await File.ReadAllLinesAsync(csvPath, Encoding.UTF8)).ToList();
-                }
+                    List<string> lines = new List<string>();
+                    if (File.Exists(csvPath))
+                    {
+                        lines = (await File.ReadAllLinesAsync(csvPath)).ToList();
+                    }
+                    else
+                    {
+                        throw new BusinessException("File 1_T_OUT.csv không tồn tại.");
+                    }
 
-                int rowIndex = m.k - 1;
-                while (lines.Count <= rowIndex) lines.Add("");
-                lines[rowIndex] = $"{m.k}{sep}{m.S}{sep}{m.CV}{sep}{col4Value}";
+                    // Tạo nội dung dòng mới
+                    string newLine = col4Value == 0
+                        ? $"{m.k}{sep}{m.S}{sep}{m.CV}"
+                        : $"{m.k}{sep}{m.S}{sep}{m.CV}{sep}{col4Value}";
 
-                string tempCsv = csvPath + ".tmp";
-                await File.WriteAllLinesAsync(tempCsv, lines, Encoding.UTF8);
-                File.Move(tempCsv, csvPath, true);
-                WriteTomfanLog($"Step: CSV k={m.k} ghi thành công ");
-            });
+                    WriteTomfanLog($"Dữ liệu dòng mới: {newLine}");
+                    while (lines.Count < rowIdx)
+                    {
+                        lines.Add("");
+                    }
+                    lines[rowIdx - 1] = newLine;
+                    await File.WriteAllLinesAsync(tempCsvPath, lines, Encoding.UTF8);
+                    File.Move(tempCsvPath, csvPath, true);
+                    WriteTomfanLog($"Step: CSV row {rowIdx} ghi thành công.");
+                });
 
-            // Ghi XLSX
-            await ExecuteWithRetryAsync(async () =>
-            {
-                ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
-                byte[] fileData;
-
-                using (var fs = new FileStream(xlsxPath, FileMode.OpenOrCreate, FileAccess.Read, FileShare.ReadWrite))
+                // Ghi XLSX
+                await ExecuteWithRetryAsync(async () =>
                 {
+                    ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+                    byte[] fileData;
+
                     using (var package = new ExcelPackage())
                     {
-                        await package.LoadAsync(fs);
+                        if (File.Exists(xlsxPath))
+                        {
+                            using (var fsRead = new FileStream(xlsxPath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                            {
+                                await package.LoadAsync(fsRead);
+                            }
+                        }
+                        else
+                        {
+                            throw new BusinessException("File 1_T_OUT.xlsx không tồn tại.");
+                        }
+
                         var ws = package.Workbook.Worksheets.FirstOrDefault() ?? package.Workbook.Worksheets.Add("1_T_OUT");
 
-                        ws.Cells[m.k, 1].Value = m.k;
-                        ws.Cells[m.k, 2].Value = m.S;
-                        ws.Cells[m.k, 3].Value = m.CV;
-                        ws.Cells[m.k, 4].Value = col4Value;
+                        // make sure index dòng >= 1
+                        int rowIdx = m.k > 0 ? m.k : 1;
+                        ws.Cells[rowIdx, 1].Value = m.k;
+                        ws.Cells[rowIdx, 2].Value = m.S;
+                        ws.Cells[rowIdx, 3].Value = m.CV;
+                        if (col4Value != 0)
+                        {
+                            ws.Cells[rowIdx, 4].Value = col4Value;
+                        }
 
                         fileData = await package.GetAsByteArrayAsync();
                     }
-                }
 
-                string tempPath = xlsxPath + ".tmp";
-                await File.WriteAllBytesAsync(tempPath, fileData);
-                File.Move(tempPath, xlsxPath, true);
-                WriteTomfanLog($"Step: XLSX k={m.k} ghi thành công ");
-            });
+                    using (var fsWrite = new FileStream(tempXlsxPath, FileMode.Create, FileAccess.Write, FileShare.None))
+                    {
+                        await fsWrite.WriteAsync(fileData, 0, fileData.Length);
+                        await fsWrite.FlushAsync();
+                        fsWrite.Flush(true);
+                    }
+                    File.Move(tempXlsxPath, xlsxPath, true);
+                });
+            }
+            catch (Exception ex)
+            {
+                WriteTomfanLog($"Error WriteDataToFilesAsync: {ex}");
+            }
         }
 
+        // chờ kết quả từ file 2.csv
         private async Task<Measure?> WaitForResultAsync(int expectedK, bool isConnection)
         {
             string path2 = Path.Combine(_exchangeFolder, "2_S_IN.csv");
@@ -548,7 +596,7 @@ namespace TESMEA_TMS.Services
 
                                 if (int.TryParse(parts[0], out int k) && k == expectedK)
                                 {
-                                    WriteTomfanLog($"MATCH: Tìm thấy dòng k={k} trong 2_S_IN.csv sau {sw.ElapsedMilliseconds}ms");
+                                    WriteTomfanLog($"Tìm thấy dòng k={k} trong 2_S_IN.csv sau {sw.ElapsedMilliseconds}ms");
                                     var m = new Measure
                                     {
                                         k = k,
@@ -558,8 +606,20 @@ namespace TESMEA_TMS.Services
 
                                     if (!isConnection && parts.Length >= 15)
                                     {
-                                        // ... (Giữ nguyên phần CalcSimatic của bạn)
-                                        WriteTomfanLog("Step: Đã tính toán xong các thông số cảm biến từ WinCC.");
+                                        m.NhietDoMoiTruong_sen = CalcSimatic(_sensor.NhietDoMoiTruongMin, _sensor.NhietDoMoiTruongMax, float.Parse(parts[3], CultureInfo.InvariantCulture));
+                                        m.DoAm_sen = CalcSimatic(_sensor.DoAmMoiTruongMin, _sensor.DoAmMoiTruongMax, float.Parse(parts[4], CultureInfo.InvariantCulture));
+                                        m.ApSuatkhiQuyen_sen = CalcSimatic(_sensor.ApSuatKhiQuyenMin, _sensor.ApSuatKhiQuyenMax, float.Parse(parts[5], CultureInfo.InvariantCulture));
+                                        m.ChenhLechApSuat_sen = CalcSimatic(_sensor.ChenhLechApSuatMin, _sensor.ChenhLechApSuatMax, float.Parse(parts[6], CultureInfo.InvariantCulture));
+                                        m.ApSuatTinh_sen = CalcSimatic(_sensor.ApSuatTinhMin, _sensor.ApSuatTinhMax, float.Parse(parts[7], CultureInfo.InvariantCulture));
+                                        m.DoRung_sen = CalcSimatic(_sensor.DoRungMin, _sensor.DoRungMax, float.Parse(parts[8], CultureInfo.InvariantCulture));
+                                        m.DoOn_sen = CalcSimatic(_sensor.DoOnMin, _sensor.DoOnMax, float.Parse(parts[9], CultureInfo.InvariantCulture));
+                                        m.SoVongQuay_sen = CalcSimatic(_sensor.SoVongQuayMin, _sensor.SoVongQuayMax, float.Parse(parts[10], CultureInfo.InvariantCulture));
+                                        m.Momen_sen = CalcSimatic(_sensor.MomenMin, _sensor.MomenMax, float.Parse(parts[11], CultureInfo.InvariantCulture));
+                                        m.DongDien_fb = CalcSimatic(_sensor.PhanHoiDongDienMin, _sensor.PhanHoiDongDienMax, float.Parse(parts[12], CultureInfo.InvariantCulture));
+                                        m.CongSuat_fb = CalcSimatic(_sensor.PhanHoiCongSuatMin, _sensor.PhanHoiCongSuatMax, float.Parse(parts[13], CultureInfo.InvariantCulture));
+                                        m.ViTriVan_fb = CalcSimatic(_sensor.PhanHoiViTriVanMin, _sensor.PhanHoiViTriVanMax, float.Parse(parts[14], CultureInfo.InvariantCulture));
+                                        m.TanSo_fb = CalcSimatic(_sensor.PhanHoiTanSoMin, _sensor.PhanHoiTanSoMax, float.Parse(parts[1], CultureInfo.InvariantCulture));
+                                        WriteTomfanLog("Đã tính toán xong các thông số cảm biến từ WinCC.");
                                     }
                                     return m;
                                 }
@@ -575,7 +635,7 @@ namespace TESMEA_TMS.Services
                 await Task.Delay(200);
             }
 
-            WriteTomfanLog($"[TIMEOUT] Không nhận được phản hồi cho k={expectedK} sau {UserSetting.Instance.TimeoutMilliseconds}ms");
+            WriteTomfanLog($"Không nhận được phản hồi cho k={expectedK} sau {UserSetting.Instance.TimeoutMilliseconds}ms");
             return null;
         }
 
@@ -593,7 +653,10 @@ namespace TESMEA_TMS.Services
                     File.AppendAllText(logPath, logEntry);
                 }
             }
-            catch { /* Tránh treo app vì lỗi ghi log */ }
+            catch
+            {
+                // Tránh treo app vì lỗi ghi log
+            }
         }
 
         public event Action<bool> OnSimaticConnectionChanged;
