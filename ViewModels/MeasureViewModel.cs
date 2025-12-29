@@ -545,7 +545,7 @@ namespace TESMEA_TMS.ViewModels
         {
             var splashViewModel = new ProgressSplashViewModel
             {
-                Message = "Đang đóng kết nối với Simatic...",
+                Message = "Dừng khẩn cấp kết nối với Simatic...",
                 IsIndeterminate = true
             };
             var splash = new Views.CustomControls.ProgressSplashContent { DataContext = splashViewModel };
@@ -613,6 +613,7 @@ namespace TESMEA_TMS.ViewModels
                 }
             }
             _externalAppService.StopExchangeAsync().Wait();
+            _isConnectedRow1 = false;
             _isCompleted = false;
             _isConnected = false;
         }

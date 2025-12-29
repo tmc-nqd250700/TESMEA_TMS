@@ -397,9 +397,10 @@ namespace TESMEA_TMS.Services
                 double currentS = _measures[_currentIndex].S;
                 int startIndex = 2; // track index của điểm bắt đầu trong dải đo
                 int timeoutMs = UserSetting.Instance.TimeoutMilliseconds;
-
+                using (var fs = File.Create(Path.Combine(_trendFolder, $"{_measures[_currentIndex].k}.csv"))) { }
                 for (int i = _currentIndex; i < _measures.Count; i++)
                 {
+                    _currentIndex = _measures[i].k;
                     var m = _measures[i];
                     WriteTomfanLog($"Đang xử lý điểm đo k={m.k}/{_measures.Count}");
 
@@ -453,7 +454,7 @@ namespace TESMEA_TMS.Services
                         OnSimaticResultReceived?.Invoke(m);
                     }
 
-                    await Task.Delay(5000);
+                    //await Task.Delay(5000);
                 }
 
                 WriteTomfanLog("========== HOÀN TẤT TOÀN BỘ CHU KỲ TRAO ĐỔI ==========");
@@ -469,16 +470,40 @@ namespace TESMEA_TMS.Services
         // estop
         public async Task StopExchangeAsync()
         {
-            if (_watcher != null)
+            //if (_watcher != null)
+            //{
+            //    _watcher.EnableRaisingEvents = false;
+            //    _watcher.Dispose();
+            //    _watcher = null;
+            //}
+            //_measures.Clear();
+            //_simaticResults.Clear();
+            //_currentIndex = 0;
+            //IsConnectedToSimatic = false;
+
+            try
             {
-                _watcher.EnableRaisingEvents = false;
-                _watcher.Dispose();
-                _watcher = null;
+                WriteTomfanLog("--- LỆNH DỪNG KHẨN CẤP (E-STOP) ---");
+                int nextIndex = _currentIndex + 1;
+
+                // Tạo object eStop cho dòng mới
+                var eStopMeasure = new Measure
+                {
+                    k = nextIndex,
+                    S = 0,
+                    CV = 0
+                };
+
+                // Gửi lệnh dừng: tham số eStop = true để ép số 96 vào cột k
+                await WriteDataToFilesAsync(eStopMeasure, 0, true);
+
+                IsConnectedToSimatic = false;
+                WriteTomfanLog($"Đã chèn lệnh E-Stop (96) vào dòng mới k={nextIndex}");
             }
-            _measures.Clear();
-            _simaticResults.Clear();
-            _currentIndex = 0;
-            IsConnectedToSimatic = false;
+            catch (Exception ex)
+            {
+                WriteTomfanLog($"Lỗi trong StopExchangeAsync: {ex.Message}");
+            }
         }
 
         // tính giá trị trả về từ %
@@ -512,7 +537,7 @@ namespace TESMEA_TMS.Services
         }
 
         // ghi dữ liệu vào file 1.csv, 1.xlsx
-        private async Task WriteDataToFilesAsync(Measure m, float col4Value = 0)
+        private async Task WriteDataToFilesAsync(Measure m, float col4Value = 0, bool eStop =false)
         {
             try
             {
@@ -524,6 +549,7 @@ namespace TESMEA_TMS.Services
                 WriteTomfanLog($">>> Ghi dữ liệu dòng k={m.k} (S={m.S}, CV={m.CV})");
 
                 // Ghi CSV
+                int kValueToPrint = eStop ? 96 : m.k;
                 int rowIdx = m.k > 0 ? m.k : 1;
                 await ExecuteWithRetryAsync(async () =>
                 {
@@ -539,7 +565,7 @@ namespace TESMEA_TMS.Services
 
                     // Tạo nội dung dòng mới
                     string newLine = col4Value == 0
-                        ? $"{m.k}{sep}{m.S}{sep}{m.CV}"
+                        ? $"{kValueToPrint}{sep}{m.S}{sep}{m.CV}"
                         : $"{m.k}{sep}{m.S}{sep}{m.CV}{sep}{col4Value}";
 
                     WriteTomfanLog($"Dữ liệu dòng mới: {newLine}");
@@ -577,7 +603,7 @@ namespace TESMEA_TMS.Services
 
                         // make sure index dòng >= 1
                         int rowIdx = m.k > 0 ? m.k : 1;
-                        ws.Cells[rowIdx, 1].Value = m.k;
+                        ws.Cells[rowIdx, 1].Value = kValueToPrint;
                         ws.Cells[rowIdx, 2].Value = m.S;
                         ws.Cells[rowIdx, 3].Value = m.CV;
                         if (col4Value != 0)

@@ -654,7 +654,21 @@ namespace TESMEA_TMS.Helpers
             catch (Exception ex)
             {
 #if DEBUG
-                throw new BusinessException("Lỗi khi tính toán tại một điểm đo: " + ex.Message);
+                //throw new BusinessException("Lỗi khi tính toán tại một điểm đo: " + ex.Message);
+                // return tạm để chạy sang row tiếp theo
+                return new MeasureResponse
+                {
+                    STT = measure.k,
+                    Airflow = 0,
+                    Ps = 0,
+                    Pt = 0,
+                    SEff = 0,
+                    TEff = 0,
+                    Power = 0,
+                    Prt = 0,
+                    Est = 0,
+                    Ett = 0
+                };
 #else
                 return null;
 #endif
