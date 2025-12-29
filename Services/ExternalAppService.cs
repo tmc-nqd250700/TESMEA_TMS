@@ -391,6 +391,13 @@ namespace TESMEA_TMS.Services
                 if (!Directory.Exists(_trendFolder))
                     Directory.CreateDirectory(_trendFolder);
 
+                List<Measure> currentRange = new List<Measure>();
+                int sIndex = 0;
+                int cvIndex = 0;
+                double currentS = _measures[_currentIndex].S;
+                int startIndex = 2; // track index của điểm bắt đầu trong dải đo
+                int timeoutMs = UserSetting.Instance.TimeoutMilliseconds;
+
                 for (int i = _currentIndex; i < _measures.Count; i++)
                 {
                     var m = _measures[i];
@@ -411,7 +418,33 @@ namespace TESMEA_TMS.Services
                         OnMeasurePointCompleted?.Invoke(measurePoint, DataProcess.ParaShow(result, _inv, _sensor, _duct, _input));
                         OnSimaticResultReceived?.Invoke(m);
 
-                        WriteTomfanLog($"Hoàn tất điểm đo k={m.k}. Nghỉ 5s...");
+                        OnSimaticResultReceived?.Invoke(_measures[i]);
+
+                        if (_measures[i].S != currentS)
+                        {
+                            var fitting = DataProcess.FittingFC(currentRange.Count, startIndex);
+                            OnMeasureRangeCompleted?.Invoke(fitting, currentRange.LastOrDefault());
+                            currentRange.Clear();
+                            currentS = _measures[i].S;
+                            startIndex = i;
+                            sIndex++;
+                            cvIndex = 0;
+                        }
+
+                        string fileName = $"{sIndex}{cvIndex}.csv";
+                        string filePath = Path.Combine(_trendFolder, fileName);
+                        using (var fs = File.Create(filePath)) { }
+                        cvIndex++;
+
+                      
+                        var paramShow = DataProcess.ParaShow(result, _inv, _sensor, _duct, _input);
+                        OnMeasurePointCompleted?.Invoke(measurePoint, paramShow);
+                        if (!currentRange.Any(m => m.k == _measures[i].k))
+                        {
+                            currentRange.Add(_measures[i]);
+                        }
+
+                        WriteTomfanLog($"Hoàn tất điểm đo k={m.k}");
                     }
                     else
                     {
