@@ -549,7 +549,7 @@ namespace TESMEA_TMS.Services
                 WriteTomfanLog($">>> Ghi dữ liệu dòng k={m.k} (S={m.S}, CV={m.CV})");
 
                 // Ghi CSV
-                int kValueToPrint = eStop ? 96 : m.k;
+                int kValueToPrint = eStop ? 96 : 100;
                 int rowIdx = m.k > 0 ? m.k : 1;
                 await ExecuteWithRetryAsync(async () =>
                 {
@@ -603,14 +603,15 @@ namespace TESMEA_TMS.Services
 
                         // make sure index dòng >= 1
                         int rowIdx = m.k > 0 ? m.k : 1;
-                        ws.Cells[rowIdx, 1].Value = kValueToPrint;
-                        ws.Cells[rowIdx, 2].Value = m.S;
-                        ws.Cells[rowIdx, 3].Value = m.CV;
+                        // insert m.k khi connect
+                        ws.Cells[rowIdx, 1].Value = m.k;
                         if (col4Value != 0)
                         {
+                            ws.Cells[rowIdx, 1].Value = kValueToPrint;
                             ws.Cells[rowIdx, 4].Value = col4Value;
                         }
-
+                        ws.Cells[rowIdx, 2].Value = m.S;
+                        ws.Cells[rowIdx, 3].Value = m.CV;
                         fileData = await package.GetAsByteArrayAsync();
                     }
 
