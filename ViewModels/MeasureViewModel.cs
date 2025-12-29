@@ -603,14 +603,14 @@ namespace TESMEA_TMS.ViewModels
             if (Directory.Exists(UserSetting.TOMFAN_folder))
             {
                 // Xóa tất cả file
-                foreach (var file in Directory.GetFiles(UserSetting.TOMFAN_folder))
-                {
-                    try { File.WriteAllText(file, string.Empty); } catch { }
-                }
-                foreach (var file in Directory.GetFiles(UserSetting.TOMFAN_folder))
-                {
-                    try { File.Delete(file); } catch { }
-                }
+                //foreach (var file in Directory.GetFiles(UserSetting.TOMFAN_folder))
+                //{
+                //    try { File.WriteAllText(file, string.Empty); } catch { }
+                //}
+                //foreach (var file in Directory.GetFiles(UserSetting.TOMFAN_folder))
+                //{
+                //    try { File.Delete(file); } catch { }
+                //}
             }
             _externalAppService.StopExchangeAsync().Wait();
             _isConnectedRow1 = false;

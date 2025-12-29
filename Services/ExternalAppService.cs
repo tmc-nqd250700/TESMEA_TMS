@@ -604,10 +604,11 @@ namespace TESMEA_TMS.Services
                         // make sure index dòng >= 1
                         int rowIdx = m.k > 0 ? m.k : 1;
                         // insert m.k khi connect
-                        ws.Cells[rowIdx, 1].Value = m.k;
+                        ws.Cells[rowIdx, 1].Value = kValueToPrint;
                         if (col4Value != 0)
                         {
-                            ws.Cells[rowIdx, 1].Value = kValueToPrint;
+                            // override khi la do kiem
+                            ws.Cells[rowIdx, 1].Value = m.k;
                             ws.Cells[rowIdx, 4].Value = col4Value;
                         }
                         ws.Cells[rowIdx, 2].Value = m.S;
