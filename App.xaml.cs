@@ -66,104 +66,109 @@ public partial class App : Application
                 Directory.CreateDirectory(UserSetting.GetLocalAppPath());
 
 
-            //// folder TOMFAN lưu các file exchange, trendline
-            //var exchangeFolder = UserSetting.TOMFAN_folder;
-            //if (!Directory.Exists(exchangeFolder))
-            //{
-            //    Directory.CreateDirectory(exchangeFolder);
-            //    var dirInfo = new DirectoryInfo(exchangeFolder);
-            //    dirInfo.Attributes |= FileAttributes.Hidden;
+            // folder TOMFAN lưu các file exchange, trendline
+            var exchangeFolder = UserSetting.TOMFAN_folder;
+            if (!Directory.Exists(exchangeFolder))
+            {
+                Directory.CreateDirectory(exchangeFolder);
+                var dirInfo = new DirectoryInfo(exchangeFolder);
+                dirInfo.Attributes |= FileAttributes.Hidden;
 
-            //    // Set folder administrators only permissions
-            //    //var dirSecurity = dirInfo.GetAccessControl();
-            //    //dirSecurity.SetAccessRuleProtection(true, false);
-            //    //var adminSid = new SecurityIdentifier(WellKnownSidType.BuiltinAdministratorsSid, null);
-            //    //var accessRule = new FileSystemAccessRule(
-            //    //    adminSid,
-            //    //    FileSystemRights.FullControl,
-            //    //    InheritanceFlags.ContainerInherit | InheritanceFlags.ObjectInherit,
-            //    //    PropagationFlags.None,
-            //    //    AccessControlType.Allow);
-            //    //dirSecurity.SetAccessRule(accessRule);
-            //    //dirInfo.SetAccessControl(dirSecurity);
+                // Set folder administrators only permissions
+                //var dirSecurity = dirInfo.GetAccessControl();
+                //dirSecurity.SetAccessRuleProtection(true, false);
+                //var adminSid = new SecurityIdentifier(WellKnownSidType.BuiltinAdministratorsSid, null);
+                //var accessRule = new FileSystemAccessRule(
+                //    adminSid,
+                //    FileSystemRights.FullControl,
+                //    InheritanceFlags.ContainerInherit | InheritanceFlags.ObjectInherit,
+                //    PropagationFlags.None,
+                //    AccessControlType.Allow);
+                //dirSecurity.SetAccessRule(accessRule);
+                //dirInfo.SetAccessControl(dirSecurity);
 
-            //    // Create folder trend and 2 files to exchange
-            //    if (!Directory.Exists(Path.Combine(exchangeFolder, "Trend")))
-            //    {
-            //        Directory.CreateDirectory(Path.Combine(exchangeFolder, "Trend"));
-            //    }
-            //    using (var writer2 = new StreamWriter(Path.Combine(exchangeFolder, "1_T_OUT.csv")))
-            //    {
-            //    }
+                // Create folder trend and 2 files to exchange
+                if (!Directory.Exists(Path.Combine(exchangeFolder, "Trend")))
+                {
+                    Directory.CreateDirectory(Path.Combine(exchangeFolder, "Trend"));
+                }
+                using (var writer2 = new StreamWriter(Path.Combine(exchangeFolder, "1_T_OUT.csv")))
+                {
+                }
 
-            //    using (var writer2 = new StreamWriter(Path.Combine(exchangeFolder, "2_S_IN.csv")))
-            //    {
-            //    }
+                using (var writer2 = new StreamWriter(Path.Combine(exchangeFolder, "2_S_IN.csv")))
+                {
+                }
 
-            //    string xlsxPath = Path.Combine(exchangeFolder, "1_T_OUT.xlsx");
-            //    if (!File.Exists(xlsxPath))
-            //    {
-            //        ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
-            //        using (var package = new ExcelPackage(new FileInfo(xlsxPath)))
-            //        {
-            //            package.Workbook.Worksheets.Add("1_T_OUT");
-            //            package.Save();
-            //        }
-            //    }
-            //}
-            //else
-            //{
-            //    // check if files exist then clear content, otherwise create new files
-            //    var files = Directory.GetFiles(exchangeFolder, "*.csv");
-            //    if (files.Length == 0)
-            //    {
-            //        using (var writer2 = new StreamWriter(Path.Combine(exchangeFolder, "1_T_OUT.csv")))
-            //        {
-            //        }
+                string xlsxPath = Path.Combine(exchangeFolder, "1_T_OUT.xlsx");
+                if (!File.Exists(xlsxPath))
+                {
+                    ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
+                    using (var package = new ExcelPackage(new FileInfo(xlsxPath)))
+                    {
+                        package.Workbook.Worksheets.Add("1_T_OUT");
+                        package.Save();
+                    }
+                }
+            }
+            else
+            {
+                // check if files exist then clear content, otherwise create new files
+                var files = Directory.GetFiles(exchangeFolder, "*.csv");
+                if (files.Length == 0)
+                {
+                    using (var writer2 = new StreamWriter(Path.Combine(exchangeFolder, "1_T_OUT.csv")))
+                    {
+                    }
 
-            //        using (var writer2 = new StreamWriter(Path.Combine(exchangeFolder, "2_S_IN.csv")))
-            //        {
-            //        }
-            //    }
-            //    else
-            //    {
-            //        foreach (var file in Directory.GetFiles(exchangeFolder))
-            //        {
-            //            try { File.WriteAllText(file, string.Empty); } catch {  }
-            //        }
+                    using (var writer2 = new StreamWriter(Path.Combine(exchangeFolder, "2_S_IN.csv")))
+                    {
+                    }
+                }
+                else
+                {
+                    foreach (var file in Directory.GetFiles(exchangeFolder))
+                    {
+                        try { File.WriteAllText(file, string.Empty); } catch {  }
+                    }
 
-            //    }
+                }
 
-            //    string xlsxPath = Path.Combine(exchangeFolder, "1_T_OUT.xlsx");
-            //    if (!File.Exists(xlsxPath))
-            //    {
-            //        ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
-            //        using (var package = new ExcelPackage(new FileInfo(xlsxPath)))
-            //        {
-            //            package.Workbook.Worksheets.Add("1_T_OUT");
-            //            package.Save();
-            //        }
-            //    }
+                string xlsxPath = Path.Combine(exchangeFolder, "1_T_OUT.xlsx");
+                if (!File.Exists(xlsxPath))
+                {
+                    ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
+                    using (var package = new ExcelPackage(new FileInfo(xlsxPath)))
+                    {
+                        package.Workbook.Worksheets.Add("1_T_OUT");
+                        package.Save();
+                    }
+                }
+                else
+                {
+                    ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
+                    using (var package = new ExcelPackage(new FileInfo(xlsxPath)))
+                    {
+                        var ws = package.Workbook.Worksheets.FirstOrDefault();
+                        if (ws != null) ws.Cells.Clear();
+                        else package.Workbook.Worksheets.Add("1_T_OUT");
+                    }
+                }
 
-            //    // trend folder
-            //    if (!Directory.Exists(Path.Combine(exchangeFolder, "Trend")))
-            //    {
-            //        Directory.CreateDirectory(Path.Combine(exchangeFolder, "Trend"));
-            //    }
-            //    else
-            //    {
-            //        // delete all files in trend folder
-            //        foreach (var file in Directory.GetFiles(Path.Combine(exchangeFolder, "Trend")))
-            //        {
-            //            try { File.Delete(file); } catch {  }
-            //        }
-            //    }
-            //}
-
-
-
-                // navigate to login
-                
+                // trend folder
+                if (!Directory.Exists(Path.Combine(exchangeFolder, "Trend")))
+                {
+                    Directory.CreateDirectory(Path.Combine(exchangeFolder, "Trend"));
+                }
+                else
+                {
+                    // delete all files in trend folder
+                    foreach (var file in Directory.GetFiles(Path.Combine(exchangeFolder, "Trend")))
+                    {
+                        try { File.Delete(file); } catch { }
+                    }
+                }
+            }
             navigationService.ShowLoginWindow();
         }
         catch (Exception ex)

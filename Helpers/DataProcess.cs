@@ -656,6 +656,7 @@ namespace TESMEA_TMS.Helpers
 #if DEBUG
                 //throw new BusinessException("Lỗi khi tính toán tại một điểm đo: " + ex.Message);
                 // return tạm để chạy sang row tiếp theo
+                LogCalculation("Lỗi khi tính toán tại một điểm đo: " + ex.Message);
                 return new MeasureResponse
                 {
                     STT = measure.k,

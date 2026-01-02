@@ -210,9 +210,9 @@ namespace TESMEA_TMS.ViewModels
                 MessageBox.Show("Nhập timeout lớn hơn 0", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
-            if (Timeout > 360)
+            if (Timeout > 1800)
             {
-                MessageBox.Show("Nhập timeout nhỏ hơn hoặc bằng 360 giây", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show("Nhập timeout nhỏ hơn hoặc bằng 30 phút", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
 
             // ChangePassword if have values
