@@ -169,33 +169,33 @@ namespace TESMEA_TMS.Services
             window.ShowDialog();
         }
 
-        public void ShowTrendDialog(int k)
-        {
-            var dialog = new TrendLineDialog(k);
-            var mainWindow = Application.Current.Windows
-                            .OfType<Window>()
-                            .FirstOrDefault(w => w is TESMEA_TMS.Views.MainWindow);
-            dialog.Title = $"Trend line k = {k}";
-            dialog.WindowStartupLocation = WindowStartupLocation.CenterOwner;
-            dialog.ResizeMode = ResizeMode.NoResize;
-            dialog.WindowStyle = WindowStyle.ToolWindow;
-            dialog.ShowInTaskbar = false;
-            if (mainWindow != null && mainWindow != dialog)
-            {
-                dialog.Owner = mainWindow;
-            }
-            dialog.Closing += (s, e) =>
-            {
-                if (dialog.DataContext is SettingViewModel vm)
-                {
-                    if (!vm.CanClose())
-                    {
-                        e.Cancel = true;
-                    }
-                }
-            };
-            dialog.ShowDialog();
-        }
+        //public void ShowTrendDialog(int k)
+        //{
+        //    var dialog = new TrendLineDialog(k);
+        //    var mainWindow = Application.Current.Windows
+        //                    .OfType<Window>()
+        //                    .FirstOrDefault(w => w is TESMEA_TMS.Views.MainWindow);
+        //    dialog.Title = $"Trend line k = {k}";
+        //    dialog.WindowStartupLocation = WindowStartupLocation.CenterOwner;
+        //    dialog.ResizeMode = ResizeMode.NoResize;
+        //    dialog.WindowStyle = WindowStyle.ToolWindow;
+        //    dialog.ShowInTaskbar = false;
+        //    if (mainWindow != null && mainWindow != dialog)
+        //    {
+        //        dialog.Owner = mainWindow;
+        //    }
+        //    dialog.Closing += (s, e) =>
+        //    {
+        //        if (dialog.DataContext is SettingViewModel vm)
+        //        {
+        //            if (!vm.CanClose())
+        //            {
+        //                e.Cancel = true;
+        //            }
+        //        }
+        //    };
+        //    dialog.ShowDialog();
+        //}
 
         public void RestartApplication()
         {

@@ -654,7 +654,7 @@ namespace TESMEA_TMS.ViewModels
 
             if (TrendLineDialog == null || !TrendLineDialog.IsLoaded)
             {
-                TrendLineDialog = new Views.TrendLineDialog(SelectedMeasure.k);
+                TrendLineDialog = new Views.TrendLineDialog(SelectedMeasure.k, _camBien);
                 TrendLineDialog.Closed += (s, e) => TrendLineDialog = null;
                 TrendLineDialog.Show();
             }

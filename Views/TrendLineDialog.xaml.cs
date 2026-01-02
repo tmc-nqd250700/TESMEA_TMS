@@ -1,7 +1,6 @@
 ﻿using OxyPlot;
 using OxyPlot.Axes;
 using OxyPlot.Series;
-using OfficeOpenXml;
 using System.IO;
 using System.Windows;
 using TESMEA_TMS.DTOs;
@@ -9,7 +8,8 @@ using TESMEA_TMS.Configs;
 using System.Diagnostics;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using LicenseContext = OfficeOpenXml.LicenseContext;
+using TESMEA_TMS.Models.Entities;
+using System.Globalization;
 
 namespace TESMEA_TMS.Views
 {
@@ -37,12 +37,14 @@ namespace TESMEA_TMS.Views
             }
         }
         private int _currentK;
+        private CamBien _sensor;
 
-        public TrendLineDialog(int k)
+        public TrendLineDialog(int k, CamBien sensor)
         {
             InitializeComponent();
             DataContext = this;
             _currentK = k;
+            _sensor = sensor;
             TrendPlotModel = new PlotModel
             {
                 Title = $"Trend line k = {k}",
@@ -76,7 +78,7 @@ namespace TESMEA_TMS.Views
                 new ComboBoxInfo("DoAm_sen", "Độ ẩm"),
                 new ComboBoxInfo("ApSuatkhiQuyen_sen", "Áp suất khí quyển"),
                 new ComboBoxInfo("ChenhLechApSuat_sen", "Chênh lệch áp suất"),
-                new ComboBoxInfo("ApSuatTinh_sen", "Áp suất tính"),
+                new ComboBoxInfo("ApSuatTinh_sen", "Áp suất tĩnh"),
                 new ComboBoxInfo("DoRung_sen", "Độ rung"),
                 new ComboBoxInfo("DoOn_sen", "Độ ồn"),
                 new ComboBoxInfo("SoVongQuay_sen", "Tốc độ quay"),
@@ -90,89 +92,50 @@ namespace TESMEA_TMS.Views
             LoadTrendDataAndDraw(_currentK, SelectedPV);
         }
 
-        //public void LoadTrendDataAndDraw(int k, string pvType)
-        //{
-        // 
+        private float CalcSimatic(float minValue, float maxValue, float percent)
+        {
+            return minValue + (maxValue - minValue) * percent / 100f;
+        }
         public void LoadTrendDataAndDraw(int k, string pvType)
         {
-            var fileFormat = "csv"; // Temporary setting to "csv"
+            var fileFormat = "csv"; 
             var trendFolder = Path.Combine(UserSetting.TOMFAN_folder, "Trend");
             if (!Directory.Exists(trendFolder)) return;
 
-            // Dynamically select files based on the file format
-            var files = Directory.GetFiles(trendFolder, $"{k}.*.{fileFormat}");
+            var files = Directory.GetFiles(trendFolder, $"{k}.{fileFormat}");
             if (files.Length == 0) return;
 
             var filePath = files[0];
             var trendList = new List<TrendTime>();
 
-            if (fileFormat == "xlsx")
+            using (var reader = new StreamReader(filePath))
             {
-                // Handle Excel files
-                ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
-                using (var package = new ExcelPackage(new FileInfo(filePath)))
+                string? line;
+                int row = 0;
+                while ((line = reader.ReadLine()) != null)
                 {
-                    var worksheet = package.Workbook.Worksheets.FirstOrDefault();
-                    if (worksheet != null)
+                    row++;
+                    if (row < 0) continue;
+                    var values = line.Split(' ');
+                    if (values.Length < 13) continue;
+                    var trend = new TrendTime
                     {
-                        for (int row = 3; row <= worksheet.Dimension.End.Row; row++)
-                        {
-                            var trend = new TrendTime
-                            {
-                                Index = int.TryParse(worksheet.Cells[row, 1].Text, out var idx) ? idx : 0,
-                                Time = float.TryParse(worksheet.Cells[row, 2].Text, out var time) ? time : 0,
-                                NhietDoMoiTruong_sen = float.TryParse(worksheet.Cells[row, 3].Text, out var pv1) ? pv1 : 0,
-                                DoAm_sen = float.TryParse(worksheet.Cells[row, 4].Text, out var pv2) ? pv2 : 0,
-                                ApSuatkhiQuyen_sen = float.TryParse(worksheet.Cells[row, 5].Text, out var pv3) ? pv3 : 0,
-                                ChenhLechApSuat_sen = float.TryParse(worksheet.Cells[row, 6].Text, out var pv4) ? pv4 : 0,
-                                ApSuatTinh_sen = float.TryParse(worksheet.Cells[row, 7].Text, out var pv5) ? pv5 : 0,
-                                DoRung_sen = float.TryParse(worksheet.Cells[row, 8].Text, out var pv6) ? pv6 : 0,
-                                DoOn_sen = float.TryParse(worksheet.Cells[row, 9].Text, out var pv7) ? pv7 : 0,
-                                SoVongQuay_sen = float.TryParse(worksheet.Cells[row, 10].Text, out var pv8) ? pv8 : 0,
-                                Momen_sen = float.TryParse(worksheet.Cells[row, 11].Text, out var pv9) ? pv9 : 0,
-                                DongDien_fb = float.TryParse(worksheet.Cells[row, 12].Text, out var fb1) ? fb1 : 0,
-                                CongSuat_fb = float.TryParse(worksheet.Cells[row, 13].Text, out var fb2) ? fb2 : 0,
-                                ViTriVan_fb = float.TryParse(worksheet.Cells[row, 14].Text, out var fb3) ? fb3 : 0,
-                            };
-                            trendList.Add(trend);
-                        }
-                    }
-                }
-            }
-            else if (fileFormat == "csv")
-            {
-                // Handle CSV files
-                using (var reader = new StreamReader(filePath))
-                {
-                    string? line;
-                    int row = 0;
-                    while ((line = reader.ReadLine()) != null)
-                    {
-                        row++;
-                        if (row < 3) continue; // Skip header rows
-
-                        var values = line.Split(' ');
-                        if (values.Length < 14) continue;
-
-                        var trend = new TrendTime
-                        {
-                            Index = int.TryParse(values[0], out var idx) ? idx : 0,
-                            Time = float.TryParse(values[1], out var time) ? time : 0,
-                            NhietDoMoiTruong_sen = float.TryParse(values[2], out var pv1) ? pv1 : 0,
-                            DoAm_sen = float.TryParse(values[3], out var pv2) ? pv2 : 0,
-                            ApSuatkhiQuyen_sen = float.TryParse(values[4], out var pv3) ? pv3 : 0,
-                            ChenhLechApSuat_sen = float.TryParse(values[5], out var pv4) ? pv4 : 0,
-                            ApSuatTinh_sen = float.TryParse(values[6], out var pv5) ? pv5 : 0,
-                            DoRung_sen = float.TryParse(values[7], out var pv6) ? pv6 : 0,
-                            DoOn_sen = float.TryParse(values[8], out var pv7) ? pv7 : 0,
-                            SoVongQuay_sen = float.TryParse(values[9], out var pv8) ? pv8 : 0,
-                            Momen_sen = float.TryParse(values[10], out var pv9) ? pv9 : 0,
-                            DongDien_fb = float.TryParse(values[11], out var fb1) ? fb1 : 0,
-                            CongSuat_fb = float.TryParse(values[12], out var fb2) ? fb2 : 0,
-                            ViTriVan_fb = float.TryParse(values[13], out var fb3) ? fb3 : 0,
-                        };
-                        trendList.Add(trend);
-                    }
+                        Index = row,
+                        Time = float.TryParse(values[0], NumberStyles.Float, CultureInfo.InvariantCulture, out var time) ? time : 0,
+                        NhietDoMoiTruong_sen = CalcSimatic(_sensor.NhietDoMoiTruongMin, _sensor.NhietDoMoiTruongMax, float.TryParse(values[1], NumberStyles.Float, CultureInfo.InvariantCulture, out var pv1) ? pv1 : 0),
+                        DoAm_sen = CalcSimatic(_sensor.DoAmMoiTruongMin, _sensor.DoAmMoiTruongMax, float.TryParse(values[2], NumberStyles.Float, CultureInfo.InvariantCulture, out var pv2) ? pv2 : 0),
+                        ApSuatkhiQuyen_sen = CalcSimatic(_sensor.ApSuatKhiQuyenMin, _sensor.ApSuatKhiQuyenMax, float.TryParse(values[3], NumberStyles.Float, CultureInfo.InvariantCulture, out var pv3) ? pv3 : 0),
+                        ChenhLechApSuat_sen = CalcSimatic(_sensor.ChenhLechApSuatMin, _sensor.ChenhLechApSuatMax, float.TryParse(values[4], NumberStyles.Float, CultureInfo.InvariantCulture, out var pv4) ? pv4 : 0),
+                        ApSuatTinh_sen = CalcSimatic(_sensor.ApSuatTinhMin, _sensor.ApSuatTinhMax, float.TryParse(values[5], NumberStyles.Float, CultureInfo.InvariantCulture, out var pv5) ? pv5 : 0),
+                        DoRung_sen = CalcSimatic(_sensor.DoRungMin, _sensor.DoRungMax, float.TryParse(values[6], NumberStyles.Float, CultureInfo.InvariantCulture, out var pv6) ? pv6 : 0),
+                        DoOn_sen = CalcSimatic(_sensor.DoOnMin, _sensor.DoOnMax, float.TryParse(values[7], NumberStyles.Float, CultureInfo.InvariantCulture, out var pv7) ? pv7 : 0),
+                        SoVongQuay_sen = CalcSimatic(_sensor.SoVongQuayMin, _sensor.SoVongQuayMax, float.TryParse(values[8], NumberStyles.Float, CultureInfo.InvariantCulture, out var pv8) ? pv8 : 0),
+                        Momen_sen = CalcSimatic(_sensor.MomenMin, _sensor.MomenMax, float.TryParse(values[9], NumberStyles.Float, CultureInfo.InvariantCulture, out var pv9) ? pv9 : 0),
+                        DongDien_fb = CalcSimatic(_sensor.PhanHoiDongDienMin, _sensor.PhanHoiDongDienMax, float.TryParse(values[10], NumberStyles.Float, CultureInfo.InvariantCulture, out var fb1) ? fb1 : 0),
+                        CongSuat_fb = CalcSimatic(_sensor.PhanHoiCongSuatMin, _sensor.PhanHoiCongSuatMax, float.TryParse(values[11], NumberStyles.Float, CultureInfo.InvariantCulture, out var fb2) ? fb2 : 0),
+                        ViTriVan_fb = CalcSimatic(_sensor.PhanHoiViTriVanMin, _sensor.PhanHoiViTriVanMax, float.TryParse(values[12], NumberStyles.Float, CultureInfo.InvariantCulture, out var fb3) ? fb3 : 0)
+                    };
+                    trendList.Add(trend);
                 }
             }
 
@@ -299,16 +262,16 @@ namespace TESMEA_TMS.Views
             {
                 "NhietDoMoiTruong_sen" => "Nhiệt độ môi trường (°C)",
                 "DoAm_sen" => "Độ ẩm (%)",
-                "ApSuatkhiQuyen_sen" => "Áp suất khí quyển (hPa)",
+                "ApSuatkhiQuyen_sen" => "Áp suất khí quyển (Pa)",
                 "ChenhLechApSuat_sen" => "Chênh lệch áp suất",
-                "ApSuatTinh_sen" => "Áp suất tính (hPa)",
+                "ApSuatTinh_sen" => "Áp suất tĩnh (Pa)",
                 "DoRung_sen" => "Độ rung (mm/s)",
                 "DoOn_sen" => "Độ ồn (dB)",
                 "SoVongQuay_sen" => "Tốc độ quay (RPM)",
-                "Momen_sen" => "Mômen (N.m)",
+                "Momen_sen" => "Mômen (Nm)",
                 "DongDien_fb" => "Dòng điện (A)",
                 "CongSuat_fb" => "Công suất (kW)",
-                "ViTriVan_fb" => "Vị trí van (%)",
+                "ViTriVan_fb" => "Vị trí van",
                 _ => propertyName
             };
         }
