@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyModel;
 using TESMEA_TMS.DTOs;
 using TESMEA_TMS.Helpers;
 using TESMEA_TMS.Models.Entities;
@@ -18,9 +19,9 @@ namespace TESMEA_TMS.Services
         #endregion
 
         #region library gồm thông số biến tần, ống gió và cảm biến
-        Task<List<Library>> GetLibrariesAsync();
+        Task<List<Models.Entities.Library>> GetLibrariesAsync();
         Task<(BienTan, CamBien, OngGio)> GetLibraryByIdAsync(Guid id);
-        Task AddLibraryAsync(Library inputParam, BienTan bienTan, CamBien camBien, OngGio ongGio);
+        Task AddLibraryAsync(Models.Entities.Library inputParam, BienTan bienTan, CamBien camBien, OngGio ongGio);
         Task UpdateLibraryAsync(Guid libId, BienTan bienTan, CamBien camBien, OngGio ongGio);
         Task DeleteLibraryAsync(Guid libId);
         #endregion
@@ -126,7 +127,7 @@ namespace TESMEA_TMS.Services
         #endregion
 
         #region thông số đầu vào
-        public async Task<List<Library>> GetLibrariesAsync()
+        public async Task<List<Models.Entities.Library>> GetLibrariesAsync()
         {
             return await ExecuteAsync(async () =>
             {
@@ -152,7 +153,7 @@ namespace TESMEA_TMS.Services
             }
         }
 
-        public async Task AddLibraryAsync(Library lib, BienTan bienTan, CamBien camBien, OngGio ongGio)
+        public async Task AddLibraryAsync(Models.Entities.Library lib, BienTan bienTan, CamBien camBien, OngGio ongGio)
         {
             await ExecuteAsync(async () =>
             {
@@ -177,20 +178,74 @@ namespace TESMEA_TMS.Services
                 {
                     throw new BusinessException("Library không tồn tại");
                 }
-                   
+
+                existLib.ModifiedDate = DateTime.Now;
+                existLib.ModifiedUser = Environment.UserName;
                 _dbContext.Libraries.Update(existLib);
                 var exist = await GetLibraryByIdAsync(id);
                 if (exist.Item1 != null)
                 {
-                    _dbContext.BienTans.Update(bienTan);
+                    exist.Item1.DienApRa = bienTan.DienApVao;
+                    exist.Item1.DongDienVao = bienTan.DongDienVao;
+                    exist.Item1.TanSoVao = bienTan.TanSoVao;
+                    exist.Item1.CongSuatVao = bienTan.CongSuatVao;
+                    exist.Item1.DienApRa = bienTan.DienApRa;
+                    exist.Item1.DongDienRa = bienTan.DongDienRa;
+                    exist.Item1.TanSoRa = bienTan.TanSoRa;
+                    exist.Item1.CongSuatTongRa = bienTan.CongSuatTongRa;
+                    exist.Item1.CongSuatHieuDungRa = bienTan.CongSuatHieuDungRa;
+                    exist.Item1.HieuSuatBoTruyen = bienTan.HieuSuatBoTruyen;
+                    exist.Item1.HieuSuatNoiTruc = bienTan.HieuSuatNoiTruc;
+                    exist.Item1.HieuSuatGoiTruc = bienTan.HieuSuatGoiTruc;
+                    _dbContext.BienTans.Update(exist.Item1);
                 }
                 if (exist.Item2 != null)
                 {
-                    _dbContext.CamBiens.Update(camBien);
+                    exist.Item2.NhietDoMoiTruongMin = camBien.NhietDoMoiTruongMin;
+                    exist.Item2.NhietDoMoiTruongMax = camBien.NhietDoMoiTruongMax;
+                    exist.Item2.DoAmMoiTruongMin = camBien.DoAmMoiTruongMin;
+                    exist.Item2.DoAmMoiTruongMax = camBien.DoAmMoiTruongMax;
+                    exist.Item2.ApSuatKhiQuyenMin = camBien.ApSuatKhiQuyenMin;
+                    exist.Item2.ApSuatKhiQuyenMax = camBien.ApSuatKhiQuyenMax;
+                    exist.Item2.ChenhLechApSuatMin = camBien.ChenhLechApSuatMin;
+                    exist.Item2.ChenhLechApSuatMax = camBien.ChenhLechApSuatMax;
+                    exist.Item2.ApSuatTinhMin = camBien.ApSuatTinhMin;
+                    exist.Item2.ApSuatTinhMax = camBien.ApSuatTinhMax;
+                    exist.Item2.DoRungMin = camBien.DoRungMin;
+                    exist.Item2.DoRungMax = camBien.DoRungMax;
+                    exist.Item2.DoOnMin = camBien.DoOnMin;
+                    exist.Item2.DoOnMax = camBien.DoOnMax;
+                    exist.Item2.SoVongQuayMin = camBien.SoVongQuayMin;
+                    exist.Item2.SoVongQuayMax = camBien.SoVongQuayMax;
+                    exist.Item2.MomenMin = camBien.MomenMin;
+                    exist.Item2.MomenMax = camBien.MomenMax;
+                    exist.Item2.PhanHoiDongDienMin = camBien.PhanHoiDongDienMin;
+                    exist.Item2.PhanHoiDongDienMax = camBien.PhanHoiDongDienMax;
+                    exist.Item2.PhanHoiCongSuatMin = camBien.PhanHoiCongSuatMin;
+                    exist.Item2.PhanHoiCongSuatMax = camBien.PhanHoiCongSuatMax;
+                    exist.Item2.PhanHoiViTriVanMin = camBien.PhanHoiViTriVanMin;
+                    exist.Item2.PhanHoiViTriVanMax = camBien.PhanHoiViTriVanMax;
+                    exist.Item2.PhanHoiDienApMin = camBien.PhanHoiDienApMin;
+                    exist.Item2.PhanHoiDienApMax = camBien.PhanHoiDienApMax;
+                    exist.Item2.NhietDoGoiTrucMin = camBien.NhietDoGoiTrucMin;
+                    exist.Item2.NhietDoGoiTrucMax = camBien.NhietDoGoiTrucMax;
+                    exist.Item2.NhietDoBauKhoMin = camBien.NhietDoBauKhoMin;
+                    exist.Item2.NhietDoBauKhoMax = camBien.NhietDoBauKhoMax;
+                    exist.Item2.CamBienLuuLuongMin = camBien.CamBienLuuLuongMin;
+                    exist.Item2.CamBienLuuLuongMax = camBien.CamBienLuuLuongMax;
+                    exist.Item2.PhanHoiTanSoMin = camBien.PhanHoiTanSoMin;
+                    exist.Item2.PhanHoiTanSoMax = camBien.PhanHoiTanSoMax;
+                    _dbContext.CamBiens.Update(exist.Item2);
                 }
                 if (exist.Item3 != null)
                 {
-                    _dbContext.OngGios.Update(ongGio);
+                    exist.Item3.DuongKinhOngGio = ongGio.DuongKinhOngGio;
+                    exist.Item3.ChieuDaiOngGioSauQuat = ongGio.ChieuDaiOngGioSauQuat;
+                    exist.Item3.ChieuDaiOngGioTruocQuat = ongGio.ChieuDaiOngGioTruocQuat;
+                    exist.Item3.DuongKinhLoPhut = ongGio.DuongKinhLoPhut;
+                    exist.Item3.DuongKinhMiengQuat = ongGio.DuongKinhMiengQuat;
+                    exist.Item3.ChieuDaiConQuat = ongGio.ChieuDaiConQuat;
+                    _dbContext.OngGios.Update(exist.Item3);
                 }
                 await _dbContext.SaveChangesAsync();
 

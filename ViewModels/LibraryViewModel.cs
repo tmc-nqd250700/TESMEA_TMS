@@ -491,9 +491,6 @@ namespace TESMEA_TMS.ViewModels
                     else if (libraryDto.IsEdited)
                     {
                         // Update
-                        library.ModifiedDate = DateTime.Now;
-                        library.ModifiedUser = Environment.UserName;
-
                         await _parameterService.UpdateLibraryAsync(library.LibId, bienTanEntity, camBienEntity, ongGioEntity);
                     }
 
