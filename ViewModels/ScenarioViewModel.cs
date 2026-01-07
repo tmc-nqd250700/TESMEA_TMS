@@ -263,10 +263,7 @@ namespace TESMEA_TMS.ViewModels
                 // Load params tương ứng
                 if (scenario.IsNew)
                 {
-                    if (_currentViewedScenarioId != scenarioId)
-                    {
-                        ScenarioParams.Clear();
-                    }
+                    ScenarioParams.Clear();
                 }
                 else
                 {

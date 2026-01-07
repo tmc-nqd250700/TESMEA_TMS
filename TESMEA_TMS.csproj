@@ -88,7 +88,7 @@
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
     <None Update="Db\tesmea_tms.db">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="Templates\baocaodokiem_template.docx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

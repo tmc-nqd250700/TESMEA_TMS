@@ -14,7 +14,7 @@ namespace TESMEA_TMS.Configs
         //public string SimaticProjectPath { get; set; } = "";
         public string DbPath { get; set; } = "";
         public string Scada_ReportTemplatePath { get; set; } = "";
-        public int TimeoutMilliseconds { get; set; } = 10000;
+        public int TimeoutMilliseconds { get; set; } = 300000; // 5 phút
         #region private methods
         private static string GetUserSetting()
         {

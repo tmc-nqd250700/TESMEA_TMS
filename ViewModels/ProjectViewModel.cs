@@ -269,7 +269,7 @@ namespace TESMEA_TMS.ViewModels
                 if (locator != null)
                 {
                     locator.MeasureViewModel.ThongTinDuAn = this.ThongTinDuAn;
-                    var scenarioParams = await _parameterService.GetScenarioDetailAsync(Guid.Parse(ThongTinDuAn.ThamSo.KichBan));
+                    var scenarioParams = (await _parameterService.GetScenarioDetailAsync(Guid.Parse(ThongTinDuAn.ThamSo.KichBan))).OrderBy(x => x.STT);
                     locator.MeasureViewModel.MeasureRows.Clear();
                     var mearures = new List<Measure>();
                     foreach (var param in scenarioParams)

@@ -436,6 +436,7 @@ namespace TESMEA_TMS.Services
                         if (_measures[i].S != currentS)
                         {
                             var fitting = DataProcess.FittingFC(currentRange.Count, startIndex);
+                            WriteTomfanLog($"Hoàn tất dải đo từ k={currentRange.First().k} đến k={currentRange.Last().k}");
                             OnMeasureRangeCompleted?.Invoke(fitting, currentRange.LastOrDefault());
                             currentRange.Clear();
                             currentS = _measures[i].S;
