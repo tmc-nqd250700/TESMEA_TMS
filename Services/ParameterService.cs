@@ -13,7 +13,7 @@ namespace TESMEA_TMS.Services
         Task<List<Scenario>> GetScenariosAsync();
         Task<Scenario> GetScenarioAsync(string id);
         Task<List<ScenarioParam>> GetScenarioDetailAsync(Guid id);
-        Task UpdateScenarioAsync(List<ScenarioUpdateDto> scenariosToUpdate);
+        Task UpdateScenarioAsync(ScenarioUpdateDto scenarioToUpdate);
         Task DeleteScenarioAsync(Guid id);
         #endregion
 
@@ -61,47 +61,52 @@ namespace TESMEA_TMS.Services
             });
         }
 
-        public async Task UpdateScenarioAsync(List<ScenarioUpdateDto> scenarios)
+        public async Task UpdateScenarioAsync(ScenarioUpdateDto scenario)
         {
             await ExecuteAsync(async () =>
             {
-                foreach(var item in scenarios)
+                var exist = await _dbContext.Scenarios.Where(x => x.ScenarioId == scenario.Scenario.ScenarioId).FirstOrDefaultAsync();
+                if (exist == null)
                 {
-                    // Kiểm tra scenario đã tồn tại
-                    var exist = await _dbContext.Scenarios.Where(x => x.ScenarioId == item.Scenario.ScenarioId).FirstOrDefaultAsync();
-                    // Lấy danh sách param
-                    var paramsToAdd = item.Params.Select(p => p.ToEntity()).Where(x => x.ScenarioId == item.Scenario.ScenarioId).ToList();
-                    if (paramsToAdd.Count > 0)
+                    var paramsToAdd = scenario.Params.Select(p => p.ToEntity()).ToList();
+                    if (paramsToAdd.Count == 0)
                     {
-                        if (exist == null)
-                        {
-                            if (string.IsNullOrEmpty(item.Scenario.ScenarioName))
-                            {
-                                throw new BusinessException("Tên kịch bản không được để trống");
-                            }
-                            await _dbContext.Scenarios.AddAsync(item.Scenario.ToEntity());
-                            await _dbContext.ScenarioParams.AddRangeAsync(paramsToAdd);
-                        }
-                        else
-                        {
-                            // Xóa scenario đã tồn tại
-                            if (item.Scenario.IsMarkedForDeletion && !item.Scenario.IsNew)
-                            {
-                                _dbContext.Scenarios.Remove(exist);
-                            }
-                            // Cập nhật
-                            else
-                            {
-                                _dbContext.Scenarios.Update(item.Scenario.ToEntity());
-                                _dbContext.ScenarioParams.UpdateRange(paramsToAdd);
-                            }
-                        }
+                        throw new BusinessException($"Danh sách thông số kịch bản không được để trống");
                     }
+                    if (string.IsNullOrEmpty(scenario.Scenario.ScenarioName))
+                    {
+                        throw new BusinessException("Tên kịch bản không được để trống");
+                    }
+                    foreach (var item in paramsToAdd) item.ScenarioId = scenario.Scenario.ScenarioId;
+                    await _dbContext.Scenarios.AddAsync(scenario.Scenario.ToEntity());
+                    await _dbContext.ScenarioParams.AddRangeAsync(paramsToAdd);
+                }
+                else
+                {
+                    var paramsToUpdate = scenario.Params.Select(p => p.ToEntity()).Where(x => x.ScenarioId == scenario.Scenario.ScenarioId).ToList();
+                    if (paramsToUpdate.Count == 0)
+                    {
+                        throw new BusinessException($"Danh sách thông số kịch bản không được để trống");
+                    }
+                    // Xóa scenario đã tồn tại
+                    if (scenario.Scenario.IsMarkedForDeletion && !scenario.Scenario.IsNew)
+                    {
+                        _dbContext.Scenarios.Remove(exist);
+                    }
+                    // Cập nhật
                     else
                     {
-                        throw new BusinessException($"Danh sách thông số kịch bản không được để trống '{item.Scenario.ScenarioName}'");
+                        var existParams = await _dbContext.ScenarioParams.Where(x => x.ScenarioId == scenario.Scenario.ScenarioId).ToListAsync();
+                        _dbContext.ScenarioParams.RemoveRange(existParams);
+
+                        exist.ScenarioName = scenario.Scenario.ScenarioName;
+                        exist.StandardDeviation = scenario.Scenario.StandardDeviation;
+                        exist.TimeRange = scenario.Scenario.TimeRange;
+                        _dbContext.Scenarios.Update(exist);
+                        _dbContext.ScenarioParams.UpdateRange(paramsToUpdate);
                     }
                 }
+                
                 await _dbContext.SaveChangesAsync();
             });
         }

@@ -374,27 +374,16 @@ namespace TESMEA_TMS.ViewModels
                 {
                     return;
                 }
-
-                var scenariosToUpdate = new List<ScenarioUpdateDto>();
-                foreach(var item in Scenarios)
-                {
-                    var paramsToUpdate = ScenarioParams.Where(x => x.ScenarioId == item.ScenarioId).ToList();
-                    var scenarioToUpdate = new ScenarioUpdateDto
-                    {
-                        Scenario = item,
-                        Params = paramsToUpdate
-                    };
-                    scenariosToUpdate.Add(scenarioToUpdate);
-                }
-                if (!scenariosToUpdate.Any())
+                if (!ScenarioParams.Any())
                 {
                     MessageBoxHelper.ShowWarning("Không có thay đổi để lưu.");
                     return;
                 }
 
-                await _parameterService.UpdateScenarioAsync(scenariosToUpdate);
-
-                // Clear tracking
+                var scenarioToUpdate = new ScenarioUpdateDto();
+                scenarioToUpdate.Scenario = SelectedScenario;
+                scenarioToUpdate.Params = ScenarioParams.ToList();
+                await _parameterService.UpdateScenarioAsync(scenarioToUpdate);
                 _scenariosWithChangedParams.Clear();
                 MessageBoxHelper.ShowSuccess("Lưu thành công");
 

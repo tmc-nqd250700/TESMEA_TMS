@@ -37,7 +37,24 @@ namespace TESMEA_TMS.Configs
             services.AddDbContext<AppDbContext>(options =>
             {
                 //options.UseSqlite(configuration.GetConnectionString("Default"));
-                var dbPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Db", "tesmea_tms.db");
+                //var dbPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Db", "tesmea_tms.db");
+                //var connectionString = $"Data Source={dbPath}";
+                //options.UseSqlite(connectionString);
+
+
+
+
+                var dataFolder = Path.Combine(
+    Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+    "TESMEA_TMS", "Db");
+                Directory.CreateDirectory(dataFolder);
+
+                var dbPath = Path.Combine(dataFolder, "tesmea_tms.db");
+                if (!File.Exists(dbPath))
+                {
+                    var sourceDb = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Db", "tesmea_tms.db");
+                    File.Copy(sourceDb, dbPath);
+                }
                 var connectionString = $"Data Source={dbPath}";
                 options.UseSqlite(connectionString);
             }, ServiceLifetime.Transient);
