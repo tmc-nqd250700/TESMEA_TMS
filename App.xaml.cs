@@ -100,16 +100,16 @@ public partial class App : Application
                 {
                 }
 
-                string xlsxPath = Path.Combine(exchangeFolder, "1_T_OUT.xlsx");
-                if (!File.Exists(xlsxPath))
-                {
-                    ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
-                    using (var package = new ExcelPackage(new FileInfo(xlsxPath)))
-                    {
-                        package.Workbook.Worksheets.Add("1_T_OUT");
-                        package.Save();
-                    }
-                }
+                //string xlsxPath = Path.Combine(exchangeFolder, "1_T_OUT.xlsx");
+                //if (!File.Exists(xlsxPath))
+                //{
+                //    ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
+                //    using (var package = new ExcelPackage(new FileInfo(xlsxPath)))
+                //    {
+                //        package.Workbook.Worksheets.Add("1_T_OUT");
+                //        package.Save();
+                //    }
+                //}
             }
             else
             {
@@ -134,26 +134,26 @@ public partial class App : Application
 
                 }
 
-                string xlsxPath = Path.Combine(exchangeFolder, "1_T_OUT.xlsx");
-                if (!File.Exists(xlsxPath))
-                {
-                    ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
-                    using (var package = new ExcelPackage(new FileInfo(xlsxPath)))
-                    {
-                        package.Workbook.Worksheets.Add("1_T_OUT");
-                        package.Save();
-                    }
-                }
-                else
-                {
-                    ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
-                    using (var package = new ExcelPackage(new FileInfo(xlsxPath)))
-                    {
-                        var ws = package.Workbook.Worksheets.FirstOrDefault();
-                        if (ws != null) ws.Cells.Clear();
-                        else package.Workbook.Worksheets.Add("1_T_OUT");
-                    }
-                }
+                //string xlsxPath = Path.Combine(exchangeFolder, "1_T_OUT.xlsx");
+                //if (!File.Exists(xlsxPath))
+                //{
+                //    ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
+                //    using (var package = new ExcelPackage(new FileInfo(xlsxPath)))
+                //    {
+                //        package.Workbook.Worksheets.Add("1_T_OUT");
+                //        package.Save();
+                //    }
+                //}
+                //else
+                //{
+                //    ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
+                //    using (var package = new ExcelPackage(new FileInfo(xlsxPath)))
+                //    {
+                //        var ws = package.Workbook.Worksheets.FirstOrDefault();
+                //        if (ws != null) ws.Cells.Clear();
+                //        else package.Workbook.Worksheets.Add("1_T_OUT");
+                //    }
+                //}
 
                 // trend folder
                 if (!Directory.Exists(Path.Combine(exchangeFolder, "Trend")))

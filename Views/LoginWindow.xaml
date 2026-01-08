@@ -17,6 +17,7 @@
         WindowStyle="ToolWindow"
         ResizeMode="NoResize"
         Icon="/Assets/Images/tcm_logo.PNG"
+        Title="Hệ thống đo kiểm tự động đặc tính quạt công nghiệp"
         DataContext="{Binding LoginViewModel, Source={StaticResource Locator}}">
 
     <md:DialogHost CloseOnClickAway="True" x:Name="LoginDialogHost" Identifier="LoginDialogHost">

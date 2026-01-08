@@ -5,7 +5,6 @@ using System.Windows.Input;
 using TESMEA_TMS.Configs;
 using TESMEA_TMS.DTOs;
 using TESMEA_TMS.Helpers;
-using TESMEA_TMS.Models.Entities;
 using TESMEA_TMS.Services;
 using TESMEA_TMS.Views;
 using Application = System.Windows.Application;
@@ -59,6 +58,8 @@ namespace TESMEA_TMS.ViewModels
 
         public bool CanEditParams => SelectedScenario != null &&
                                      !SelectedScenario.IsMarkedForDeletion;
+        public bool HasUnsavedChanges =>
+            Scenarios.Any(item => item.IsNew || item.IsEdited || item.IsMarkedForDeletion);
 
         #endregion
 
@@ -385,6 +386,9 @@ namespace TESMEA_TMS.ViewModels
                 MessageBoxHelper.ShowSuccess("Lưu thành công");
 
                 LoadScenarios();
+                 // recall to reload current viewed param
+                var locator = (ViewModelLocator)Application.Current.Resources["Locator"];
+                locator.ProjectViewModel.LoadParam();
                 if (SelectedScenario == null ||
                     !Scenarios.Any(s => s.ScenarioId == SelectedScenario.ScenarioId))
                 {
@@ -408,7 +412,7 @@ namespace TESMEA_TMS.ViewModels
             return SelectedScenario != null && !SelectedScenario.IsMarkedForDeletion;
         }
 
-        private void ExecuteDeleteCommand(object parameter)
+        private async void ExecuteDeleteCommand(object parameter)
         {
             try
             {
@@ -448,13 +452,8 @@ namespace TESMEA_TMS.ViewModels
                     {
                         // Đánh dấu để xóa (có thể hoàn tác)
                         scenarioToDelete.IsMarkedForDeletion = true;
-
-                        // Clear params nếu đang xem scenario này
-                        if (_currentViewedScenarioId == scenarioToDelete.ScenarioId)
-                        {
-                            ScenarioParams.Clear();
-                            _currentViewedScenarioId = null;
-                        }
+                        await LoadScenarioParams(scenarioToDelete.ScenarioId);
+                        _currentViewedScenarioId = null;
                     }
                 }
             }

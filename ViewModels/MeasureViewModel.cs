@@ -1,11 +1,11 @@
 ﻿using MaterialDesignThemes.Wpf;
-using OfficeOpenXml;
 using OxyPlot;
 using OxyPlot.Axes;
 using OxyPlot.Legends;
 using OxyPlot.Series;
 using System.Collections.ObjectModel;
 using System.IO;
+using System.Threading.Tasks;
 using System.Windows.Input;
 using TESMEA_TMS.Configs;
 using TESMEA_TMS.DTOs;
@@ -184,6 +184,8 @@ namespace TESMEA_TMS.ViewModels
             _externalAppService.OnMeasurePointCompleted += OnMeasurePointCompletedHandler;
             // event invoke khi một dải tần số hoàn thành
             _externalAppService.OnMeasureRangeCompleted += OnMeasureRangeCompletedHandler;
+            // event invoke khi hoàn thành toàn bộ đo kiểm
+            _externalAppService.OnSimaticExchangeCompleted += OnExchangeCompletedHandler;
 
             ReportTemplates = new ObservableCollection<ComboBoxInfo>();
             ReportTemplates.Add(new ComboBoxInfo("DESIGN", "Design condition"));
@@ -206,7 +208,6 @@ namespace TESMEA_TMS.ViewModels
             ExportResultCommand = new ViewModelCommand(CanExportCommand, ExecuteExportResultCommand);
             ExportReportCommand = new ViewModelCommand(CanExportCommand, ExecuteExportReportCommand);
         }
-
 
         private bool CanExecuteCommand(object obj)
         {
@@ -391,11 +392,12 @@ namespace TESMEA_TMS.ViewModels
             EfficiencyPlotModel.Series.Add(totalEfficiencySeries);
         }
 
-        private void ExecuteFinishCommand(object obj)
+        private async void ExecuteFinishCommand(object obj)
         {
             var isFinish = MessageBoxHelper.ShowQuestion("Bạn có chắc chắn muốn hoàn thành đo kiểm và quay lại trang chính không?");
             if (isFinish)
             {
+                await _externalAppService.StopExchangeAsync();
                 var locator = ((App)System.Windows.Application.Current).Resources["Locator"] as ViewModelLocator;
                 if (locator != null)
                 {
@@ -405,17 +407,41 @@ namespace TESMEA_TMS.ViewModels
                     locator.MainViewModel.CurrentView = new TESMEA_TMS.Views.ProjectView();
                 }
 
-                if (Directory.Exists(UserSetting.TOMFAN_folder))
+                var exchangeFolder = UserSetting.TOMFAN_folder;
+                if (Directory.Exists(exchangeFolder))
                 {
-                    // Xóa tất cả file
-                    foreach (var file in Directory.GetFiles(UserSetting.TOMFAN_folder))
+                    var files = Directory.GetFiles(exchangeFolder, "*.csv");
+                    if (files.Length == 0)
                     {
-                        try { File.WriteAllText(file, string.Empty); } catch { }
+                        using (var writer2 = new StreamWriter(Path.Combine(exchangeFolder, "1_T_OUT.csv")))
+                        {
+                        }
+
+                        using (var writer2 = new StreamWriter(Path.Combine(exchangeFolder, "2_S_IN.csv")))
+                        {
+                        }
                     }
-                    // Xóa tất cả thư mục con
-                    foreach (var dir in Directory.GetDirectories(UserSetting.TOMFAN_folder))
+                    else
                     {
-                        try { Directory.Delete(dir, true); } catch { }
+                        foreach (var file in Directory.GetFiles(exchangeFolder))
+                        {
+                            try { File.WriteAllText(file, string.Empty); } catch { }
+                        }
+
+                    }
+
+                    // trend folder
+                    if (!Directory.Exists(Path.Combine(exchangeFolder, "Trend")))
+                    {
+                        Directory.CreateDirectory(Path.Combine(exchangeFolder, "Trend"));
+                    }
+                    else
+                    {
+                        // delete all files in trend folder
+                        foreach (var file in Directory.GetFiles(Path.Combine(exchangeFolder, "Trend")))
+                        {
+                            try { File.Delete(file); } catch { }
+                        }
                     }
                 }
             }
@@ -431,7 +457,7 @@ namespace TESMEA_TMS.ViewModels
         private bool CanConnect(object obj) => !_isConnected && !_isConnectedRow1;
         private bool CanConnect2(object obj) => !_isConnected && _isConnectedRow1;
         private bool CanStart(object obj) => _isConnected && _isConnectedRow1 && !_isMeasuring && !_isCompleted;
-        private bool CanStop(object obj) => true;
+        private bool CanStop(object obj) => _isMeasuring;
         private bool CanReset(object obj) => _isCompleted && !_isMeasuring;
         private bool CanTrend(object obj) => SelectedMeasure != null && (TrendLineDialog == null || !TrendLineDialog.IsLoaded);
 
@@ -532,12 +558,8 @@ namespace TESMEA_TMS.ViewModels
             catch (Exception ex)
             {
                 _isMeasuring = false;
-                MessageBoxHelper.ShowError(ex.Message);
-            }
-            finally
-            {
-                _isMeasuring = false;
                 _isCompleted = true;
+                MessageBoxHelper.ShowError(ex.Message);
             }
         }
 
@@ -621,27 +643,6 @@ namespace TESMEA_TMS.ViewModels
                         try { File.WriteAllText(file, string.Empty); } catch { }
                     }
 
-                }
-
-                string xlsxPath = Path.Combine(exchangeFolder, "1_T_OUT.xlsx");
-                if (!File.Exists(xlsxPath))
-                {
-                    ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
-                    using (var package = new ExcelPackage(new FileInfo(xlsxPath)))
-                    {
-                        package.Workbook.Worksheets.Add("1_T_OUT");
-                        package.Save();
-                    }
-                }
-                else
-                {
-                    ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
-                    using (var package = new ExcelPackage(new FileInfo(xlsxPath)))
-                    {
-                        var ws = package.Workbook.Worksheets.FirstOrDefault();
-                        if (ws != null) ws.Cells.Clear();
-                        else package.Workbook.Worksheets.Add("1_T_OUT");
-                    }
                 }
 
                 // trend folder
@@ -1158,6 +1159,14 @@ namespace TESMEA_TMS.ViewModels
                 PowerPlotModel.InvalidatePlot(true);
                 EfficiencyPlotModel.InvalidatePlot(true);
             });
+        }
+
+
+
+        private void OnExchangeCompletedHandler(List<Measure> measures)
+        {
+            _isMeasuring = false;
+            _isCompleted = true;
         }
 
 

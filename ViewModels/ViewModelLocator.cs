@@ -1,6 +1,4 @@
-﻿using TESMEA_TMS.DTOs;
-
-namespace TESMEA_TMS.ViewModels
+﻿namespace TESMEA_TMS.ViewModels
 {
     public class ViewModelLocator
     {
@@ -47,7 +45,6 @@ namespace TESMEA_TMS.ViewModels
         public CalculationViewModel CalculationViewModel => GetViewModel<CalculationViewModel>();
         public ScenarioViewModel ScenarioViewModel => GetViewModel<ScenarioViewModel>();
 
-        // Method để reset ViewModel (tạo instance mới)
         public void ResetViewModel<T>() where T : class
         {
             var type = typeof(T);

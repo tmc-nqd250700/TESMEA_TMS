@@ -1,8 +1,8 @@
 ﻿using MaterialDesignThemes.Wpf;
-using System.Windows;
 using System.Windows.Input;
 using System.Windows.Threading;
 using TESMEA_TMS.Configs;
+using TESMEA_TMS.Helpers;
 using TESMEA_TMS.Services;
 using TESMEA_TMS.Views;
 using Application = System.Windows.Application;
@@ -84,8 +84,37 @@ namespace TESMEA_TMS.ViewModels
             ShowProjectViewCommand = new ViewModelCommand(_ => CurrentView = ProjectView);
             ShowMeasureViewCommand = new ViewModelCommand(_ => CurrentView = new MeasureView());
             ShowCalculationViewCommand = new ViewModelCommand(_ => CurrentView = new CalculationView());
-            ShowLibrabyViewCommand = new ViewModelCommand(_ => CurrentView = new LibraryView());
-            ShowScenarioViewCommand = new ViewModelCommand(_ => CurrentView = new ScenarioView());
+            //ShowLibrabyViewCommand = new ViewModelCommand(_ => CurrentView = new LibraryView());
+            //ShowScenarioViewCommand = new ViewModelCommand(_ => CurrentView = new ScenarioView());
+            ShowLibrabyViewCommand = new ViewModelCommand(_ =>
+            {
+                var locator = new ViewModelLocator();
+                var scenarioVM = locator.ScenarioViewModel;
+                if (scenarioVM.HasUnsavedChanges)
+                {
+                    var result = MessageBoxHelper.ShowQuestion(
+                        "Bạn có dữ liệu chưa lưu. Bạn có muốn tiếp tục?");
+
+                    if (!result)
+                        return;
+                }
+                CurrentView = new LibraryView();
+            });
+
+            ShowScenarioViewCommand = new ViewModelCommand(_ =>
+            {
+                var locator = new ViewModelLocator();
+                var libraryVM = locator.LibraryViewModel;
+                if (libraryVM.HasUnsavedChanges)
+                {
+                    var result = MessageBoxHelper.ShowQuestion(
+                        "Bạn có dữ liệu chưa lưu. Bạn có muốn tiếp tục?");
+
+                    if (!result)
+                        return;
+                }
+                CurrentView = new ScenarioView();
+            });
             ShowSettingDialogCommand = new ViewModelCommand(_ => ExecuteShowSettingCommand());
             Initialize();
         }

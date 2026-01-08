@@ -414,7 +414,7 @@ namespace TESMEA_TMS.Services
 
                     if (result != null)
                     {
-                        WriteTomfanLog($"Đã nhận kết quả k={m.k}. Tiến hành tính toán PointMeasure.");
+                        WriteTomfanLog($"Đã nhận kết quả k={m.k}");
                         m.F = MeasureStatus.Completed;
                         _simaticResults.Add(result);
 
@@ -433,8 +433,8 @@ namespace TESMEA_TMS.Services
                         //OnMeasurePointCompleted?.Invoke(measurePoint, paramShow);
 
 
-                        // check nếu chuyển % tần số thì thực hiện fitting FC và vẽ line cho chart
-                        if (_measures[i].S != currentS)
+                        // check nếu chuyển % tần số hoặc là điểm đo cuối cùng thì thực hiện fitting FC và vẽ line cho chart
+                        if (_measures[i].S != currentS || i == _measures.Count - 1)
                         {
                             var fitting = DataProcess.FittingFC(currentRange.Count, startIndex);
                             WriteTomfanLog($"Hoàn tất dải đo từ k={currentRange.First().k} đến k={currentRange.Last().k}");
@@ -461,7 +461,9 @@ namespace TESMEA_TMS.Services
                     }
                 }
 
-                WriteTomfanLog("========== HOÀN TẤT TOÀN BỘ CHU KỲ TRAO ĐỔI ==========");
+                // HOÀN THÀNH KỊCH BẢN ĐO KIỂM, DỪNG TRAO ĐỔI
+                WriteTomfanLog("========== HOÀN TẤT TOÀN BỘ KỊCH BẢN ĐO KIỂM, DỪNG ĐO KIỂM, GỬI LỆNH 96 TỚI SIMATIC ==========");
+                await StopExchangeAsync();
                 OnSimaticExchangeCompleted?.Invoke(_simaticResults);
             }
             catch (Exception ex)
@@ -639,7 +641,7 @@ namespace TESMEA_TMS.Services
         {
             try
             {
-                string xlsxPath = Path.Combine(_exchangeFolder, "1_T_OUT.xlsx");
+                //string xlsxPath = Path.Combine(_exchangeFolder, "1_T_OUT.xlsx");
                 string csvPath = Path.Combine(_exchangeFolder, "1_T_OUT.csv");
                 char sep = _isComma ? ' ' : ';';
                 WriteTomfanLog($">>> Ghi dữ liệu dòng k={m.k} (S={m.S}, CV={m.CV})");

@@ -1,8 +1,6 @@
-﻿using DocumentFormat.OpenXml.VariantTypes;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.IO;
 using System.Windows.Input;
-using TESMEA_TMS.Configs;
 using TESMEA_TMS.DTOs;
 using TESMEA_TMS.Helpers;
 using TESMEA_TMS.Models.Entities;
@@ -176,7 +174,7 @@ namespace TESMEA_TMS.ViewModels
             OngGio = new OngGio();
         }
 
-        private async void LoadParam()
+        public async void LoadParam()
         {
             var libraries = await _parameterService.GetLibrariesAsync();
             TestTypes = libraries

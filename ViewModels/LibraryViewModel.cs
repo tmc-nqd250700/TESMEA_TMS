@@ -1,4 +1,5 @@
-﻿using OfficeOpenXml;
+﻿using DocumentFormat.OpenXml.Spreadsheet;
+using OfficeOpenXml;
 using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Input;
@@ -72,6 +73,8 @@ namespace TESMEA_TMS.ViewModels
         }
 
         public bool IsParameterSelected => CurrentParameter != null;
+        public bool HasUnsavedChanges =>
+            InputParameters.Any(item => item.IsNew || item.IsEdited || item.IsMarkedForDeletion);
 
         #endregion
 
@@ -502,6 +505,9 @@ namespace TESMEA_TMS.ViewModels
                 MessageBoxHelper.ShowSuccess("Lưu thành công!");
 
                 LoadData();
+                // recall to reload current viewed param
+                var locator = (ViewModelLocator)Application.Current.Resources["Locator"];
+                locator.ProjectViewModel.LoadParam();
 
                 if (CurrentParameter == null ||
                     !InputParameters.Any(p => p.LibId == CurrentParameter.LibId))
