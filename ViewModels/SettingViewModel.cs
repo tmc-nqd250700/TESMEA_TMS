@@ -205,9 +205,9 @@ namespace TESMEA_TMS.ViewModels
                 MessageBox.Show("Đường dẫn tới Simatic không tồn tại", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
-            if (Timeout <= 0)
+            if (Timeout <= 60)
             {
-                MessageBox.Show("Nhập timeout lớn hơn 0", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show("Nhập timeout lớn hơn 60 giây", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
             if (Timeout > 1800)

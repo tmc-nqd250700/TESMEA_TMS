@@ -20,6 +20,7 @@ namespace TESMEA_TMS.Services
         Task<bool> ConnectExchangeAsync(Measure measure, float timeRange);
         Task StartExchangeAsync();
         Task StopExchangeAsync();
+        void WriteTomfanLog(string message);
         bool IsAppRunning { get; }
         bool IsConnectedToSimatic { get; }
         event Action<Measure> OnSimaticResultReceived;
@@ -682,49 +683,49 @@ namespace TESMEA_TMS.Services
                     WriteTomfanLog($"Step: CSV row {rowIdx} ghi thành công.");
                 });
 
-                // Ghi XLSX trực tiếp
-                await ExecuteWithRetryAsync(async () =>
-                {
-                    ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
-                    byte[] fileData;
+                //// Ghi XLSX trực tiếp
+                //await ExecuteWithRetryAsync(async () =>
+                //{
+                //    ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+                //    byte[] fileData;
 
-                    using (var package = new ExcelPackage())
-                    {
-                        if (File.Exists(xlsxPath))
-                        {
-                            using (var fsRead = new FileStream(xlsxPath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
-                            {
-                                await package.LoadAsync(fsRead);
-                            }
-                        }
-                        else
-                        {
-                            throw new BusinessException("File 1_T_OUT.xlsx không tồn tại.");
-                        }
+                //    using (var package = new ExcelPackage())
+                //    {
+                //        if (File.Exists(xlsxPath))
+                //        {
+                //            using (var fsRead = new FileStream(xlsxPath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                //            {
+                //                await package.LoadAsync(fsRead);
+                //            }
+                //        }
+                //        else
+                //        {
+                //            throw new BusinessException("File 1_T_OUT.xlsx không tồn tại.");
+                //        }
 
-                        var ws = package.Workbook.Worksheets.FirstOrDefault() ?? package.Workbook.Worksheets.Add("1_T_OUT");
+                //        var ws = package.Workbook.Worksheets.FirstOrDefault() ?? package.Workbook.Worksheets.Add("1_T_OUT");
 
-                        int rowIdx = m.k > 0 ? m.k : 1;
-                        ws.Cells[rowIdx, 1].Value = kValueToPrint;
-                        if (col4Value != 0)
-                        {
-                            ws.Cells[rowIdx, 1].Value = m.k;
-                            ws.Cells[rowIdx, 4].Value = col4Value;
-                        }
-                        ws.Cells[rowIdx, 2].Value = m.S;
-                        ws.Cells[rowIdx, 3].Value = m.CV;
-                        fileData = await package.GetAsByteArrayAsync();
-                    }
+                //        int rowIdx = m.k > 0 ? m.k : 1;
+                //        ws.Cells[rowIdx, 1].Value = kValueToPrint;
+                //        if (col4Value != 0)
+                //        {
+                //            ws.Cells[rowIdx, 1].Value = m.k;
+                //            ws.Cells[rowIdx, 4].Value = col4Value;
+                //        }
+                //        ws.Cells[rowIdx, 2].Value = m.S;
+                //        ws.Cells[rowIdx, 3].Value = m.CV;
+                //        fileData = await package.GetAsByteArrayAsync();
+                //    }
 
-                    // Ghi đè lại toàn bộ file trực tiếp
-                    using (var fsWrite = new FileStream(xlsxPath, FileMode.Create, FileAccess.Write, FileShare.None))
-                    {
-                        await fsWrite.WriteAsync(fileData, 0, fileData.Length);
-                        await fsWrite.FlushAsync();
-                        fsWrite.Flush(true);
-                    }
-                    WriteTomfanLog($"Step: XLSX row {m.k} ghi thành công.");
-                });
+                //    // Ghi đè lại toàn bộ file trực tiếp
+                //    using (var fsWrite = new FileStream(xlsxPath, FileMode.Create, FileAccess.Write, FileShare.None))
+                //    {
+                //        await fsWrite.WriteAsync(fileData, 0, fileData.Length);
+                //        await fsWrite.FlushAsync();
+                //        fsWrite.Flush(true);
+                //    }
+                //    WriteTomfanLog($"Step: XLSX row {m.k} ghi thành công.");
+                //});
             }
             catch (Exception ex)
             {
@@ -863,6 +864,7 @@ namespace TESMEA_TMS.Services
                                     //if (int.TryParse(parts[0], out int k) && k == expectedK)
                                     //{
                                     WriteTomfanLog($"Tìm thấy dòng k={expectedK} sau {sw.ElapsedMilliseconds}ms");
+                                    WriteTomfanLog($"Nội dung dòng: {string.Join(", ", parts)}");
 
                                     var m = new Measure
                                     {
@@ -875,12 +877,12 @@ namespace TESMEA_TMS.Services
                                     {
                                         m.NhietDoMoiTruong_sen = CalcSimatic(_sensor.NhietDoMoiTruongMin, _sensor.NhietDoMoiTruongMax, float.Parse(parts[3], CultureInfo.InvariantCulture));
                                         m.DoAm_sen = CalcSimatic(_sensor.DoAmMoiTruongMin, _sensor.DoAmMoiTruongMax, float.Parse(parts[4], CultureInfo.InvariantCulture));
-                                        m.ApSuatkhiQuyen_sen = CalcSimatic(_sensor.ApSuatKhiQuyenMin, _sensor.ApSuatKhiQuyenMax, float.Parse(parts[5], CultureInfo.InvariantCulture));
+                                        m.SoVongQuay_sen = CalcSimatic(_sensor.SoVongQuayMin, _sensor.SoVongQuayMax, float.Parse(parts[5], CultureInfo.InvariantCulture));
+                                        m.ApSuatkhiQuyen_sen = CalcSimatic(_sensor.ApSuatKhiQuyenMin, _sensor.ApSuatKhiQuyenMax, float.Parse(parts[6], CultureInfo.InvariantCulture));
                                         m.ChenhLechApSuat_sen = CalcSimatic(_sensor.ChenhLechApSuatMin, _sensor.ChenhLechApSuatMax, float.Parse(parts[6], CultureInfo.InvariantCulture));
                                         m.ApSuatTinh_sen = CalcSimatic(_sensor.ApSuatTinhMin, _sensor.ApSuatTinhMax, float.Parse(parts[7], CultureInfo.InvariantCulture));
                                         m.DoRung_sen = CalcSimatic(_sensor.DoRungMin, _sensor.DoRungMax, float.Parse(parts[8], CultureInfo.InvariantCulture));
                                         m.DoOn_sen = CalcSimatic(_sensor.DoOnMin, _sensor.DoOnMax, float.Parse(parts[9], CultureInfo.InvariantCulture));
-                                        m.SoVongQuay_sen = CalcSimatic(_sensor.SoVongQuayMin, _sensor.SoVongQuayMax, float.Parse(parts[10], CultureInfo.InvariantCulture));
                                         m.Momen_sen = CalcSimatic(_sensor.MomenMin, _sensor.MomenMax, float.Parse(parts[11], CultureInfo.InvariantCulture));
                                         m.DongDien_fb = CalcSimatic(_sensor.PhanHoiDongDienMin, _sensor.PhanHoiDongDienMax, float.Parse(parts[12], CultureInfo.InvariantCulture));
                                         m.CongSuat_fb = CalcSimatic(_sensor.PhanHoiCongSuatMin, _sensor.PhanHoiCongSuatMax, float.Parse(parts[13], CultureInfo.InvariantCulture));
@@ -888,7 +890,11 @@ namespace TESMEA_TMS.Services
                                         if (parts.Length > 15)
                                             m.TanSo_fb = CalcSimatic(_sensor.PhanHoiTanSoMin, _sensor.PhanHoiTanSoMax, float.Parse(parts[15], CultureInfo.InvariantCulture));
 
-                                        WriteTomfanLog("Đã tính toán xong các thông số cảm biến.");
+                                        WriteTomfanLog($"Nhiệt độ môi trường: {m.NhietDoMoiTruong_sen}");
+                                        WriteTomfanLog($"Độ ẩm: {m.DoAm_sen}");
+                                        WriteTomfanLog($"Số vòng quay: {m.SoVongQuay_sen}");
+                                        WriteTomfanLog($"Áp suất khí quyển: {m.ApSuatkhiQuyen_sen}");
+                                        WriteTomfanLog($"Chênh lệch áp suất: {m.ChenhLechApSuat_sen}");
                                     }
                                     return m;
                                     //}
@@ -899,7 +905,6 @@ namespace TESMEA_TMS.Services
                 }
                 catch (IOException)
                 {
-                    // Không ghi log ở đây để tránh làm file log quá nặng vì polling 200ms
                 }
 
                 await Task.Delay(200);
@@ -910,7 +915,7 @@ namespace TESMEA_TMS.Services
         }
 
 
-        private void WriteTomfanLog(string message)
+        public void WriteTomfanLog(string message)
         {
             try
             {

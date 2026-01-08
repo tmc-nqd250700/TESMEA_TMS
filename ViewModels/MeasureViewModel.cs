@@ -1,10 +1,10 @@
 ﻿using MaterialDesignThemes.Wpf;
+using OfficeOpenXml;
 using OxyPlot;
 using OxyPlot.Axes;
 using OxyPlot.Legends;
 using OxyPlot.Series;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.IO;
 using System.Windows.Input;
 using TESMEA_TMS.Configs;
@@ -431,7 +431,7 @@ namespace TESMEA_TMS.ViewModels
         private bool CanConnect(object obj) => !_isConnected && !_isConnectedRow1;
         private bool CanConnect2(object obj) => !_isConnected && _isConnectedRow1;
         private bool CanStart(object obj) => _isConnected && _isConnectedRow1 && !_isMeasuring && !_isCompleted;
-        private bool CanStop(object obj) => _isMeasuring;
+        private bool CanStop(object obj) => true;
         private bool CanReset(object obj) => _isCompleted && !_isMeasuring;
         private bool CanTrend(object obj) => SelectedMeasure != null && (TrendLineDialog == null || !TrendLineDialog.IsLoaded);
 
@@ -600,19 +600,65 @@ namespace TESMEA_TMS.ViewModels
             ClearPlots();
             ParameterShow = new ParameterShow();
             OnPropertyChanged(nameof(ParameterShow));
-            if (Directory.Exists(UserSetting.TOMFAN_folder))
+            var exchangeFolder = UserSetting.TOMFAN_folder;
+            if (Directory.Exists(exchangeFolder))
             {
-                // Xóa tất cả file
-                //foreach (var file in Directory.GetFiles(UserSetting.TOMFAN_folder))
-                //{
-                //    try { File.WriteAllText(file, string.Empty); } catch { }
-                //}
-                //foreach (var file in Directory.GetFiles(UserSetting.TOMFAN_folder))
-                //{
-                //    try { File.Delete(file); } catch { }
-                //}
+                var files = Directory.GetFiles(exchangeFolder, "*.csv");
+                if (files.Length == 0)
+                {
+                    using (var writer2 = new StreamWriter(Path.Combine(exchangeFolder, "1_T_OUT.csv")))
+                    {
+                    }
+
+                    using (var writer2 = new StreamWriter(Path.Combine(exchangeFolder, "2_S_IN.csv")))
+                    {
+                    }
+                }
+                else
+                {
+                    foreach (var file in Directory.GetFiles(exchangeFolder))
+                    {
+                        try { File.WriteAllText(file, string.Empty); } catch { }
+                    }
+
+                }
+
+                string xlsxPath = Path.Combine(exchangeFolder, "1_T_OUT.xlsx");
+                if (!File.Exists(xlsxPath))
+                {
+                    ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
+                    using (var package = new ExcelPackage(new FileInfo(xlsxPath)))
+                    {
+                        package.Workbook.Worksheets.Add("1_T_OUT");
+                        package.Save();
+                    }
+                }
+                else
+                {
+                    ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
+                    using (var package = new ExcelPackage(new FileInfo(xlsxPath)))
+                    {
+                        var ws = package.Workbook.Worksheets.FirstOrDefault();
+                        if (ws != null) ws.Cells.Clear();
+                        else package.Workbook.Worksheets.Add("1_T_OUT");
+                    }
+                }
+
+                // trend folder
+                if (!Directory.Exists(Path.Combine(exchangeFolder, "Trend")))
+                {
+                    Directory.CreateDirectory(Path.Combine(exchangeFolder, "Trend"));
+                }
+                else
+                {
+                    // delete all files in trend folder
+                    foreach (var file in Directory.GetFiles(Path.Combine(exchangeFolder, "Trend")))
+                    {
+                        try { File.Delete(file); } catch { }
+                    }
+                }
             }
-            _externalAppService.StopExchangeAsync().Wait();
+            //_externalAppService.StopExchangeAsync().Wait();
             _isConnectedRow1 = false;
             _isCompleted = false;
             _isConnected = false;
@@ -697,8 +743,6 @@ namespace TESMEA_TMS.ViewModels
                 MeasureResponses.Add(response);
 
                 #region Power plot
-                // Kiểm tra xem series ScatterPoints đầu tiên có tồn tại không.
-                // Đây là series tạm thời dùng để vẽ các điểm đang đo.
                 //var powerSeries = PowerPlotModel.Series.OfType<ScatterSeries>().FirstOrDefault();
                 //if (powerSeries == null) return;
                 //powerSeries.Points.Add(new ScatterPoint(response.Airflow, response.Power));
@@ -732,7 +776,6 @@ namespace TESMEA_TMS.ViewModels
                 if (EfficiencyPlotModel?.Series == null || EfficiencyPlotModel.Series.Count < 4)
                     return;
 
-                // Cần truy cập các ScatterSeries bằng Index hoặc Key/Title nếu bạn có nhiều series khác
                 //var psPoint = EfficiencyPlotModel.Series[0] as ScatterSeries;
                 //var ptPoint = EfficiencyPlotModel.Series[1] as ScatterSeries;
                 //var sePoint = EfficiencyPlotModel.Series[2] as ScatterSeries;
@@ -790,12 +833,12 @@ namespace TESMEA_TMS.ViewModels
             Application.Current.Dispatcher.Invoke(() =>
             {
                 // Log toàn bộ giá trị fitting
-                Debug.WriteLine("==== LOG FITTING ====");
+                _externalAppService.WriteTomfanLog("==== LOG FITTING ====");
                 for (int i = 0; i < fitting.FlowPoint_ft.Length; i++)
                 {
-                    Debug.WriteLine($"i={i} | FlowPoint_ft={fitting.FlowPoint_ft[i]} | PrPoint_ft={fitting.PrPoint_ft[i]} | PsPoint_ft={fitting.PsPoint_ft[i]} | PtPoint_ft={fitting.PtPoint_ft[i]} | EsPoint_ft={fitting.EsPoint_ft[i]} | EtPoint_ft={fitting.EtPoint_ft[i]} | PrtPoint_ft={fitting.PrtPoint_ft[i]} | EstPoint_ft={fitting.EstPoint_ft[i]} | EttPoint_ft={fitting.EttPoint_ft[i]} | Ope_FlowPoint={fitting.Ope_FlowPoint[i]} | Ope_PsPoint={fitting.Ope_PsPoint[i]} | Ope_PtPoint={fitting.Ope_PtPoint[i]} | Ope_EsPoint={fitting.Ope_EsPoint[i]} | Ope_EtPoint={fitting.Ope_EtPoint[i]} | Ope_PrPoint={fitting.Ope_PrPoint[i]} | Ope_EstPoint={fitting.Ope_EstPoint[i]} | Ope_EttPoint={fitting.Ope_EttPoint[i]} | PrtPoint={fitting.PrtPoint[i]}");
+                    _externalAppService.WriteTomfanLog($"i={i} | FlowPoint_ft={fitting.FlowPoint_ft[i]} | PrPoint_ft={fitting.PrPoint_ft[i]} | PsPoint_ft={fitting.PsPoint_ft[i]} | PtPoint_ft={fitting.PtPoint_ft[i]} | EsPoint_ft={fitting.EsPoint_ft[i]} | EtPoint_ft={fitting.EtPoint_ft[i]} | PrtPoint_ft={fitting.PrtPoint_ft[i]} | EstPoint_ft={fitting.EstPoint_ft[i]} | EttPoint_ft={fitting.EttPoint_ft[i]} | Ope_FlowPoint={fitting.Ope_FlowPoint[i]} | Ope_PsPoint={fitting.Ope_PsPoint[i]} | Ope_PtPoint={fitting.Ope_PtPoint[i]} | Ope_EsPoint={fitting.Ope_EsPoint[i]} | Ope_EtPoint={fitting.Ope_EtPoint[i]} | Ope_PrPoint={fitting.Ope_PrPoint[i]} | Ope_EstPoint={fitting.Ope_EstPoint[i]} | Ope_EttPoint={fitting.Ope_EttPoint[i]} | PrtPoint={fitting.PrtPoint[i]}");
                 }
-                Debug.WriteLine("==== END LOG FITTING ====");
+                _externalAppService.WriteTomfanLog("==== END LOG FITTING ====");
                 //if (_powerScatterLiveSeries != null) PowerPlotModel.Series.Remove(_powerScatterLiveSeries);
                 //if (_psScatterLiveSeries != null) EfficiencyPlotModel.Series.Remove(_psScatterLiveSeries);
                 //if (_ptScatterLiveSeries != null) EfficiencyPlotModel.Series.Remove(_ptScatterLiveSeries);
