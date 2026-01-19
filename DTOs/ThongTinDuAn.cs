@@ -22,6 +22,7 @@ namespace TESMEA_TMS.DTOs
         public string TenDuAn { get; set; }
         //public string DuLieuKiemThu { get; set; }
         public string KichBan { get; set; }
+        public string ThongSo { get; set; }
         public string KieuKiemThu { get; set; }
         public string DuongDanLuuDuAn { get; set; }
     }

@@ -201,38 +201,89 @@ namespace TESMEA_TMS.Services
                 }
                 if (exist.Item2 != null)
                 {
+
+                    exist.Item2.IsImportNhietDoMoiTruong = camBien.IsImportNhietDoMoiTruong;
+                    exist.Item2.NhietDoMoiTruongValue = camBien.NhietDoMoiTruongValue;
                     exist.Item2.NhietDoMoiTruongMin = camBien.NhietDoMoiTruongMin;
                     exist.Item2.NhietDoMoiTruongMax = camBien.NhietDoMoiTruongMax;
+
+                    exist.Item2.IsImportDoAmMoiTruong = camBien.IsImportDoAmMoiTruong;
+                    exist.Item2.DoAmMoiTruongValue = camBien.DoAmMoiTruongValue;
                     exist.Item2.DoAmMoiTruongMin = camBien.DoAmMoiTruongMin;
                     exist.Item2.DoAmMoiTruongMax = camBien.DoAmMoiTruongMax;
+
+                    exist.Item2.IsImportApSuatKhiQuyen = camBien.IsImportApSuatKhiQuyen;
+                    exist.Item2.ApSuatKhiQuyenValue = camBien.ApSuatKhiQuyenValue;
                     exist.Item2.ApSuatKhiQuyenMin = camBien.ApSuatKhiQuyenMin;
                     exist.Item2.ApSuatKhiQuyenMax = camBien.ApSuatKhiQuyenMax;
+
+                    exist.Item2.IsImportChenhLechApSuat = camBien.IsImportChenhLechApSuat;
+                    exist.Item2.ChenhLechApSuatValue = camBien.ChenhLechApSuatValue;
                     exist.Item2.ChenhLechApSuatMin = camBien.ChenhLechApSuatMin;
                     exist.Item2.ChenhLechApSuatMax = camBien.ChenhLechApSuatMax;
+
+                    exist.Item2.IsImportApSuatTinh = camBien.IsImportApSuatTinh;
+                    exist.Item2.ApSuatTinhValue = camBien.ApSuatTinhValue;
                     exist.Item2.ApSuatTinhMin = camBien.ApSuatTinhMin;
                     exist.Item2.ApSuatTinhMax = camBien.ApSuatTinhMax;
+
+                    exist.Item2.IsImportDoRung = camBien.IsImportDoRung;
+                    exist.Item2.DoRungValue = camBien.DoRungValue;
                     exist.Item2.DoRungMin = camBien.DoRungMin;
                     exist.Item2.DoRungMax = camBien.DoRungMax;
+
+                    exist.Item2.IsImportDoOn = camBien.IsImportDoOn;
+                    exist.Item2.DoOnValue = camBien.DoOnValue;
                     exist.Item2.DoOnMin = camBien.DoOnMin;
                     exist.Item2.DoOnMax = camBien.DoOnMax;
+
+                    exist.Item2.IsImportSoVongQuay = camBien.IsImportSoVongQuay;
+                    exist.Item2.SoVongQuayValue = camBien.SoVongQuayValue;
                     exist.Item2.SoVongQuayMin = camBien.SoVongQuayMin;
                     exist.Item2.SoVongQuayMax = camBien.SoVongQuayMax;
+
+                    exist.Item2.IsImportMomen = camBien.IsImportMomen;
+                    exist.Item2.MomenValue = camBien.MomenValue;
                     exist.Item2.MomenMin = camBien.MomenMin;
                     exist.Item2.MomenMax = camBien.MomenMax;
+
+                    exist.Item2.IsImportPhanHoiDongDien = camBien.IsImportPhanHoiDongDien;
+                    exist.Item2.PhanHoiDongDienValue = camBien.PhanHoiDongDienValue;
                     exist.Item2.PhanHoiDongDienMin = camBien.PhanHoiDongDienMin;
                     exist.Item2.PhanHoiDongDienMax = camBien.PhanHoiDongDienMax;
+
+                    exist.Item2.IsImportPhanHoiCongSuat = camBien.IsImportPhanHoiCongSuat;
+                    exist.Item2.PhanHoiCongSuatValue = camBien.PhanHoiCongSuatValue;
                     exist.Item2.PhanHoiCongSuatMin = camBien.PhanHoiCongSuatMin;
                     exist.Item2.PhanHoiCongSuatMax = camBien.PhanHoiCongSuatMax;
+
+                    exist.Item2.IsImportPhanHoiViTriVan = camBien.IsImportPhanHoiViTriVan;
+                    exist.Item2.PhanHoiViTriVanValue = camBien.PhanHoiViTriVanValue;
                     exist.Item2.PhanHoiViTriVanMin = camBien.PhanHoiViTriVanMin;
                     exist.Item2.PhanHoiViTriVanMax = camBien.PhanHoiViTriVanMax;
+
+                    exist.Item2.IsImportPhanHoiDienAp = camBien.IsImportPhanHoiDienAp;
+                    exist.Item2.PhanHoiDienApValue = camBien.PhanHoiDienApValue;
                     exist.Item2.PhanHoiDienApMin = camBien.PhanHoiDienApMin;
                     exist.Item2.PhanHoiDienApMax = camBien.PhanHoiDienApMax;
+
+                    exist.Item2.IsImportNhietDoGoiTruc = camBien.IsImportNhietDoGoiTruc;
+                    exist.Item2.NhietDoGoiTrucValue = camBien.NhietDoGoiTrucValue;
                     exist.Item2.NhietDoGoiTrucMin = camBien.NhietDoGoiTrucMin;
                     exist.Item2.NhietDoGoiTrucMax = camBien.NhietDoGoiTrucMax;
+
+                    exist.Item2.IsImportNhietDoBauKho = camBien.IsImportNhietDoBauKho;
+                    exist.Item2.NhietDoBauKhoValue = camBien.NhietDoBauKhoValue;
                     exist.Item2.NhietDoBauKhoMin = camBien.NhietDoBauKhoMin;
                     exist.Item2.NhietDoBauKhoMax = camBien.NhietDoBauKhoMax;
+
+                    exist.Item2.IsImportCamBienLuuLuong = camBien.IsImportCamBienLuuLuong;
+                    exist.Item2.CamBienLuuLuongValue = camBien.CamBienLuuLuongValue;
                     exist.Item2.CamBienLuuLuongMin = camBien.CamBienLuuLuongMin;
                     exist.Item2.CamBienLuuLuongMax = camBien.CamBienLuuLuongMax;
+
+                    exist.Item2.IsImportPhanHoiTanSo = camBien.IsImportPhanHoiTanSo;
+                    exist.Item2.PhanHoiTanSoValue = camBien.PhanHoiTanSoValue;
                     exist.Item2.PhanHoiTanSoMin = camBien.PhanHoiTanSoMin;
                     exist.Item2.PhanHoiTanSoMax = camBien.PhanHoiTanSoMax;
                     _dbContext.CamBiens.Update(exist.Item2);

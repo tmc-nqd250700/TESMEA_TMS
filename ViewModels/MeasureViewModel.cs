@@ -512,7 +512,7 @@ namespace TESMEA_TMS.ViewModels
             var dialogTask = DialogHost.Show(splash, "MainDialogHost");
             try
             {
-                (var bienTan, _camBien, var ongGio) = await _parameterService.GetLibraryByIdAsync(Guid.Parse(ThongTinDuAn.ThamSo.KieuKiemThu));
+                (var bienTan, _camBien, var ongGio) = await _parameterService.GetLibraryByIdAsync(Guid.Parse(ThongTinDuAn.ThamSo.ThongSo));
                 if (bienTan == null || _camBien == null || ongGio == null)
                 {
                     throw new BusinessException("Không tìm thấy kiểu kiểm thử");
@@ -936,7 +936,8 @@ namespace TESMEA_TMS.ViewModels
 
                 // Lấy giá trị S của dải hiện tại
                 var measure = rangeMeasure != null ? rangeMeasure.S : 0;
-                float sValue = _camBien.PhanHoiTanSoMin + (_camBien.PhanHoiTanSoMax - _camBien.PhanHoiTanSoMin) * measure / 100;
+
+                float sValue = _camBien.IsImportPhanHoiTanSo ? _camBien.PhanHoiTanSoValue : (_camBien.PhanHoiTanSoMin + (_camBien.PhanHoiTanSoMax - _camBien.PhanHoiTanSoMin) * measure / 100);
                 // Tính điểm giữa của line
                 int midIndex = fitting.FlowPoint_ft.Length / 2;
                 double midX = fitting.FlowPoint_ft[midIndex];

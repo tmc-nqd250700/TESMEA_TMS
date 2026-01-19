@@ -10,7 +10,7 @@ namespace TESMEA_TMS.ViewModels
 {
     public class ProjectViewModel : ViewModelBase
     {
-        private List<ComboBoxInfo> _scenarioTypes, testTypes;
+        private List<ComboBoxInfo> _scenarioTypes, _libTypes, testTypes;
 
         public List<ComboBoxInfo> ScenarioTypes
         {
@@ -21,6 +21,19 @@ namespace TESMEA_TMS.ViewModels
                 {
                     _scenarioTypes = value;
                     OnPropertyChanged(nameof(ScenarioTypes));
+                }
+            }
+        }
+
+        public List<ComboBoxInfo>LibTypes
+        {
+            get => _libTypes;
+            set
+            {
+                if (_libTypes != value)
+                {
+                    _libTypes = value;
+                    OnPropertyChanged(nameof(LibTypes));
                 }
             }
         }
@@ -176,12 +189,19 @@ namespace TESMEA_TMS.ViewModels
 
         public async void LoadParam()
         {
+            TestTypes = new List<ComboBoxInfo>();
+            TestTypes.Add(new ComboBoxInfo("A", "Kiểu A: Đầu vào tự do, đầu ra tự do"));
+            TestTypes.Add(new ComboBoxInfo("B", "Kiểu B: Đầu vào tự do, đầu ra lắp ống dẫn"));
+            TestTypes.Add(new ComboBoxInfo("B", "Kiểu C: Đầu vào lắp ống dẫn, đầu ra tự do"));
+            TestTypes.Add(new ComboBoxInfo("D", "Kiểu D: Đầu vào lắp ống dẫn, đầu ra lắp ống dẫn"));
+            this.ThamSo.KieuKiemThu = TestTypes.FirstOrDefault().Value;
+
             var libraries = await _parameterService.GetLibrariesAsync();
-            TestTypes = libraries
+            LibTypes = libraries
                     .Select(x => new ComboBoxInfo(x.LibId.ToString(), x.LibName))
                     .ToList();
-            this.ThamSo.KieuKiemThu = TestTypes.FirstOrDefault().Value;
-            (BienTan, CamBien, OngGio) = await _parameterService.GetLibraryByIdAsync(Guid.Parse(this.ThamSo.KieuKiemThu));
+            this.ThamSo.ThongSo = LibTypes.FirstOrDefault().Value;
+            (BienTan, CamBien, OngGio) = await _parameterService.GetLibraryByIdAsync(Guid.Parse(this.ThamSo.ThongSo));
 
             var scenarios = await _parameterService.GetScenariosAsync();
             ScenarioTypes = scenarios
@@ -221,6 +241,12 @@ namespace TESMEA_TMS.ViewModels
                 if (string.IsNullOrEmpty(ThongTinDuAn.ThamSo.KieuKiemThu))
                 {
                     MessageBoxHelper.ShowWarning("Vui lòng chọn kiểu kiểm thử");
+                    return;
+                }
+
+                if (string.IsNullOrEmpty(ThongTinDuAn.ThamSo.ThongSo))
+                {
+                    MessageBoxHelper.ShowWarning("Vui lòng chọn thông số đo kiểm");
                     return;
                 }
 

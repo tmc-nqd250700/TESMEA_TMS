@@ -45,6 +45,16 @@
                                       SelectedValuePath="Value"
                                       DisplayMemberPath="Text"/>
 
+                            <TextBlock Text="{lex:Loc lbl_Library_type}" Margin="10 0 5 0" VerticalAlignment="Center"/>
+                            <ComboBox Margin="0 5" Cursor="Hand"
+                                      md:ComboBoxAssist.ShowSelectedItem="True"
+                                      Style="{StaticResource MaterialDesignComboBox}" 
+                                      ItemsSource="{Binding LibTypes}" 
+                                      SelectedValue="{Binding ThongTinDuAn.ThamSo.ThongSo, Mode=TwoWay}"
+                                      SelectedValuePath="Value"
+                                      DisplayMemberPath="Text"
+                                      SelectionChanged="ComboBox_SelectionChanged"/>
+
                             <TextBlock Text="{lex:Loc lbl_Test_type}" Margin="10 0 5 0" VerticalAlignment="Center"/>
                             <ComboBox Margin="0 5" Cursor="Hand"
                                       md:ComboBoxAssist.ShowSelectedItem="True"

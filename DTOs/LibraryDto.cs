@@ -255,46 +255,28 @@ namespace TESMEA_TMS.DTOs
     /// <summary>
     /// DTO cho CamBien với tracking thay đổi
     /// </summary>
+    /// <summary>
+    /// DTO cho CamBien với tracking thay đổi
+    /// </summary>
     public class CamBienDto : INotifyPropertyChanged
     {
-        private float _nhietDoMoiTruongMin;
-        private float _nhietDoMoiTruongMax;
-        private float _doAmMoiTruongMin;
-        private float _doAmMoiTruongMax;
-        private float _apSuatKhiQuyenMin;
-        private float _apSuatKhiQuyenMax;
-        private float _chenhLechApSuatMin;
-        private float _chenhLechApSuatMax;
-        private float _apSuatTinhMin;
-        private float _apSuatTinhMax;
-        private float _doRungMin;
-        private float _doRungMax;
-        private float _doOnMin;
-        private float _doOnMax;
-        private float _soVongQuayMin;
-        private float _soVongQuayMax;
-        private float _momenMin;
-        private float _momenMax;
-        private float _phanHoiDongDienMin;
-        private float _phanHoiDongDienMax;
-        private float _phanHoiCongSuatMin;
-        private float _phanHoiCongSuatMax;
-        private float _phanHoiViTriVanMin;
-        private float _phanHoiViTriVanMax;
-        private float _phanHoiDienApMin;
-        private float _phanHoiDienApMax;
-        private float _nhietDoGoiTrucMin;
-        private float _nhietDoGoiTrucMax;
-        private float _nhietDoBauKhoMin;
-        private float _nhietDoBauKhoMax;
-        private float _camBienLuuLuongMin;
-        private float _camBienLuuLuongMax;
-        private float _phanHoiTanSoMin;
-        private float _phanHoiTanSoMax;
-
-
         public Guid LibId { get; set; }
 
+        // Nhiệt độ môi trường C
+        private bool _isImportNhietDoMoiTruong;
+        private float _nhietDoMoiTruongValue;
+        private float _nhietDoMoiTruongMin;
+        private float _nhietDoMoiTruongMax;
+        public bool IsImportNhietDoMoiTruong
+        {
+            get => _isImportNhietDoMoiTruong;
+            set { _isImportNhietDoMoiTruong = value; OnPropertyChanged(); NotifyChanged(); }
+        }
+        public float NhietDoMoiTruongValue
+        {
+            get => _nhietDoMoiTruongValue;
+            set { _nhietDoMoiTruongValue = value; OnPropertyChanged(); NotifyChanged(); }
+        }
         public float NhietDoMoiTruongMin
         {
             get => _nhietDoMoiTruongMin;
@@ -304,6 +286,22 @@ namespace TESMEA_TMS.DTOs
         {
             get => _nhietDoMoiTruongMax;
             set { _nhietDoMoiTruongMax = value; OnPropertyChanged(); NotifyChanged(); }
+        }
+
+        // Độ ẩm môi trường %
+        private bool _isImportDoAmMoiTruong;
+        private float _doAmMoiTruongValue;
+        private float _doAmMoiTruongMin;
+        private float _doAmMoiTruongMax;
+        public bool IsImportDoAmMoiTruong
+        {
+            get => _isImportDoAmMoiTruong;
+            set { _isImportDoAmMoiTruong = value; OnPropertyChanged(); NotifyChanged(); }
+        }
+        public float DoAmMoiTruongValue
+        {
+            get => _doAmMoiTruongValue;
+            set { _doAmMoiTruongValue = value; OnPropertyChanged(); NotifyChanged(); }
         }
         public float DoAmMoiTruongMin
         {
@@ -315,6 +313,22 @@ namespace TESMEA_TMS.DTOs
             get => _doAmMoiTruongMax;
             set { _doAmMoiTruongMax = value; OnPropertyChanged(); NotifyChanged(); }
         }
+
+        // Áp suất khí quyển Pa
+        private bool _isImportApSuatKhiQuyen;
+        private float _apSuatKhiQuyenValue;
+        private float _apSuatKhiQuyenMin;
+        private float _apSuatKhiQuyenMax;
+        public bool IsImportApSuatKhiQuyen
+        {
+            get => _isImportApSuatKhiQuyen;
+            set { _isImportApSuatKhiQuyen = value; OnPropertyChanged(); NotifyChanged(); }
+        }
+        public float ApSuatKhiQuyenValue
+        {
+            get => _apSuatKhiQuyenValue;
+            set { _apSuatKhiQuyenValue = value; OnPropertyChanged(); NotifyChanged(); }
+        }
         public float ApSuatKhiQuyenMin
         {
             get => _apSuatKhiQuyenMin;
@@ -324,6 +338,22 @@ namespace TESMEA_TMS.DTOs
         {
             get => _apSuatKhiQuyenMax;
             set { _apSuatKhiQuyenMax = value; OnPropertyChanged(); NotifyChanged(); }
+        }
+
+        // Áp suất chênh lệch Pa
+        private bool _isImportChenhLechApSuat;
+        private float _chenhLechApSuatValue;
+        private float _chenhLechApSuatMin;
+        private float _chenhLechApSuatMax;
+        public bool IsImportChenhLechApSuat
+        {
+            get => _isImportChenhLechApSuat;
+            set { _isImportChenhLechApSuat = value; OnPropertyChanged(); NotifyChanged(); }
+        }
+        public float ChenhLechApSuatValue
+        {
+            get => _chenhLechApSuatValue;
+            set { _chenhLechApSuatValue = value; OnPropertyChanged(); NotifyChanged(); }
         }
         public float ChenhLechApSuatMin
         {
@@ -335,6 +365,22 @@ namespace TESMEA_TMS.DTOs
             get => _chenhLechApSuatMax;
             set { _chenhLechApSuatMax = value; OnPropertyChanged(); NotifyChanged(); }
         }
+
+        // Áp suất tĩnh Pa
+        private bool _isImportApSuatTinh;
+        private float _apSuatTinhValue;
+        private float _apSuatTinhMin;
+        private float _apSuatTinhMax;
+        public bool IsImportApSuatTinh
+        {
+            get => _isImportApSuatTinh;
+            set { _isImportApSuatTinh = value; OnPropertyChanged(); NotifyChanged(); }
+        }
+        public float ApSuatTinhValue
+        {
+            get => _apSuatTinhValue;
+            set { _apSuatTinhValue = value; OnPropertyChanged(); NotifyChanged(); }
+        }
         public float ApSuatTinhMin
         {
             get => _apSuatTinhMin;
@@ -344,6 +390,22 @@ namespace TESMEA_TMS.DTOs
         {
             get => _apSuatTinhMax;
             set { _apSuatTinhMax = value; OnPropertyChanged(); NotifyChanged(); }
+        }
+
+        // Độ rung
+        private bool _isImportDoRung;
+        private float _doRungValue;
+        private float _doRungMin;
+        private float _doRungMax;
+        public bool IsImportDoRung
+        {
+            get => _isImportDoRung;
+            set { _isImportDoRung = value; OnPropertyChanged(); NotifyChanged(); }
+        }
+        public float DoRungValue
+        {
+            get => _doRungValue;
+            set { _doRungValue = value; OnPropertyChanged(); NotifyChanged(); }
         }
         public float DoRungMin
         {
@@ -355,6 +417,22 @@ namespace TESMEA_TMS.DTOs
             get => _doRungMax;
             set { _doRungMax = value; OnPropertyChanged(); NotifyChanged(); }
         }
+
+        // Độ ồn
+        private bool _isImportDoOn;
+        private float _doOnValue;
+        private float _doOnMin;
+        private float _doOnMax;
+        public bool IsImportDoOn
+        {
+            get => _isImportDoOn;
+            set { _isImportDoOn = value; OnPropertyChanged(); NotifyChanged(); }
+        }
+        public float DoOnValue
+        {
+            get => _doOnValue;
+            set { _doOnValue = value; OnPropertyChanged(); NotifyChanged(); }
+        }
         public float DoOnMin
         {
             get => _doOnMin;
@@ -364,6 +442,22 @@ namespace TESMEA_TMS.DTOs
         {
             get => _doOnMax;
             set { _doOnMax = value; OnPropertyChanged(); NotifyChanged(); }
+        }
+
+        // Số vòng quay
+        private bool _isImportSoVongQuay;
+        private float _soVongQuayValue;
+        private float _soVongQuayMin;
+        private float _soVongQuayMax;
+        public bool IsImportSoVongQuay
+        {
+            get => _isImportSoVongQuay;
+            set { _isImportSoVongQuay = value; OnPropertyChanged(); NotifyChanged(); }
+        }
+        public float SoVongQuayValue
+        {
+            get => _soVongQuayValue;
+            set { _soVongQuayValue = value; OnPropertyChanged(); NotifyChanged(); }
         }
         public float SoVongQuayMin
         {
@@ -375,6 +469,22 @@ namespace TESMEA_TMS.DTOs
             get => _soVongQuayMax;
             set { _soVongQuayMax = value; OnPropertyChanged(); NotifyChanged(); }
         }
+
+        // Momen xoắn
+        private bool _isImportMomen;
+        private float _momenValue;
+        private float _momenMin;
+        private float _momenMax;
+        public bool IsImportMomen
+        {
+            get => _isImportMomen;
+            set { _isImportMomen = value; OnPropertyChanged(); NotifyChanged(); }
+        }
+        public float MomenValue
+        {
+            get => _momenValue;
+            set { _momenValue = value; OnPropertyChanged(); NotifyChanged(); }
+        }
         public float MomenMin
         {
             get => _momenMin;
@@ -384,6 +494,22 @@ namespace TESMEA_TMS.DTOs
         {
             get => _momenMax;
             set { _momenMax = value; OnPropertyChanged(); NotifyChanged(); }
+        }
+
+        // Phản hồi dòng điện
+        private bool _isImportPhanHoiDongDien;
+        private float _phanHoiDongDienValue;
+        private float _phanHoiDongDienMin;
+        private float _phanHoiDongDienMax;
+        public bool IsImportPhanHoiDongDien
+        {
+            get => _isImportPhanHoiDongDien;
+            set { _isImportPhanHoiDongDien = value; OnPropertyChanged(); NotifyChanged(); }
+        }
+        public float PhanHoiDongDienValue
+        {
+            get => _phanHoiDongDienValue;
+            set { _phanHoiDongDienValue = value; OnPropertyChanged(); NotifyChanged(); }
         }
         public float PhanHoiDongDienMin
         {
@@ -395,6 +521,22 @@ namespace TESMEA_TMS.DTOs
             get => _phanHoiDongDienMax;
             set { _phanHoiDongDienMax = value; OnPropertyChanged(); NotifyChanged(); }
         }
+
+        // Phản hồi công suất
+        private bool _isImportPhanHoiCongSuat;
+        private float _phanHoiCongSuatValue;
+        private float _phanHoiCongSuatMin;
+        private float _phanHoiCongSuatMax;
+        public bool IsImportPhanHoiCongSuat
+        {
+            get => _isImportPhanHoiCongSuat;
+            set { _isImportPhanHoiCongSuat = value; OnPropertyChanged(); NotifyChanged(); }
+        }
+        public float PhanHoiCongSuatValue
+        {
+            get => _phanHoiCongSuatValue;
+            set { _phanHoiCongSuatValue = value; OnPropertyChanged(); NotifyChanged(); }
+        }
         public float PhanHoiCongSuatMin
         {
             get => _phanHoiCongSuatMin;
@@ -404,6 +546,22 @@ namespace TESMEA_TMS.DTOs
         {
             get => _phanHoiCongSuatMax;
             set { _phanHoiCongSuatMax = value; OnPropertyChanged(); NotifyChanged(); }
+        }
+
+        // Phản hồi vị trí van
+        private bool _isImportPhanHoiViTriVan;
+        private float _phanHoiViTriVanValue;
+        private float _phanHoiViTriVanMin;
+        private float _phanHoiViTriVanMax;
+        public bool IsImportPhanHoiViTriVan
+        {
+            get => _isImportPhanHoiViTriVan;
+            set { _isImportPhanHoiViTriVan = value; OnPropertyChanged(); NotifyChanged(); }
+        }
+        public float PhanHoiViTriVanValue
+        {
+            get => _phanHoiViTriVanValue;
+            set { _phanHoiViTriVanValue = value; OnPropertyChanged(); NotifyChanged(); }
         }
         public float PhanHoiViTriVanMin
         {
@@ -416,6 +574,21 @@ namespace TESMEA_TMS.DTOs
             set { _phanHoiViTriVanMax = value; OnPropertyChanged(); NotifyChanged(); }
         }
 
+        // Phản hồi điện áp
+        private bool _isImportPhanHoiDienAp;
+        private float _phanHoiDienApValue;
+        private float _phanHoiDienApMin;
+        private float _phanHoiDienApMax;
+        public bool IsImportPhanHoiDienAp
+        {
+            get => _isImportPhanHoiDienAp;
+            set { _isImportPhanHoiDienAp = value; OnPropertyChanged(); NotifyChanged(); }
+        }
+        public float PhanHoiDienApValue
+        {
+            get => _phanHoiDienApValue;
+            set { _phanHoiDienApValue = value; OnPropertyChanged(); NotifyChanged(); }
+        }
         public float PhanHoiDienApMin
         {
             get => _phanHoiDienApMin;
@@ -425,6 +598,22 @@ namespace TESMEA_TMS.DTOs
         {
             get => _phanHoiDienApMax;
             set { _phanHoiDienApMax = value; OnPropertyChanged(); NotifyChanged(); }
+        }
+
+        // Nhiệt độ gối trục
+        private bool _isImportNhietDoGoiTruc;
+        private float _nhietDoGoiTrucValue;
+        private float _nhietDoGoiTrucMin;
+        private float _nhietDoGoiTrucMax;
+        public bool IsImportNhietDoGoiTruc
+        {
+            get => _isImportNhietDoGoiTruc;
+            set { _isImportNhietDoGoiTruc = value; OnPropertyChanged(); NotifyChanged(); }
+        }
+        public float NhietDoGoiTrucValue
+        {
+            get => _nhietDoGoiTrucValue;
+            set { _nhietDoGoiTrucValue = value; OnPropertyChanged(); NotifyChanged(); }
         }
         public float NhietDoGoiTrucMin
         {
@@ -436,6 +625,22 @@ namespace TESMEA_TMS.DTOs
             get => _nhietDoGoiTrucMax;
             set { _nhietDoGoiTrucMax = value; OnPropertyChanged(); NotifyChanged(); }
         }
+
+        // Nhiệt độ bầu khô
+        private bool _isImportNhietDoBauKho;
+        private float _nhietDoBauKhoValue;
+        private float _nhietDoBauKhoMin;
+        private float _nhietDoBauKhoMax;
+        public bool IsImportNhietDoBauKho
+        {
+            get => _isImportNhietDoBauKho;
+            set { _isImportNhietDoBauKho = value; OnPropertyChanged(); NotifyChanged(); }
+        }
+        public float NhietDoBauKhoValue
+        {
+            get => _nhietDoBauKhoValue;
+            set { _nhietDoBauKhoValue = value; OnPropertyChanged(); NotifyChanged(); }
+        }
         public float NhietDoBauKhoMin
         {
             get => _nhietDoBauKhoMin;
@@ -445,6 +650,22 @@ namespace TESMEA_TMS.DTOs
         {
             get => _nhietDoBauKhoMax;
             set { _nhietDoBauKhoMax = value; OnPropertyChanged(); NotifyChanged(); }
+        }
+
+        // Cảm biến lưu lượng
+        private bool _isImportCamBienLuuLuong;
+        private float _camBienLuuLuongValue;
+        private float _camBienLuuLuongMin;
+        private float _camBienLuuLuongMax;
+        public bool IsImportCamBienLuuLuong
+        {
+            get => _isImportCamBienLuuLuong;
+            set { _isImportCamBienLuuLuong = value; OnPropertyChanged(); NotifyChanged(); }
+        }
+        public float CamBienLuuLuongValue
+        {
+            get => _camBienLuuLuongValue;
+            set { _camBienLuuLuongValue = value; OnPropertyChanged(); NotifyChanged(); }
         }
         public float CamBienLuuLuongMin
         {
@@ -456,12 +677,27 @@ namespace TESMEA_TMS.DTOs
             get => _camBienLuuLuongMax;
             set { _camBienLuuLuongMax = value; OnPropertyChanged(); NotifyChanged(); }
         }
+
+        // Phản hồi tần số
+        private bool _isImportPhanHoiTanSo;
+        private float _phanHoiTanSoValue;
+        private float _phanHoiTanSoMin;
+        private float _phanHoiTanSoMax;
+        public bool IsImportPhanHoiTanSo
+        {
+            get => _isImportPhanHoiTanSo;
+            set { _isImportPhanHoiTanSo = value; OnPropertyChanged(); NotifyChanged(); }
+        }
+        public float PhanHoiTanSoValue
+        {
+            get => _phanHoiTanSoValue;
+            set { _phanHoiTanSoValue = value; OnPropertyChanged(); NotifyChanged(); }
+        }
         public float PhanHoiTanSoMin
         {
             get => _phanHoiTanSoMin;
             set { _phanHoiTanSoMin = value; OnPropertyChanged(); NotifyChanged(); }
         }
-
         public float PhanHoiTanSoMax
         {
             get => _phanHoiTanSoMax;
@@ -479,38 +715,88 @@ namespace TESMEA_TMS.DTOs
             return new CamBienDto
             {
                 LibId = entity.LibId,
+                IsImportNhietDoMoiTruong = entity.IsImportNhietDoMoiTruong,
+                NhietDoMoiTruongValue = entity.NhietDoMoiTruongValue,
                 NhietDoMoiTruongMin = entity.NhietDoMoiTruongMin,
                 NhietDoMoiTruongMax = entity.NhietDoMoiTruongMax,
+
+                IsImportDoAmMoiTruong = entity.IsImportDoAmMoiTruong,
+                DoAmMoiTruongValue = entity.DoAmMoiTruongValue,
                 DoAmMoiTruongMin = entity.DoAmMoiTruongMin,
                 DoAmMoiTruongMax = entity.DoAmMoiTruongMax,
+
+                IsImportApSuatKhiQuyen = entity.IsImportApSuatKhiQuyen,
+                ApSuatKhiQuyenValue = entity.ApSuatKhiQuyenValue,
                 ApSuatKhiQuyenMin = entity.ApSuatKhiQuyenMin,
                 ApSuatKhiQuyenMax = entity.ApSuatKhiQuyenMax,
+
+                IsImportChenhLechApSuat = entity.IsImportChenhLechApSuat,
+                ChenhLechApSuatValue = entity.ChenhLechApSuatValue,
                 ChenhLechApSuatMin = entity.ChenhLechApSuatMin,
                 ChenhLechApSuatMax = entity.ChenhLechApSuatMax,
+
+                IsImportApSuatTinh = entity.IsImportApSuatTinh,
+                ApSuatTinhValue = entity.ApSuatTinhValue,
                 ApSuatTinhMin = entity.ApSuatTinhMin,
                 ApSuatTinhMax = entity.ApSuatTinhMax,
+
+                IsImportDoRung = entity.IsImportDoRung,
+                DoRungValue = entity.DoRungValue,
                 DoRungMin = entity.DoRungMin,
                 DoRungMax = entity.DoRungMax,
+
+                IsImportDoOn = entity.IsImportDoOn,
+                DoOnValue = entity.DoOnValue,
                 DoOnMin = entity.DoOnMin,
                 DoOnMax = entity.DoOnMax,
+
+                IsImportSoVongQuay = entity.IsImportSoVongQuay,
+                SoVongQuayValue = entity.SoVongQuayValue,
                 SoVongQuayMin = entity.SoVongQuayMin,
                 SoVongQuayMax = entity.SoVongQuayMax,
+
+                IsImportMomen = entity.IsImportMomen,
+                MomenValue = entity.MomenValue,
                 MomenMin = entity.MomenMin,
                 MomenMax = entity.MomenMax,
+
+                IsImportPhanHoiDongDien = entity.IsImportPhanHoiDongDien,
+                PhanHoiDongDienValue = entity.PhanHoiDongDienValue,
                 PhanHoiDongDienMin = entity.PhanHoiDongDienMin,
                 PhanHoiDongDienMax = entity.PhanHoiDongDienMax,
+
+                IsImportPhanHoiCongSuat = entity.IsImportPhanHoiCongSuat,
+                PhanHoiCongSuatValue = entity.PhanHoiCongSuatValue,
                 PhanHoiCongSuatMin = entity.PhanHoiCongSuatMin,
                 PhanHoiCongSuatMax = entity.PhanHoiCongSuatMax,
+
+                IsImportPhanHoiViTriVan = entity.IsImportPhanHoiViTriVan,
+                PhanHoiViTriVanValue = entity.PhanHoiViTriVanValue,
                 PhanHoiViTriVanMin = entity.PhanHoiViTriVanMin,
                 PhanHoiViTriVanMax = entity.PhanHoiViTriVanMax,
+
+                IsImportPhanHoiDienAp = entity.IsImportPhanHoiDienAp,
+                PhanHoiDienApValue = entity.PhanHoiDienApValue,
                 PhanHoiDienApMin = entity.PhanHoiDienApMin,
                 PhanHoiDienApMax = entity.PhanHoiDienApMax,
+
+                IsImportNhietDoGoiTruc = entity.IsImportNhietDoGoiTruc,
+                NhietDoGoiTrucValue = entity.NhietDoGoiTrucValue,
                 NhietDoGoiTrucMin = entity.NhietDoGoiTrucMin,
                 NhietDoGoiTrucMax = entity.NhietDoGoiTrucMax,
+
+                IsImportNhietDoBauKho = entity.IsImportNhietDoBauKho,
+                NhietDoBauKhoValue = entity.NhietDoBauKhoValue,
                 NhietDoBauKhoMin = entity.NhietDoBauKhoMin,
                 NhietDoBauKhoMax = entity.NhietDoBauKhoMax,
+
+                IsImportCamBienLuuLuong = entity.IsImportCamBienLuuLuong,
+                CamBienLuuLuongValue = entity.CamBienLuuLuongValue,
                 CamBienLuuLuongMin = entity.CamBienLuuLuongMin,
                 CamBienLuuLuongMax = entity.CamBienLuuLuongMax,
+
+                IsImportPhanHoiTanSo = entity.IsImportPhanHoiTanSo,
+                PhanHoiTanSoValue = entity.PhanHoiTanSoValue,
                 PhanHoiTanSoMin = entity.PhanHoiTanSoMin,
                 PhanHoiTanSoMax = entity.PhanHoiTanSoMax
             };
@@ -521,39 +807,89 @@ namespace TESMEA_TMS.DTOs
             return new CamBien
             {
                 LibId = LibId,
+                IsImportNhietDoMoiTruong = IsImportNhietDoMoiTruong,
+                NhietDoMoiTruongValue = NhietDoMoiTruongValue,
                 NhietDoMoiTruongMin = NhietDoMoiTruongMin,
                 NhietDoMoiTruongMax = NhietDoMoiTruongMax,
+
+                IsImportDoAmMoiTruong = IsImportDoAmMoiTruong,
+                DoAmMoiTruongValue = DoAmMoiTruongValue,
                 DoAmMoiTruongMin = DoAmMoiTruongMin,
                 DoAmMoiTruongMax = DoAmMoiTruongMax,
+
+                IsImportApSuatKhiQuyen = IsImportApSuatKhiQuyen,
+                ApSuatKhiQuyenValue = ApSuatKhiQuyenValue,
                 ApSuatKhiQuyenMin = ApSuatKhiQuyenMin,
                 ApSuatKhiQuyenMax = ApSuatKhiQuyenMax,
+
+                IsImportChenhLechApSuat = IsImportChenhLechApSuat,
+                ChenhLechApSuatValue = ChenhLechApSuatValue,
                 ChenhLechApSuatMin = ChenhLechApSuatMin,
                 ChenhLechApSuatMax = ChenhLechApSuatMax,
+
+                IsImportApSuatTinh = IsImportApSuatTinh,
+                ApSuatTinhValue = ApSuatTinhValue,
                 ApSuatTinhMin = ApSuatTinhMin,
                 ApSuatTinhMax = ApSuatTinhMax,
+
+                IsImportDoRung = IsImportDoRung,
+                DoRungValue = DoRungValue,
                 DoRungMin = DoRungMin,
                 DoRungMax = DoRungMax,
+
+                IsImportDoOn = IsImportDoOn,
+                DoOnValue = DoOnValue,
                 DoOnMin = DoOnMin,
                 DoOnMax = DoOnMax,
+
+                IsImportSoVongQuay = IsImportSoVongQuay,
+                SoVongQuayValue = SoVongQuayValue,
                 SoVongQuayMin = SoVongQuayMin,
                 SoVongQuayMax = SoVongQuayMax,
+
+                IsImportMomen = IsImportMomen,
+                MomenValue = MomenValue,
                 MomenMin = MomenMin,
                 MomenMax = MomenMax,
+
+                IsImportPhanHoiDongDien = IsImportPhanHoiDongDien,
+                PhanHoiDongDienValue = PhanHoiDongDienValue,
                 PhanHoiDongDienMin = PhanHoiDongDienMin,
                 PhanHoiDongDienMax = PhanHoiDongDienMax,
+
+                IsImportPhanHoiCongSuat = IsImportPhanHoiCongSuat,
+                PhanHoiCongSuatValue = PhanHoiCongSuatValue,
                 PhanHoiCongSuatMin = PhanHoiCongSuatMin,
                 PhanHoiCongSuatMax = PhanHoiCongSuatMax,
+
+                IsImportPhanHoiViTriVan = IsImportPhanHoiViTriVan,
+                PhanHoiViTriVanValue = PhanHoiViTriVanValue,
                 PhanHoiViTriVanMin = PhanHoiViTriVanMin,
                 PhanHoiViTriVanMax = PhanHoiViTriVanMax,
+
+                IsImportPhanHoiDienAp = IsImportPhanHoiDienAp,
+                PhanHoiDienApValue = PhanHoiDienApValue,
                 PhanHoiDienApMin = PhanHoiDienApMin,
                 PhanHoiDienApMax = PhanHoiDienApMax,
+
+                IsImportNhietDoGoiTruc = IsImportNhietDoGoiTruc,
+                NhietDoGoiTrucValue = NhietDoGoiTrucValue,
                 NhietDoGoiTrucMin = NhietDoGoiTrucMin,
                 NhietDoGoiTrucMax = NhietDoGoiTrucMax,
+
+                IsImportNhietDoBauKho = IsImportNhietDoBauKho,
+                NhietDoBauKhoValue = NhietDoBauKhoValue,
                 NhietDoBauKhoMin = NhietDoBauKhoMin,
                 NhietDoBauKhoMax = NhietDoBauKhoMax,
+
+                IsImportCamBienLuuLuong = IsImportCamBienLuuLuong,
+                CamBienLuuLuongValue = CamBienLuuLuongValue,
                 CamBienLuuLuongMin = CamBienLuuLuongMin,
                 CamBienLuuLuongMax = CamBienLuuLuongMax,
-                PhanHoiTanSoMin = PhanHoiTanSoMin, 
+
+                IsImportPhanHoiTanSo = IsImportPhanHoiTanSo,
+                PhanHoiTanSoValue = PhanHoiTanSoValue,
+                PhanHoiTanSoMin = PhanHoiTanSoMin,
                 PhanHoiTanSoMax = PhanHoiTanSoMax
             };
         }

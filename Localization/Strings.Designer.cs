@@ -664,6 +664,15 @@ namespace TESMEA_TMS.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Thông số đo kiểm.
+        /// </summary>
+        internal static string lbl_Library_type {
+            get {
+                return ResourceManager.GetString("lbl_Library_type", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Cơ sở sản xuất.
         /// </summary>
         internal static string lbl_Manufacturer {

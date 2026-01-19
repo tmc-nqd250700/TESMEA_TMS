@@ -877,20 +877,78 @@ namespace TESMEA_TMS.Services
 
                                     if (!isConnection && parts.Length >= 15)
                                     {
-                                        m.NhietDoMoiTruong_sen = CalcSimatic(_sensor.NhietDoMoiTruongMin, _sensor.NhietDoMoiTruongMax, float.Parse(parts[3], CultureInfo.InvariantCulture));
-                                        m.DoAm_sen = CalcSimatic(_sensor.DoAmMoiTruongMin, _sensor.DoAmMoiTruongMax, float.Parse(parts[4], CultureInfo.InvariantCulture));
-                                        m.SoVongQuay_sen = CalcSimatic(_sensor.SoVongQuayMin, _sensor.SoVongQuayMax, float.Parse(parts[5], CultureInfo.InvariantCulture));
-                                        m.ApSuatkhiQuyen_sen = CalcSimatic(_sensor.ApSuatKhiQuyenMin, _sensor.ApSuatKhiQuyenMax, float.Parse(parts[6], CultureInfo.InvariantCulture));
-                                        m.ChenhLechApSuat_sen = CalcSimatic(_sensor.ChenhLechApSuatMin, _sensor.ChenhLechApSuatMax, float.Parse(parts[6], CultureInfo.InvariantCulture));
-                                        m.ApSuatTinh_sen = CalcSimatic(_sensor.ApSuatTinhMin, _sensor.ApSuatTinhMax, float.Parse(parts[7], CultureInfo.InvariantCulture));
-                                        m.DoRung_sen = CalcSimatic(_sensor.DoRungMin, _sensor.DoRungMax, float.Parse(parts[8], CultureInfo.InvariantCulture));
-                                        m.DoOn_sen = CalcSimatic(_sensor.DoOnMin, _sensor.DoOnMax, float.Parse(parts[9], CultureInfo.InvariantCulture));
-                                        m.Momen_sen = CalcSimatic(_sensor.MomenMin, _sensor.MomenMax, float.Parse(parts[11], CultureInfo.InvariantCulture));
-                                        m.DongDien_fb = CalcSimatic(_sensor.PhanHoiDongDienMin, _sensor.PhanHoiDongDienMax, float.Parse(parts[12], CultureInfo.InvariantCulture));
-                                        m.CongSuat_fb = CalcSimatic(_sensor.PhanHoiCongSuatMin, _sensor.PhanHoiCongSuatMax, float.Parse(parts[13], CultureInfo.InvariantCulture));
-                                        m.ViTriVan_fb = CalcSimatic(_sensor.PhanHoiViTriVanMin, _sensor.PhanHoiViTriVanMax, float.Parse(parts[14], CultureInfo.InvariantCulture));
-                                        if (parts.Length > 15)
-                                            m.TanSo_fb = CalcSimatic(_sensor.PhanHoiTanSoMin, _sensor.PhanHoiTanSoMax, float.Parse(parts[15], CultureInfo.InvariantCulture));
+                                        //m.NhietDoMoiTruong_sen = CalcSimatic(_sensor.NhietDoMoiTruongMin, _sensor.NhietDoMoiTruongMax, float.Parse(parts[3], CultureInfo.InvariantCulture));
+                                        //m.DoAm_sen = CalcSimatic(_sensor.DoAmMoiTruongMin, _sensor.DoAmMoiTruongMax, float.Parse(parts[4], CultureInfo.InvariantCulture));
+                                        //m.SoVongQuay_sen = CalcSimatic(_sensor.SoVongQuayMin, _sensor.SoVongQuayMax, float.Parse(parts[5], CultureInfo.InvariantCulture));
+                                        //m.ApSuatkhiQuyen_sen = CalcSimatic(_sensor.ApSuatKhiQuyenMin, _sensor.ApSuatKhiQuyenMax, float.Parse(parts[6], CultureInfo.InvariantCulture));
+                                        //m.ChenhLechApSuat_sen = CalcSimatic(_sensor.ChenhLechApSuatMin, _sensor.ChenhLechApSuatMax, float.Parse(parts[6], CultureInfo.InvariantCulture));
+                                        //m.ApSuatTinh_sen = CalcSimatic(_sensor.ApSuatTinhMin, _sensor.ApSuatTinhMax, float.Parse(parts[7], CultureInfo.InvariantCulture));
+                                        //m.DoRung_sen = CalcSimatic(_sensor.DoRungMin, _sensor.DoRungMax, float.Parse(parts[8], CultureInfo.InvariantCulture));
+                                        //m.DoOn_sen = CalcSimatic(_sensor.DoOnMin, _sensor.DoOnMax, float.Parse(parts[9], CultureInfo.InvariantCulture));
+                                        //m.Momen_sen = CalcSimatic(_sensor.MomenMin, _sensor.MomenMax, float.Parse(parts[11], CultureInfo.InvariantCulture));
+                                        //m.DongDien_fb = CalcSimatic(_sensor.PhanHoiDongDienMin, _sensor.PhanHoiDongDienMax, float.Parse(parts[12], CultureInfo.InvariantCulture));
+                                        //m.CongSuat_fb = CalcSimatic(_sensor.PhanHoiCongSuatMin, _sensor.PhanHoiCongSuatMax, float.Parse(parts[13], CultureInfo.InvariantCulture));
+                                        //m.ViTriVan_fb = CalcSimatic(_sensor.PhanHoiViTriVanMin, _sensor.PhanHoiViTriVanMax, float.Parse(parts[14], CultureInfo.InvariantCulture));
+                                        //if (parts.Length > 15)
+                                        //    m.TanSo_fb = CalcSimatic(_sensor.PhanHoiTanSoMin, _sensor.PhanHoiTanSoMax, float.Parse(parts[15], CultureInfo.InvariantCulture));
+
+                                        if (!isConnection && parts.Length >= 15)
+                                        {
+                                            m.NhietDoMoiTruong_sen = _sensor.IsImportNhietDoMoiTruong
+                                                ? _sensor.NhietDoMoiTruongValue
+                                                : CalcSimatic(_sensor.NhietDoMoiTruongMin, _sensor.NhietDoMoiTruongMax, float.Parse(parts[3], CultureInfo.InvariantCulture));
+
+                                            m.DoAm_sen = _sensor.IsImportDoAmMoiTruong
+                                                ? _sensor.DoAmMoiTruongValue
+                                                : CalcSimatic(_sensor.DoAmMoiTruongMin, _sensor.DoAmMoiTruongMax, float.Parse(parts[4], CultureInfo.InvariantCulture));
+
+                                            m.SoVongQuay_sen = _sensor.IsImportSoVongQuay
+                                                ? _sensor.SoVongQuayValue
+                                                : CalcSimatic(_sensor.SoVongQuayMin, _sensor.SoVongQuayMax, float.Parse(parts[5], CultureInfo.InvariantCulture));
+
+                                            m.ApSuatkhiQuyen_sen = _sensor.IsImportApSuatKhiQuyen
+                                                ? _sensor.ApSuatKhiQuyenValue
+                                                : CalcSimatic(_sensor.ApSuatKhiQuyenMin, _sensor.ApSuatKhiQuyenMax, float.Parse(parts[6], CultureInfo.InvariantCulture));
+
+                                            m.ChenhLechApSuat_sen = _sensor.IsImportChenhLechApSuat
+                                                ? _sensor.ChenhLechApSuatValue
+                                                : CalcSimatic(_sensor.ChenhLechApSuatMin, _sensor.ChenhLechApSuatMax, float.Parse(parts[6], CultureInfo.InvariantCulture));
+
+                                            m.ApSuatTinh_sen = _sensor.IsImportApSuatTinh
+                                                ? _sensor.ApSuatTinhValue
+                                                : CalcSimatic(_sensor.ApSuatTinhMin, _sensor.ApSuatTinhMax, float.Parse(parts[7], CultureInfo.InvariantCulture));
+
+                                            m.DoRung_sen = _sensor.IsImportDoRung
+                                                ? _sensor.DoRungValue
+                                                : CalcSimatic(_sensor.DoRungMin, _sensor.DoRungMax, float.Parse(parts[8], CultureInfo.InvariantCulture));
+
+                                            m.DoOn_sen = _sensor.IsImportDoOn
+                                                ? _sensor.DoOnValue
+                                                : CalcSimatic(_sensor.DoOnMin, _sensor.DoOnMax, float.Parse(parts[9], CultureInfo.InvariantCulture));
+
+                                            m.Momen_sen = _sensor.IsImportMomen
+                                                ? _sensor.MomenValue
+                                                : CalcSimatic(_sensor.MomenMin, _sensor.MomenMax, float.Parse(parts[11], CultureInfo.InvariantCulture));
+
+                                            m.DongDien_fb = _sensor.IsImportPhanHoiDongDien
+                                                ? _sensor.PhanHoiDongDienValue
+                                                : CalcSimatic(_sensor.PhanHoiDongDienMin, _sensor.PhanHoiDongDienMax, float.Parse(parts[12], CultureInfo.InvariantCulture));
+
+                                            m.CongSuat_fb = _sensor.IsImportPhanHoiCongSuat
+                                                ? _sensor.PhanHoiCongSuatValue
+                                                : CalcSimatic(_sensor.PhanHoiCongSuatMin, _sensor.PhanHoiCongSuatMax, float.Parse(parts[13], CultureInfo.InvariantCulture));
+
+                                            m.ViTriVan_fb = _sensor.IsImportPhanHoiViTriVan
+                                                ? _sensor.PhanHoiViTriVanValue
+                                                : CalcSimatic(_sensor.PhanHoiViTriVanMin, _sensor.PhanHoiViTriVanMax, float.Parse(parts[14], CultureInfo.InvariantCulture));
+
+                                            if (parts.Length > 15)
+                                            {
+                                                m.TanSo_fb = _sensor.IsImportPhanHoiTanSo
+                                                    ? _sensor.PhanHoiTanSoValue
+                                                    : CalcSimatic(_sensor.PhanHoiTanSoMin, _sensor.PhanHoiTanSoMax, float.Parse(parts[15], CultureInfo.InvariantCulture));
+                                            }
+                                        }
 
                                         WriteTomfanLog($"Nhiệt độ môi trường: {m.NhietDoMoiTruong_sen}");
                                         WriteTomfanLog($"Độ ẩm: {m.DoAm_sen}");

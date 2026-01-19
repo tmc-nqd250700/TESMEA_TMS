@@ -38,69 +38,105 @@ namespace TESMEA_TMS.Models.Entities
         [Key]
         public Guid LibId { get; set; }
 
-        // nhiệt độ môi trường C
+        // Nhiệt độ môi trường C
+        public bool IsImportNhietDoMoiTruong { get; set; }
+        public float NhietDoMoiTruongValue { get; set; }
         public float NhietDoMoiTruongMin { get; set; }
         public float NhietDoMoiTruongMax { get; set; }
 
-        // độ ẩm môi trường %
+        // Độ ẩm môi trường %
+        public bool IsImportDoAmMoiTruong { get; set; }
+        public float DoAmMoiTruongValue { get; set; }
         public float DoAmMoiTruongMin { get; set; }
         public float DoAmMoiTruongMax { get; set; }
 
-        // áp suất khí quyển Pa
+        // Áp suất khí quyển Pa
+        public bool IsImportApSuatKhiQuyen { get; set; }
+        public float ApSuatKhiQuyenValue { get; set; }
         public float ApSuatKhiQuyenMin { get; set; }
         public float ApSuatKhiQuyenMax { get; set; }
 
-        //  áp suất chênh lệch Pa
+        // Áp suất chênh lệch Pa
+        public bool IsImportChenhLechApSuat { get; set; }
+        public float ChenhLechApSuatValue { get; set; }
         public float ChenhLechApSuatMin { get; set; }
         public float ChenhLechApSuatMax { get; set; }
 
-        // áp suất tĩnh Pa
+        // Áp suất tĩnh Pa
+        public bool IsImportApSuatTinh { get; set; }
+        public float ApSuatTinhValue { get; set; }
         public float ApSuatTinhMin { get; set; }
         public float ApSuatTinhMax { get; set; }
 
-        // độ rung
+        // Độ rung
+        public bool IsImportDoRung { get; set; }
+        public float DoRungValue { get; set; }
         public float DoRungMin { get; set; }
         public float DoRungMax { get; set; }
 
-        // độ ồn
+        // Độ ồn
+        public bool IsImportDoOn { get; set; }
+        public float DoOnValue { get; set; }
         public float DoOnMin { get; set; }
         public float DoOnMax { get; set; }
 
-        // số vòng quay
+        // Số vòng quay
+        public bool IsImportSoVongQuay { get; set; }
+        public float SoVongQuayValue { get; set; }
         public float SoVongQuayMin { get; set; }
         public float SoVongQuayMax { get; set; }
 
-        // momen xoắn
+        // Momen xoắn
+        public bool IsImportMomen { get; set; }
+        public float MomenValue { get; set; }
         public float MomenMin { get; set; }
         public float MomenMax { get; set; }
-        // phản hồi dòng điện
+
+        // Phản hồi dòng điện
+        public bool IsImportPhanHoiDongDien { get; set; }
+        public float PhanHoiDongDienValue { get; set; }
         public float PhanHoiDongDienMin { get; set; }
         public float PhanHoiDongDienMax { get; set; }
 
-        // phản hồi công suất
+        // Phản hồi công suất
+        public bool IsImportPhanHoiCongSuat { get; set; }
+        public float PhanHoiCongSuatValue { get; set; }
         public float PhanHoiCongSuatMin { get; set; }
         public float PhanHoiCongSuatMax { get; set; }
 
-        // phản hồi vị trí van
+        // Phản hồi vị trí van
+        public bool IsImportPhanHoiViTriVan { get; set; }
+        public float PhanHoiViTriVanValue { get; set; }
         public float PhanHoiViTriVanMin { get; set; }
         public float PhanHoiViTriVanMax { get; set; }
 
-        // phản hồi điện áp
+        // Phản hồi điện áp
+        public bool IsImportPhanHoiDienAp { get; set; }
+        public float PhanHoiDienApValue { get; set; }
         public float PhanHoiDienApMin { get; set; }
         public float PhanHoiDienApMax { get; set; }
 
         // Nhiệt độ gối trục
+        public bool IsImportNhietDoGoiTruc { get; set; }
+        public float NhietDoGoiTrucValue { get; set; }
         public float NhietDoGoiTrucMin { get; set; }
         public float NhietDoGoiTrucMax { get; set; }
 
         // Nhiệt độ bầu khô
+        public bool IsImportNhietDoBauKho { get; set; }
+        public float NhietDoBauKhoValue { get; set; }
         public float NhietDoBauKhoMin { get; set; }
         public float NhietDoBauKhoMax { get; set; }
 
         // Cảm biến lưu lượng
+        public bool IsImportCamBienLuuLuong { get; set; }
+        public float CamBienLuuLuongValue { get; set; }
         public float CamBienLuuLuongMin { get; set; }
         public float CamBienLuuLuongMax { get; set; }
 
+        // Phản hồi tần số
+        public bool IsImportPhanHoiTanSo { get; set; }
+        public float PhanHoiTanSoValue { get; set; }
         public float PhanHoiTanSoMin { get; set; }
         public float PhanHoiTanSoMax { get; set; }
     }

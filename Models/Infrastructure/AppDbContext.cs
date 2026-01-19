@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using System.IO;
 using System.Linq.Expressions;
 using TESMEA_TMS.Configs;
@@ -70,7 +71,7 @@ namespace TESMEA_TMS.Models.Infrastructure
                     modelBuilder.Entity(entityType.ClrType).HasQueryFilter(lambda);
                 }
             }
-
+            var boolToIntConverter = new BoolToZeroOneConverter<int>();
 
             base.OnModelCreating(modelBuilder); 
             modelBuilder.Entity<UserAccount>().ToTable("tbl_UserAccount");
@@ -83,8 +84,29 @@ namespace TESMEA_TMS.Models.Infrastructure
             modelBuilder.Entity<ScenarioParam>().ToTable("tbl_ScenarioParam");
             modelBuilder.Entity<Library>().ToTable("tbl_Library");
             modelBuilder.Entity<BienTan>().ToTable("tbl_BienTan");
-            modelBuilder.Entity<CamBien>().ToTable("tbl_CamBien");
             modelBuilder.Entity<OngGio>().ToTable("tbl_OngGio");
+
+            modelBuilder.Entity<CamBien>().ToTable("tbl_CamBien");
+            modelBuilder.Entity<CamBien>(entity =>
+            {
+                entity.Property(e => e.IsImportNhietDoMoiTruong).HasConversion(boolToIntConverter);
+                entity.Property(e => e.IsImportDoAmMoiTruong).HasConversion(boolToIntConverter);
+                entity.Property(e => e.IsImportApSuatKhiQuyen).HasConversion(boolToIntConverter);
+                entity.Property(e => e.IsImportChenhLechApSuat).HasConversion(boolToIntConverter);
+                entity.Property(e => e.IsImportApSuatTinh).HasConversion(boolToIntConverter);
+                entity.Property(e => e.IsImportDoRung).HasConversion(boolToIntConverter);
+                entity.Property(e => e.IsImportDoOn).HasConversion(boolToIntConverter);
+                entity.Property(e => e.IsImportSoVongQuay).HasConversion(boolToIntConverter);
+                entity.Property(e => e.IsImportMomen).HasConversion(boolToIntConverter);
+                entity.Property(e => e.IsImportPhanHoiDongDien).HasConversion(boolToIntConverter);
+                entity.Property(e => e.IsImportPhanHoiCongSuat).HasConversion(boolToIntConverter);
+                entity.Property(e => e.IsImportPhanHoiViTriVan).HasConversion(boolToIntConverter);
+                entity.Property(e => e.IsImportPhanHoiDienAp).HasConversion(boolToIntConverter);
+                entity.Property(e => e.IsImportNhietDoGoiTruc).HasConversion(boolToIntConverter);
+                entity.Property(e => e.IsImportNhietDoBauKho).HasConversion(boolToIntConverter);
+                entity.Property(e => e.IsImportCamBienLuuLuong).HasConversion(boolToIntConverter);
+                entity.Property(e => e.IsImportPhanHoiTanSo).HasConversion(boolToIntConverter);
+            });
         }
 
         //protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

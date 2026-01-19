@@ -441,4 +441,7 @@
   <data name="title_Lib_new" xml:space="preserve">
     <value>New library</value>
   </data>
+  <data name="lbl_Library_type" xml:space="preserve">
+    <value>Library</value>
+  </data>
 </root>

@@ -96,22 +96,22 @@ namespace TESMEA_TMS.Services
             {
                 // Check UserSetting and SimaticPath
                 var userSetting = UserSetting.Instance;
-                if (userSetting == null || string.IsNullOrEmpty(userSetting.SimaticPath))
-                {
-                    // Show ChooseExternalAppDialog if SimaticPath is not set
-                    if (_chooseExternalAppWindow == null)
-                    {
-                        _chooseExternalAppWindow = new ChooseExternalAppDialog();
-                    }
-                    _chooseExternalAppWindow.Show();
-                    WindowNavigationRequested?.Invoke(this, new WindowNavigationEventArgs("ChooseExternalApp"));
+                //if (userSetting == null || string.IsNullOrEmpty(userSetting.SimaticPath))
+                //{
+                //    // Show ChooseExternalAppDialog if SimaticPath is not set
+                //    if (_chooseExternalAppWindow == null)
+                //    {
+                //        _chooseExternalAppWindow = new ChooseExternalAppDialog();
+                //    }
+                //    _chooseExternalAppWindow.Show();
+                //    WindowNavigationRequested?.Invoke(this, new WindowNavigationEventArgs("ChooseExternalApp"));
 
-                    _mainWindow?.Close();
-                    _mainWindow = null;
-                    _loginWindow?.Close();
-                    _loginWindow = null;
-                    return;
-                }
+                //    _mainWindow?.Close();
+                //    _mainWindow = null;
+                //    _loginWindow?.Close();
+                //    _loginWindow = null;
+                //    return;
+                //}
 
 
                 IsLoggedIn = true;

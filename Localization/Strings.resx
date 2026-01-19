@@ -441,4 +441,7 @@
   <data name="title_Lib_new" xml:space="preserve">
     <value>Tạo mới library</value>
   </data>
+  <data name="lbl_Library_type" xml:space="preserve">
+    <value>Thông số đo kiểm</value>
+  </data>
 </root>

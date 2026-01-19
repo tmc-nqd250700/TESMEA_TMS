@@ -797,8 +797,8 @@ namespace TESMEA_TMS.Helpers
 
             float Ta = measure.NhietDoMoiTruong_sen;
             // thông số phản hồi
-            float Power_fb = sen.PhanHoiCongSuatMax;
-            float Current_fb = sen.PhanHoiDongDienMax;
+            float Power_fb = measure.CongSuat_fb;
+            float Current_fb = measure.DongDien_fb;
             float Voltage_fb = 0;
 
 
