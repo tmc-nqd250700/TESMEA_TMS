@@ -912,6 +912,7 @@ namespace TESMEA_TMS.DTOs
         private float _duongKinhLoPhut;
         private float _duongKinhMiengQuat;
         private float _chieuDaiConQuat;
+        private float _heSoMaSat;
 
         public Guid LibId { get; set; }
 
@@ -947,6 +948,12 @@ namespace TESMEA_TMS.DTOs
             set { _chieuDaiConQuat = value; OnPropertyChanged(); NotifyChanged(); }
         }
 
+        public float HeSoMaSat
+        {
+            get => _heSoMaSat;
+            set { _heSoMaSat = value; OnPropertyChanged(); NotifyChanged(); }
+        }
+
         public event EventHandler DataChanged;
         private void NotifyChanged()
         {
@@ -963,7 +970,8 @@ namespace TESMEA_TMS.DTOs
                 ChieuDaiOngGioTruocQuat = entity.ChieuDaiOngGioTruocQuat,
                 DuongKinhLoPhut = entity.DuongKinhLoPhut,
                 DuongKinhMiengQuat = entity.DuongKinhMiengQuat,
-                ChieuDaiConQuat = entity.ChieuDaiConQuat
+                ChieuDaiConQuat = entity.ChieuDaiConQuat,
+                HeSoMaSat = entity.HeSoMaSat,
             };
         }
 
@@ -977,7 +985,8 @@ namespace TESMEA_TMS.DTOs
                 ChieuDaiOngGioTruocQuat = ChieuDaiOngGioTruocQuat,
                 DuongKinhLoPhut = DuongKinhLoPhut,
                 DuongKinhMiengQuat = DuongKinhMiengQuat,
-                ChieuDaiConQuat = ChieuDaiConQuat
+                ChieuDaiConQuat = ChieuDaiConQuat,
+                HeSoMaSat = HeSoMaSat,
             };
         }
 

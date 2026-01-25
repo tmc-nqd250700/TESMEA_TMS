@@ -66,6 +66,17 @@ namespace TESMEA_TMS.Services
         {
             await ExecuteAsync(async () =>
             {
+                // kiểm tra để mỗi tần số phải có ít nhất 4 góc mở van để cho hàm fit.polynomial - thực hiện hồi quy bậc 2 
+                foreach (var param in scenario.Params.Where(p=>p.S > 0))
+                {
+                    var countCV = scenario.Params.Count(p => p.S == param.S);
+                    if (countCV < 4)
+                    {
+                        throw new BusinessException($"Giá trị % tần số = {param.S} không có đủ 4 góc mở van");
+                    }
+                }
+
+
                 var exist = await _dbContext.Scenarios.Where(x => x.ScenarioId == scenario.Scenario.ScenarioId).FirstOrDefaultAsync();
                 if (exist == null)
                 {
@@ -84,11 +95,17 @@ namespace TESMEA_TMS.Services
                 }
                 else
                 {
-                    var paramsToUpdate = scenario.Params.Select(p => p.ToEntity()).Where(x => x.ScenarioId == scenario.Scenario.ScenarioId).ToList();
+                    var paramsToUpdate = scenario.Params.Select(p => p.ToEntity()).ToList();
+                    foreach(var item in paramsToUpdate)
+                    {
+                        item.ScenarioId = scenario.Scenario.ScenarioId;
+                    }
+
                     if (paramsToUpdate.Count == 0)
                     {
                         throw new BusinessException($"Danh sách thông số kịch bản không được để trống");
                     }
+
                     // Xóa scenario đã tồn tại
                     if (scenario.Scenario.IsMarkedForDeletion && !scenario.Scenario.IsNew)
                     {
@@ -296,6 +313,7 @@ namespace TESMEA_TMS.Services
                     exist.Item3.DuongKinhLoPhut = ongGio.DuongKinhLoPhut;
                     exist.Item3.DuongKinhMiengQuat = ongGio.DuongKinhMiengQuat;
                     exist.Item3.ChieuDaiConQuat = ongGio.ChieuDaiConQuat;
+                    exist.Item3.HeSoMaSat = ongGio.HeSoMaSat;
                     _dbContext.OngGios.Update(exist.Item3);
                 }
                 await _dbContext.SaveChangesAsync();

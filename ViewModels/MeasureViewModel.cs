@@ -138,6 +138,7 @@ namespace TESMEA_TMS.ViewModels
         private readonly IExternalAppService _externalAppService;
         private readonly IParameterService _parameterService;
         private readonly IAppNavigationService _appNavigationService;
+        private readonly IFileService _fileService;
 
         // Commands
         public ICommand ConnectCommand { get; }
@@ -151,11 +152,12 @@ namespace TESMEA_TMS.ViewModels
         public ICommand ExportReportCommand { get; }
         public ICommand BackCommand { get; }
         public ICommand FinishCommand { get; }
-        public MeasureViewModel(IExternalAppService externalAppService, IParameterService parameterService, IAppNavigationService appNavigationService)
+        public MeasureViewModel(IExternalAppService externalAppService, IParameterService parameterService, IAppNavigationService appNavigationService, IFileService fileService)
         {
             _externalAppService = externalAppService;
             _parameterService = parameterService;
             _appNavigationService = appNavigationService;
+            _fileService = fileService;
 
             MeasureRows = new ObservableCollection<Measure>();
             ThongTinDoKiem = new ThongTinDoKiem();
@@ -188,10 +190,10 @@ namespace TESMEA_TMS.ViewModels
             _externalAppService.OnSimaticExchangeCompleted += OnExchangeCompletedHandler;
 
             ReportTemplates = new ObservableCollection<ComboBoxInfo>();
-            ReportTemplates.Add(new ComboBoxInfo("DESIGN", "Design condition"));
-            ReportTemplates.Add(new ComboBoxInfo("NORMALIZED", "Normalized condition"));
-            ReportTemplates.Add(new ComboBoxInfo("OPERATION", "Operation condition"));
-            ReportTemplates.Add(new ComboBoxInfo("FULL", "Full"));
+            ReportTemplates.Add(new ComboBoxInfo("DESIGN", IsEn ? "Design condition" : "Điều kiện thiết kế"));
+            ReportTemplates.Add(new ComboBoxInfo("NORMALIZED", IsEn ? "Normalized condition" : "Điều kiện tiêu chuẩn"));
+            ReportTemplates.Add(new ComboBoxInfo("OPERATION", IsEn ? "Operation condition" : "Điều kiện hoạt động"));
+            ReportTemplates.Add(new ComboBoxInfo("FULL", IsEn ? "Full" : "Tất cả"));
             SelectedReportTemplate = new ComboBoxInfo();
             SelectedReportTemplate.Value = ReportTemplates[0].Value;
 
@@ -457,7 +459,8 @@ namespace TESMEA_TMS.ViewModels
         private bool CanConnect(object obj) => !_isConnected && !_isConnectedRow1;
         private bool CanConnect2(object obj) => !_isConnected && _isConnectedRow1;
         private bool CanStart(object obj) => _isConnected && _isConnectedRow1 && !_isMeasuring && !_isCompleted;
-        private bool CanStop(object obj) => _isMeasuring;
+        //private bool CanStop(object obj) => _isMeasuring;
+        private bool CanStop(object obj) => true;
         private bool CanReset(object obj) => _isCompleted && !_isMeasuring;
         private bool CanTrend(object obj) => SelectedMeasure != null && (TrendLineDialog == null || !TrendLineDialog.IsLoaded);
 
@@ -515,7 +518,7 @@ namespace TESMEA_TMS.ViewModels
                 (var bienTan, _camBien, var ongGio) = await _parameterService.GetLibraryByIdAsync(Guid.Parse(ThongTinDuAn.ThamSo.ThongSo));
                 if (bienTan == null || _camBien == null || ongGio == null)
                 {
-                    throw new BusinessException("Không tìm thấy kiểu kiểm thử");
+                    throw new BusinessException("Không tìm thấy thông số kiểm thử");
                 }
 
                 if (!MeasureRows.Any())
@@ -1177,15 +1180,157 @@ namespace TESMEA_TMS.ViewModels
             return true;
         }
 
+        private async Task<ThongSoDauVao> ConvertData()
+        {
+            try
+            {
+                // convert measure sang thông số đầu vào cho phần tính toán và xuất báo cáo
+                //MeasureRows
+                ThongSoDauVao tsdv = new ThongSoDauVao();
+                ThongSoDuongOngGio tsOngGio = new ThongSoDuongOngGio();
+                ThongSoCoBanCuaQuat tsQuat = new ThongSoCoBanCuaQuat();
+                List<ThongSoDoKiem> dstsDoKiem = new List<ThongSoDoKiem>();
 
-        private void ExecuteExportResultCommand(object obj)
+                (var bienTan, _camBien, var ongGio) = await _parameterService.GetLibraryByIdAsync(Guid.Parse(ThongTinDuAn.ThamSo.ThongSo));
+                if (bienTan == null || _camBien == null || ongGio == null)
+                {
+                    throw new BusinessException("Không tìm thấy thông số kiểm thử");
+                }
+
+                // thông số đường ống gió
+                tsOngGio.DuongKinhOngD5 = ongGio.DuongKinhOngGio;
+                tsOngGio.ChieuDaiOngGioTonThatL = ongGio.ChieuDaiConQuat;
+                tsOngGio.DuongKinhOngGioD3 = ongGio.DuongKinhMiengQuat;
+                tsOngGio.TietDienOngD5 = 3.14 * Math.Pow(tsOngGio.DuongKinhOngD5 / 1000, 2) / 4;
+                tsOngGio.HeSoMaSatOngK = ongGio.HeSoMaSat; // chưa có công thức tính
+                tsOngGio.TietDienOngGioD3 = 3.14 * Math.Pow(tsOngGio.DuongKinhOngGioD3 / 1000, 2) / 4;
+
+                // thông số cơ bản của quạt
+                var mauThuNghiem = ThongTinDuAn.ThongTinMauThuNghiem;
+                tsQuat.SoVongQuayCuaQuatNLT = 0; // chwa cso
+                tsQuat.CongSuatDongCo = mauThuNghiem.CongSuatDongCo;
+                tsQuat.HeSoDongCo = mauThuNghiem.HeSoCongSuatDongCo;
+                tsQuat.Tanso = mauThuNghiem.TanSoDongCoTheoThietKe;
+                tsQuat.HieuSuatDongCo = mauThuNghiem.HieuSuatDongCo;
+                tsQuat.DoNhotKhongKhi = 0; // chuwa cos
+                tsQuat.ApSuatKhiQuyen = 110110; // chuw cos
+                tsQuat.NhietDoLamViec = mauThuNghiem.NhietDoThietKeLamViec;
+                if (!MeasureRows.Any())
+                {
+                    throw new BusinessException("Chưa có kết quả đo kiểm");
+                }
+                int stt = 1;
+                foreach (var item in MeasureRows)
+                {
+                    ThongSoDoKiem tsDokiem = new ThongSoDoKiem();
+                    tsDokiem.KiemTraSo = stt;
+                    tsDokiem.NhietDoBauKho = item.NhietDoMoiTruong_sen;
+                    tsDokiem.DoAmTuongDoi = item.DoAm_sen;
+                    tsDokiem.SoVongQuayNTT = item.SoVongQuay_sen;
+                    tsDokiem.ChenhLechApSuat = item.ChenhLechApSuat_sen;
+                    tsDokiem.ApSuatTinh = item.ApSuatTinh_sen;
+                    tsDokiem.DongLamViec = item.DongDien_fb;
+                    tsDokiem.DienAp = item.DienAp_fb;
+                    tsDokiem.TanSo = item.TanSo_fb;
+                    dstsDoKiem.Add(tsDokiem);
+                }
+                tsdv.ThongSoDuongOngGio = tsOngGio;
+                tsdv.ThongSoCoBanCuaQuat = tsQuat;
+                tsdv.DanhSachThongSoDoKiem = dstsDoKiem;
+                return tsdv;
+            }
+            catch(BusinessException ex)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        private async void ExecuteExportResultCommand(object obj)
         {
 
+            var timestamp = DateTime.Now.ToString("yyyy_MM_dd_HH_mm_ss");
+            var sfd = new SaveFileDialog
+            {
+                Filter = "Word Files|*.docx",
+                Title = IsEn ? "Select where to save measurement reports" : "Chọn nơi lưu báo cáo",
+                FileName = $"Report_{timestamp}.docx",
+                InitialDirectory = ThongTinDuAn.ThamSo.DuongDanLuuDuAn
+            };
+            if (sfd.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            {
+                var splashViewModel = new ProgressSplashViewModel
+                {
+                    Message = "Đang tạo file kết quả đo kiểm, vui lòng chờ...",
+                    IsIndeterminate = true
+                };
+                var splash = new Views.CustomControls.ProgressSplashContent { DataContext = splashViewModel };
+                var dialogTask = DialogHost.Show(splash, "MainDialogHost");
+                try
+                {
+                    await _fileService.ExportReportTestResult(
+                       outputPath: sfd.FileName,
+                       option: SelectedReportTemplate?.Value ?? "DESIGN",
+                       tsdv: await ConvertData(),
+                       project: ThongTinDuAn
+                   );
+                    if (DialogHost.IsDialogOpen("MainDialogHost"))
+                        DialogHost.Close("MainDialogHost");
+
+                }
+                catch (Exception ex)
+                {
+                    if (DialogHost.IsDialogOpen("MainDialogHost"))
+                        DialogHost.Close("MainDialogHost");
+                    throw;
+                }
+                MessageBoxHelper.ShowSuccess(IsEn ? "Export report successfully" : "Báo cáo đã được xuất thành công");
+            }
         }
 
         private async void ExecuteExportReportCommand(object obj)
         {
-            // Implement export report logic here
+            var timestamp = DateTime.Now.ToString("yyyy_MM_dd_HH_mm_ss");
+            var sfd = new SaveFileDialog
+            {
+                Filter = "Excel Files|*.xlsx;*.xls",
+                Title = IsEn ? "Select where to save measurement calculation results" : "Chọn nơi lưu kết quả tính toán",
+                FileName = $"Result_{timestamp}.xlsx",
+                InitialDirectory = ThongTinDuAn.ThamSo.DuongDanLuuDuAn
+            };
+            if (sfd.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            {
+                var splashViewModel = new ProgressSplashViewModel
+                {
+                    Message = "Đang tạo báo cáo đo kiểm, vui lòng chờ...",
+                    IsIndeterminate = true
+                };
+                var splash = new Views.CustomControls.ProgressSplashContent { DataContext = splashViewModel };
+                var dialogTask = DialogHost.Show(splash, "MainDialogHost");
+                try
+                {
+                    await _fileService.ExportExcelTestResult(
+                        outputPath: sfd.FileName,
+                        option: SelectedReportTemplate?.Value ?? "DESIGN",
+                        tsdv: await ConvertData(),
+                        project: ThongTinDuAn
+                    );
+
+                    if (DialogHost.IsDialogOpen("MainDialogHost"))
+                        DialogHost.Close("MainDialogHost");
+
+                }
+                catch (Exception ex)
+                {
+                    if (DialogHost.IsDialogOpen("MainDialogHost"))
+                        DialogHost.Close("MainDialogHost");
+                    throw;
+                }
+                MessageBoxHelper.ShowSuccess(IsEn ? "Export result successfully" : "Kết quả tính toán đã được xuất thành công");
+            }
         }
 
         #endregion

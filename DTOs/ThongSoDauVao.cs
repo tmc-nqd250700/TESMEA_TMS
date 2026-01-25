@@ -40,5 +40,6 @@
         public double ApSuatTinh { get; set; }
         public double DongLamViec { get; set; }
         public double DienAp { get; set; }
+        public double TanSo { get; set; }
     }
 }

@@ -107,6 +107,20 @@ namespace TESMEA_TMS.ViewModels
             }
         }
 
+        //private DieuKienLamViecThucTe _dieuKienLamViecThucTe;
+        //public DieuKienLamViecThucTe DieuKienLamViecThucTe
+        //{
+        //    get => _dieuKienLamViecThucTe;
+        //    set
+        //    {
+        //        if(_dieuKienLamViecThucTe != value)
+        //        {
+        //            _dieuKienLamViecThucTe = value;
+        //            OnPropertyChanged(nameof(DieuKienLamViecThucTe));
+        //        }
+        //    }
+        //}
+
         private Library _currentParameter;
         public Library CurrentParameter
         {
@@ -172,6 +186,7 @@ namespace TESMEA_TMS.ViewModels
             ThamSo = new ThamSo();
             ThongTinChung = new ThongTinChung();
             ThongTinMauThuNghiem = new ThongTinMauThuNghiem();
+            //DieuKienLamViecThucTe = new DieuKienLamViecThucTe();
             ThongTinDuAn = new ThongTinDuAn(ThamSo, ThongTinChung, ThongTinMauThuNghiem);
             LoadParam();
         }
@@ -181,6 +196,7 @@ namespace TESMEA_TMS.ViewModels
             ThamSo = new ThamSo();
             ThongTinChung = new ThongTinChung();
             ThongTinMauThuNghiem = new ThongTinMauThuNghiem();
+            //DieuKienLamViecThucTe = new DieuKienLamViecThucTe();
             ThongTinDuAn = new ThongTinDuAn(ThamSo, ThongTinChung, ThongTinMauThuNghiem);
             BienTan = new BienTan();
             CamBien = new CamBien();
@@ -192,9 +208,9 @@ namespace TESMEA_TMS.ViewModels
             TestTypes = new List<ComboBoxInfo>();
             TestTypes.Add(new ComboBoxInfo("A", "Kiểu A: Đầu vào tự do, đầu ra tự do"));
             TestTypes.Add(new ComboBoxInfo("B", "Kiểu B: Đầu vào tự do, đầu ra lắp ống dẫn"));
-            TestTypes.Add(new ComboBoxInfo("B", "Kiểu C: Đầu vào lắp ống dẫn, đầu ra tự do"));
+            TestTypes.Add(new ComboBoxInfo("C", "Kiểu C: Đầu vào lắp ống dẫn, đầu ra tự do"));
             TestTypes.Add(new ComboBoxInfo("D", "Kiểu D: Đầu vào lắp ống dẫn, đầu ra lắp ống dẫn"));
-            this.ThamSo.KieuKiemThu = TestTypes.FirstOrDefault().Value;
+            this.ThamSo.KieuKiemThu = TestTypes.FirstOrDefault(x=>x.Value == "B").Value;
 
             var libraries = await _parameterService.GetLibrariesAsync();
             LibTypes = libraries
@@ -331,7 +347,7 @@ namespace TESMEA_TMS.ViewModels
 
         public async void OnLibraryChanged()
         {
-            var libId = ThongTinDuAn.ThamSo.KieuKiemThu;
+            var libId = ThongTinDuAn.ThamSo.ThongSo;
             if (libId == null) return;
             (BienTan, CamBien, OngGio) = await _parameterService.GetLibraryByIdAsync(Guid.Parse(libId));
         }

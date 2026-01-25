@@ -9,7 +9,7 @@
              lex:LocalizeDictionary.DesignCulture="vi"
              lex:ResxLocalizationProvider.DefaultAssembly="TESMEA_TMS"
              lex:ResxLocalizationProvider.DefaultDictionary="Strings"
-             d:Height="979" 
+             d:Height="860" 
              d:Width="1690"
              mc:Ignorable="d" 
              DataContext="{Binding ProjectViewModel, Source={StaticResource Locator}}">
@@ -28,16 +28,18 @@
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
 
                     <GroupBox Grid.Row="0" Header="{lex:Loc groupbox_Parameter}" FontSize="14" Margin="0 0 0 10">
                         <UniformGrid Columns="2">
                             <TextBlock Text="{lex:Loc lbl_Project_name}" Margin="10 0 5 0" VerticalAlignment="Center"/>
-                            <TextBox Text="{Binding ThongTinDuAn.ThamSo.TenDuAn, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="0 5"/>
+                            <TextBox Text="{Binding ThongTinDuAn.ThamSo.TenDuAn, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
 
                             <TextBlock Text="{lex:Loc lbl_Scenario}" Margin="10 0 5 0" VerticalAlignment="Center"/>
-                            <ComboBox Margin="0 5" Cursor="Hand"
+                            <ComboBox Cursor="Hand"
                                       md:ComboBoxAssist.ShowSelectedItem="True"
                                       Style="{StaticResource MaterialDesignComboBox}" 
                                       ItemsSource="{Binding ScenarioTypes}" 
@@ -46,7 +48,7 @@
                                       DisplayMemberPath="Text"/>
 
                             <TextBlock Text="{lex:Loc lbl_Library_type}" Margin="10 0 5 0" VerticalAlignment="Center"/>
-                            <ComboBox Margin="0 5" Cursor="Hand"
+                            <ComboBox Cursor="Hand"
                                       md:ComboBoxAssist.ShowSelectedItem="True"
                                       Style="{StaticResource MaterialDesignComboBox}" 
                                       ItemsSource="{Binding LibTypes}" 
@@ -56,7 +58,7 @@
                                       SelectionChanged="ComboBox_SelectionChanged"/>
 
                             <TextBlock Text="{lex:Loc lbl_Test_type}" Margin="10 0 5 0" VerticalAlignment="Center"/>
-                            <ComboBox Margin="0 5" Cursor="Hand"
+                            <ComboBox Cursor="Hand"
                                       md:ComboBoxAssist.ShowSelectedItem="True"
                                       Style="{StaticResource MaterialDesignComboBox}" 
                                       ItemsSource="{Binding TestTypes}" 
@@ -66,136 +68,137 @@
                                       SelectionChanged="ComboBox_SelectionChanged"/>
 
                             <TextBlock Text="{lex:Loc lbl_Project_path}" Margin="10 0 5 0" VerticalAlignment="Center"/>
-                            <TextBox md:HintAssist.Hint="{lex:Loc hint_Project_path}" Cursor="Hand" IsReadOnly="True" PreviewMouseLeftButtonDown="TextBox_PreviewMouseLeftButtonDown" Text="{Binding ThamSo.DuongDanLuuDuAn, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="0 5"/>
+                            <TextBox md:HintAssist.Hint="{lex:Loc hint_Project_path}" Cursor="Hand"  PreviewMouseLeftButtonDown="TextBox_PreviewMouseLeftButtonDown" Text="{Binding ThamSo.DuongDanLuuDuAn, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                                     IsReadOnly="True"/>
                         </UniformGrid>
                     </GroupBox>
+                    <GroupBox Grid.Row="1" Header="{lex:Loc groupbox_General_infomation}" Margin="0 0 0 10" FontSize="13">
+                        <UniformGrid Columns="2">
+                            <TextBlock Text="{Binding Source={lex:Loc lbl_Sample}, StringFormat={}1. {0}}" Margin="10 0 5 0" VerticalAlignment="Center"/>
+                            <TextBox Text="{Binding ThongTinChung.TenMauThu, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
 
-                    <UniformGrid Grid.Row="1" Rows="2">
-                        <GroupBox Header="{lex:Loc groupbox_General_infomation}" Margin="0 0 0 10" FontSize="13">
-                            <UniformGrid Columns="2">
-                                <TextBlock Text="{Binding Source={lex:Loc lbl_Sample}, StringFormat={}1. {0}}" Margin="10 0 5 0" VerticalAlignment="Center"/>
-                                <TextBox Text="{Binding ThongTinChung.TenMauThu, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                            <TextBlock Text="{Binding Source={lex:Loc lbl_Manufacturer}, StringFormat={}2. {0}}" Margin="10 0 5 0" VerticalAlignment="Center"/>
+                            <TextBox Text="{Binding ThongTinChung.CoSoSanXuat, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
 
-                                <TextBlock Text="{Binding Source={lex:Loc lbl_Manufacturer}, StringFormat={}2. {0}}" Margin="10 0 5 0" VerticalAlignment="Center"/>
-                                <TextBox Text="{Binding ThongTinChung.CoSoSanXuat, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                            <TextBlock Text="{Binding Source={lex:Loc lbl_Sample_symbol}, StringFormat={}3. {0}}" Margin="10 0 5 0" VerticalAlignment="Center"/>
+                            <TextBox Text="{Binding ThongTinChung.KyHieu, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
 
-                                <TextBlock Text="{Binding Source={lex:Loc lbl_Sample_symbol}, StringFormat={}3. {0}}" Margin="10 0 5 0" VerticalAlignment="Center"/>
-                                <TextBox Text="{Binding ThongTinChung.KyHieu, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-
-                                <TextBlock Text="{Binding Source={lex:Loc lbl_Quantity}, StringFormat={}4. {0}}" Margin="10 0 5 0" VerticalAlignment="Center"/>
-                                <TextBox PreviewTextInput="TextBox_PreviewTextInput" 
+                            <TextBlock Text="{Binding Source={lex:Loc lbl_Quantity}, StringFormat={}4. {0}}" Margin="10 0 5 0" VerticalAlignment="Center"/>
+                            <TextBox PreviewTextInput="TextBox_PreviewTextInput" 
                                          PreviewKeyDown="TextBox_PreviewKeyDown" 
                                          TextChanged="TextBox_TextChanged"
                                          Text="{Binding ThongTinChung.SoLuongMau, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="100" HorizontalAlignment="Left"/>
 
-                                <TextBlock Text="{Binding Source={lex:Loc lbl_Sample_obser}, StringFormat={}5. {0}}" Margin="10 0 5 0" VerticalAlignment="Center"/>
-                                <TextBox Text="{Binding ThongTinChung.TinhTrangMau, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="100" HorizontalAlignment="Left"/>
+                            <TextBlock Text="{Binding Source={lex:Loc lbl_Sample_obser}, StringFormat={}5. {0}}" Margin="10 0 5 0" VerticalAlignment="Center"/>
+                            <TextBox Text="{Binding ThongTinChung.TinhTrangMau, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="100" HorizontalAlignment="Left"/>
 
-                                <TextBlock Text="{Binding Source={lex:Loc lbl_Request_date}, StringFormat={}6. {0}}" Margin="10 0 5 0" VerticalAlignment="Center"/>
+                            <TextBlock Text="{Binding Source={lex:Loc lbl_Request_date}, StringFormat={}6. {0}}" Margin="10 0 5 0" VerticalAlignment="Center"/>
 
-                                <DatePicker Style="{StaticResource MaterialDesignDatePicker}" 
+                            <DatePicker Style="{StaticResource MaterialDesignDatePicker}" 
                                              SelectedDate="{Binding ThongTinChung.NgayNhanYeuCau, Mode=TwoWay, StringFormat=dd/MM/yyyy}"
                                              SelectedDateFormat="Short"  Width="100" HorizontalAlignment="Left"/>
 
-                                <TextBlock Text="{Binding Source={lex:Loc lbl_Reception_date}, StringFormat={}7. {0}}" Margin="10 0 5 0" VerticalAlignment="Center"/>
-                                <DatePicker Style="{StaticResource MaterialDesignDatePicker}" 
+                            <TextBlock Text="{Binding Source={lex:Loc lbl_Reception_date}, StringFormat={}7. {0}}" Margin="10 0 5 0" VerticalAlignment="Center"/>
+                            <DatePicker Style="{StaticResource MaterialDesignDatePicker}" 
                                              SelectedDate="{Binding ThongTinChung.NgayNhanMau, Mode=TwoWay, StringFormat=dd/MM/yyyy}"
                                              SelectedDateFormat="Short"  Width="100" HorizontalAlignment="Left"/>
 
-                                <TextBlock Text="{Binding Source={lex:Loc lbl_Test_duration}, StringFormat={}8. {0}}" Margin="10 0 5 0" VerticalAlignment="Center"/>
-                                <DatePicker Style="{StaticResource MaterialDesignDatePicker}" 
+                            <TextBlock Text="{Binding Source={lex:Loc lbl_Test_duration}, StringFormat={}8. {0}}" Margin="10 0 5 0" VerticalAlignment="Center"/>
+                            <DatePicker Style="{StaticResource MaterialDesignDatePicker}" 
                                              SelectedDate="{Binding ThongTinChung.NgayThuNghiem, Mode=TwoWay, StringFormat=dd/MM/yyyy}"
                                              SelectedDateFormat="Short"  Width="100" HorizontalAlignment="Left"/>
 
-                                <TextBlock Text="{Binding Source={lex:Loc lbl_Test_completed_date}, StringFormat={}9. {0}}" Margin="10 0 5 0" VerticalAlignment="Center"/>
-                                <DatePicker Style="{StaticResource MaterialDesignDatePicker}"
+                            <TextBlock Text="{Binding Source={lex:Loc lbl_Test_completed_date}, StringFormat={}9. {0}}" Margin="10 0 5 0" VerticalAlignment="Center"/>
+                            <DatePicker Style="{StaticResource MaterialDesignDatePicker}"
                                              SelectedDate="{Binding ThongTinChung.NgayHoanThanh, Mode=TwoWay, StringFormat=dd/MM/yyyy}"
                                              SelectedDateFormat="Short"  Width="100" HorizontalAlignment="Left"/>
 
-                                <TextBlock Text="{Binding Source={lex:Loc lbl_Applied_standard}, StringFormat={}10. {0}}" Margin="10 0 5 0" VerticalAlignment="Center"/>
-                                <TextBox VerticalAlignment="Top"
+                            <TextBlock Text="{Binding Source={lex:Loc lbl_Applied_standard}, StringFormat={}10. {0}}" Margin="10 0 5 0" VerticalAlignment="Center"/>
+                            <TextBox VerticalAlignment="Top"
                                          AcceptsReturn="True" 
                                          TextWrapping="Wrap" 
                                          Text="{Binding ThongTinChung.TieuChuanApDung, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
-                            </UniformGrid>
-                        </GroupBox>
+                        </UniformGrid>
+                    </GroupBox>
 
-                        <GroupBox Header="{lex:Loc groupbox_Sample_information}" FontSize="13">
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto" />
-                                    <ColumnDefinition Width="*"/>
-                                </Grid.ColumnDefinitions>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="Auto"/>
-                                </Grid.RowDefinitions>
-                                <TextBlock Grid.Row="0" Grid.Column="0" 
-                                           Text="{Binding Source={lex:Loc lbl_Airflow_design}, StringFormat={}1. {0} (m³/h)}" VerticalAlignment="Center"
-                                           Margin="10 0 5 0" />
-                                <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding ThongTinMauThuNghiem.LuuLuongKhiThietKe, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="100" HorizontalAlignment="Left"/>
+                    <GroupBox Grid.Row="2" Header="{lex:Loc groupbox_Sample_information}" Margin=" 0 0 0 10" FontSize="13">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <TextBlock Grid.Row="0" Grid.Column="0" 
+                       Text="{Binding Source={lex:Loc lbl_Airflow_design}, StringFormat={}1. {0} (m³/h)}" VerticalAlignment="Center"
+                       Margin="10 0 5 0" />
+                            <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding ThongTinMauThuNghiem.LuuLuongKhiThietKe, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="100" HorizontalAlignment="Left"/>
 
-                                <TextBlock Grid.Row="1" Grid.Column="0" 
-                                           Text="{Binding Source={lex:Loc lbl_SPressure_design}, StringFormat={}2. {0} (Pa)}" VerticalAlignment="Center"
-                                           Margin="10 0 5 0" />
-                                <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding ThongTinMauThuNghiem.ApSuatThietKe, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="100" HorizontalAlignment="Left"/>
+                            <TextBlock Grid.Row="1" Grid.Column="0" 
+                       Text="{Binding Source={lex:Loc lbl_SPressure_design}, StringFormat={}2. {0} (Pa)}" VerticalAlignment="Center"
+                       Margin="10 0 5 0" />
+                            <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding ThongTinMauThuNghiem.ApSuatThietKe, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="100" HorizontalAlignment="Left"/>
 
-                                <TextBlock Grid.Row="2" Grid.Column="0" 
-                                           Text="{Binding Source={lex:Loc lbl_Temp_fluid}, StringFormat={}3. {0} (ºC)}" VerticalAlignment="Center"
-                                           Margin="10 0 5 0" />
-                                <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding ThongTinMauThuNghiem.NhietDoThietKeLamViec, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="100" HorizontalAlignment="Left"/>
+                            <TextBlock Grid.Row="2" Grid.Column="0" 
+                       Text="{Binding Source={lex:Loc lbl_Temp_fluid}, StringFormat={}3. {0} (ºC)}" VerticalAlignment="Center"
+                       Margin="10 0 5 0" />
+                            <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding ThongTinMauThuNghiem.NhietDoThietKeLamViec, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="100" HorizontalAlignment="Left"/>
 
-                                <UniformGrid Grid.Row="3" Grid.Column="0" Columns="2" Margin="10 0 5 0" >
-                                    <TextBlock Text="{Binding Source={lex:Loc lbl_Motor_power}, StringFormat={}4. {0} (kW)}" VerticalAlignment="Center"/>
-                                    <Button x:Name="btnPw_i" Margin="2" Width="48" Height="Auto"  Style="{StaticResource SolidButtonStyle}" Content="?" Padding="0" FontSize="15" Click="btnPw_i_Click"/>
-                                </UniformGrid>
-                                <TextBox Grid.Row="3" Grid.Column="1" Text="{Binding ThongTinMauThuNghiem.CongSuatDongCo, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="100" HorizontalAlignment="Left"/>
+                            <TextBlock Grid.Row="3" Grid.Column="0" Text="{Binding Source={lex:Loc lbl_Motor_power}, StringFormat={}4. {0} (kW)}" TextWrapping="Wrap" VerticalAlignment="Center" Margin="10 0 5 0"/>
+                            <StackPanel Grid.Row="3" Grid.Column="1" Orientation="Horizontal">
+                                <TextBox Text="{Binding ThongTinMauThuNghiem.CongSuatDongCo, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="100" HorizontalAlignment="Left"/>
+                                <Button x:Name="btnPw_i" Margin="20 0 0 0" Width="48" Height="Auto"  Style="{StaticResource SolidButtonStyle}" Content="?" Padding="0" FontSize="15" Click="btnPw_i_Click"/>
+                            </StackPanel>
 
-                                <UniformGrid Grid.Row="4" Grid.Column="0" Columns="2" Margin="10 0 5 0" >
-                                    <TextBlock Text="{Binding Source={lex:Loc lbl_Fan_speed}, StringFormat={}5. {0} (rpm)}" VerticalAlignment="Center" />
-                                    <Button x:Name="btnSpeed_i" Margin="2" Width="48" Height="Auto"  Style="{StaticResource SolidButtonStyle}" Content="?" Padding="0" FontSize="15" Click="btnSpeed_i_Click"/>
-                                </UniformGrid>
-                                <TextBox Grid.Row="4" Grid.Column="1" Text="{Binding ThongTinMauThuNghiem.TocDoThietKeCuaQuat, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="100" HorizontalAlignment="Left"/>
+                            <TextBlock Grid.Row="4" Grid.Column="0" Margin="10 0 5 0" Text="{Binding Source={lex:Loc lbl_Fan_speed}, StringFormat={}5. {0} (rpm)}" TextWrapping="Wrap" VerticalAlignment="Center" />
+                            <StackPanel Grid.Row="4" Grid.Column="1" Orientation="Horizontal">
+                            <TextBox Text="{Binding ThongTinMauThuNghiem.TocDoThietKeCuaQuat, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="100" HorizontalAlignment="Left"/>
+                                <Button x:Name="btnSpeed_i" Margin="20 0 0 0" Width="48" Height="Auto"  Style="{StaticResource SolidButtonStyle}" Content="?" Padding="0" FontSize="15" Click="btnSpeed_i_Click"/>
+                            </StackPanel>
 
-                                <TextBlock Grid.Row="5" Grid.Column="0" 
-                                           Text="{Binding Source={lex:Loc lbl_Frequency_design}, StringFormat={}6. {0} (Hz)}" VerticalAlignment="Center"
-                                           Margin="10 0 5 0" />
-                                <TextBox Grid.Row="5" Grid.Column="1" Text="{Binding ThongTinMauThuNghiem.TanSoDongCoTheoThietKe, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="100" HorizontalAlignment="Left"/>
+                            <TextBlock Grid.Row="5" Grid.Column="0" 
+                       Text="{Binding Source={lex:Loc lbl_Frequency_design}, StringFormat={}6. {0} (Hz)}" VerticalAlignment="Center"
+                       Margin="10 0 5 0" />
+                            <TextBox Grid.Row="5" Grid.Column="1" Text="{Binding ThongTinMauThuNghiem.TanSoDongCoTheoThietKe, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="100" HorizontalAlignment="Left"/>
+                                <TextBlock Grid.Row="6" Grid.Column="0" Margin="10 0 5 0" Text="{Binding Source={lex:Loc lbl_Motor_cosphi}, StringFormat={}7. {0}}" TextWrapping="Wrap" VerticalAlignment="Center"/>
 
-                                <UniformGrid Grid.Row="6" Grid.Column="0" Columns="2"  Margin="10 0 5 0">
-                                    <TextBlock Text="{Binding Source={lex:Loc lbl_Motor_cosphi}, StringFormat={}7. {0}}" VerticalAlignment="Center"/>
-                                    <Button Margin="2" x:Name="btnCosphi_i" Width="48" Height="Auto"  Style="{StaticResource SolidButtonStyle}" Content="?" Padding="0" FontSize="15" Click="btnCosphi_i_Click"/>
-                                </UniformGrid>
-                                <TextBox Grid.Row="6" Grid.Column="1" Text="{Binding ThongTinMauThuNghiem.HeSoCongSuatDongCo, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="100" HorizontalAlignment="Left"/>
+                            <StackPanel Grid.Row="6" Grid.Column="1" Orientation="Horizontal">
+                                <TextBox Text="{Binding ThongTinMauThuNghiem.HeSoCongSuatDongCo, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="100" HorizontalAlignment="Left"/>
+                                <Button Margin="20 0 0 0" x:Name="btnCosphi_i" Width="48" Height="Auto"  Style="{StaticResource SolidButtonStyle}" Content="?" Padding="0" FontSize="15" Click="btnCosphi_i_Click"/>
+                            </StackPanel>
 
-                                <UniformGrid Grid.Row="7" Grid.Column="0" Columns="2" Margin="10 0 5 0" >
-                                    <TextBlock Text="{Binding Source={lex:Loc lbl_Motor_eff}, StringFormat={}8. {0} (%)}" VerticalAlignment="Center"/>
-                                    <Button Margin="2" x:Name="btnEff_i" Width="48" Height="Auto"  Style="{StaticResource SolidButtonStyle}" Content="?" Padding="0" FontSize="15" Click="btnEff_i_Click"/>
-                                </UniformGrid>
-                                <TextBox Grid.Row="7" Grid.Column="1" Text="{Binding ThongTinMauThuNghiem.HieuSuatDongCo, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="100" HorizontalAlignment="Left"/>
+                                
+                            <TextBlock Grid.Row="7" Grid.Column="0" Margin="10 0 5 0" Text="{Binding Source={lex:Loc lbl_Motor_eff}, StringFormat={}8. {0} (%)}" TextWrapping="Wrap" VerticalAlignment="Center"/>
+                            <StackPanel  Grid.Row="7" Grid.Column="1" Orientation="Horizontal" >
+                                <TextBox Text="{Binding ThongTinMauThuNghiem.HieuSuatDongCo, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="100" HorizontalAlignment="Left"/>
+                                <Button Margin="20 0 0 0" x:Name="btnEff_i" Width="48" Height="Auto"  Style="{StaticResource SolidButtonStyle}" Content="?" Padding="0" FontSize="15" Click="btnEff_i_Click"/>
+                            </StackPanel>
 
-                                <UniformGrid Grid.Row="8" Grid.Column="0" Columns="2" Margin="10 0 5 0">
-                                    <TextBlock Text="{Binding Source={lex:Loc lbl_Rated_current}, StringFormat={}9. {0} (A)}" VerticalAlignment="Center"/>
-                                    <Button Margin="2" x:Name="btnIdm_i" Width="48" Height="Auto"  Style="{StaticResource SolidButtonStyle}" Content="?" Padding="0" FontSize="15" Click="btnIdm_i_Click"/>
-                                </UniformGrid>
-                                <TextBox Grid.Row="8" Grid.Column="1" Text="{Binding ThongTinMauThuNghiem.DongDienDinhMucCuaDongCo, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="100" HorizontalAlignment="Left"/>
+                            <TextBlock Grid.Row="8" Grid.Column="0" Margin="10 0 5 0" Text="{Binding Source={lex:Loc lbl_Rated_current}, StringFormat={}9. {0} (A)}" TextWrapping="Wrap" VerticalAlignment="Center"/>
+                            <StackPanel Grid.Row="8" Grid.Column="1" Orientation="Horizontal">
+                                <TextBox  Text="{Binding ThongTinMauThuNghiem.DongDienDinhMucCuaDongCo, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="100" HorizontalAlignment="Left"/>
+                                <Button Margin="20 0 0 0" x:Name="btnIdm_i" Width="48" Height="Auto"  Style="{StaticResource SolidButtonStyle}" Content="?" Padding="0" FontSize="15" Click="btnIdm_i_Click"/>
+                            </StackPanel>
 
-                                <UniformGrid Grid.Row="9" Grid.Column="0"  Columns="2" Margin="10 0 5 0">
-                                    <TextBlock Text="{Binding Source={lex:Loc lbl_Motor_voltage}, StringFormat={}10. {0} (V)}" VerticalAlignment="Center"/>
-                                    <Button Margin="2" x:Name="btnUdm_i" Width="48" Height="Auto"  Style="{StaticResource SolidButtonStyle}" Content="?" Padding="0" FontSize="15" Click="btnUdm_i_Click"/>
-                                </UniformGrid>
-                                <TextBox Grid.Row="9" Grid.Column="1" Text="{Binding ThongTinMauThuNghiem.DienApDongCo, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="100" HorizontalAlignment="Left"/>
-                            </Grid>
-                        </GroupBox>
-                    </UniformGrid>
+                            <TextBlock Grid.Row="9" Grid.Column="0" Margin="10 0 5 0" Text="{Binding Source={lex:Loc lbl_Motor_voltage}, StringFormat={}10. {0} (V)}" TextWrapping="Wrap" VerticalAlignment="Center"/>
+                            <StackPanel  Grid.Row="9" Grid.Column="1" Orientation="Horizontal">
+                            <TextBox  Text="{Binding ThongTinMauThuNghiem.DienApDongCo, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="100" HorizontalAlignment="Left"/>
+                                <Button Margin="20 0 0 0" x:Name="btnUdm_i" Width="48" Height="Auto"  Style="{StaticResource SolidButtonStyle}" Content="?" Padding="0" FontSize="15" Click="btnUdm_i_Click"/>
+                            </StackPanel>
+                        </Grid>
+                    </GroupBox>
+
+                   
                 </Grid>
             </ScrollViewer>
 
@@ -206,12 +209,21 @@
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
+                    <!--<GroupBox Grid.Row="0" Header="Điều kiện làm việc thực tế" FontSize="13">
+                        <UniformGrid Columns="2">
+                            <TextBlock Text="Nhiệt độ làm việc (°C)" Margin="10 0 5 0" VerticalAlignment="Center"/>
+                            <TextBox Text="{Binding ThongTinDuAn.DieuKienLamViecThucTe.NhietDoLamViec, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="100" HorizontalAlignment="Left" />
+
+                            <TextBlock Text="Tỷ trọng không khí làm việc (kg/m3)" Margin="10 0 5 0" VerticalAlignment="Center"/>
+                            <TextBox Text="{Binding ThongTinDuAn.DieuKienLamViecThucTe.TyTrongKhongKhiLamViec, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="100" HorizontalAlignment="Left" />
+                        </UniformGrid>
+                    </GroupBox>-->
                     <GroupBox Grid.Row="0" Header="{lex:Loc groupbox_Inverter}" FontSize="13" Margin="0 0 0 10">
-                        <Grid>
+                        <Grid IsEnabled="False">
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto" MinWidth="200"/>
                                 <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto" MinWidth="200"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
 
@@ -225,66 +237,74 @@
                             </Grid.RowDefinitions>
 
                             <TextBlock Grid.Row="0" Grid.Column="0" Text="Điện áp vào (V)" VerticalAlignment="Center" Margin="10 0 5 0"/>
-                            <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding BienTan.DienApVao, Mode=OneWay}" IsReadOnly="True" Margin="0 5"/>
+                            <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding BienTan.DienApVao, Mode=OneWay}"  />
                             <TextBlock Grid.Row="0" Grid.Column="2" Text="Điện áp ra (V)" VerticalAlignment="Center" Margin="10 0 5 0"/>
-                            <TextBox Grid.Row="0" Grid.Column="3" Text="{Binding BienTan.DienApRa, Mode=OneWay}" IsReadOnly="True" Margin="0 5"/>
+                            <TextBox Grid.Row="0" Grid.Column="3" Text="{Binding BienTan.DienApRa, Mode=OneWay}"  />
 
                             <TextBlock Grid.Row="1" Grid.Column="0" Text="Dòng điện vào (A)" VerticalAlignment="Center" Margin="10 0 5 0"/>
-                            <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding BienTan.DongDienVao, Mode=OneWay}" IsReadOnly="True" Margin="0 5"/>
+                            <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding BienTan.DongDienVao, Mode=OneWay}"  />
                             <TextBlock Grid.Row="1" Grid.Column="2" Text="Dòng điện ra (A)" VerticalAlignment="Center" Margin="10 0 5 0"/>
-                            <TextBox Grid.Row="1" Grid.Column="3" Text="{Binding BienTan.DongDienRa, Mode=OneWay}" IsReadOnly="True" Margin="0 5"/>
+                            <TextBox Grid.Row="1" Grid.Column="3" Text="{Binding BienTan.DongDienRa, Mode=OneWay}"  />
 
                             <TextBlock Grid.Row="2" Grid.Column="0" Text="Tần số vào (Hz)" VerticalAlignment="Center" Margin="10 0 5 0"/>
-                            <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding BienTan.TanSoVao, Mode=OneWay}" IsReadOnly="True" Margin="0 5"/>
+                            <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding BienTan.TanSoVao, Mode=OneWay}"  />
                             <TextBlock Grid.Row="2" Grid.Column="2" Text="Tần số ra (Hz)" VerticalAlignment="Center" Margin="10 0 5 0"/>
-                            <TextBox Grid.Row="2" Grid.Column="3" Text="{Binding BienTan.TanSoRa, Mode=OneWay}" IsReadOnly="True" Margin="0 5"/>
+                            <TextBox Grid.Row="2" Grid.Column="3" Text="{Binding BienTan.TanSoRa, Mode=OneWay}"  />
 
                             <TextBlock Grid.Row="3" Grid.Column="0" Text="Công suất vào (kVA)" VerticalAlignment="Center" Margin="10 0 5 0"/>
-                            <TextBox Grid.Row="3" Grid.Column="1" Text="{Binding BienTan.CongSuatVao, Mode=OneWay}" IsReadOnly="True" Margin="0 5"/>
+                            <TextBox Grid.Row="3" Grid.Column="1" Text="{Binding BienTan.CongSuatVao, Mode=OneWay}"  />
                             <TextBlock Grid.Row="3" Grid.Column="2" Text="Công suất tổng ra (kVA)" TextWrapping="Wrap" VerticalAlignment="Center" Margin="10 0 5 0"/>
-                            <TextBox Grid.Row="3" Grid.Column="3" Text="{Binding BienTan.CongSuatTongRa, Mode=OneWay}" IsReadOnly="True" Margin="0 5"/>
+                            <TextBox Grid.Row="3" Grid.Column="3" Text="{Binding BienTan.CongSuatTongRa, Mode=OneWay}"  />
 
                             <TextBlock Grid.Row="4" Grid.Column="0" Text="Hiệu suất bộ truyền (%)" VerticalAlignment="Center" Margin="10 0 5 0"/>
-                            <TextBox Grid.Row="4" Grid.Column="1" Text="{Binding BienTan.HieuSuatBoTruyen, Mode=OneWay}" IsReadOnly="True" Margin="0 5"/>
+                            <TextBox Grid.Row="4" Grid.Column="1" Text="{Binding BienTan.HieuSuatBoTruyen, Mode=OneWay}"  />
+                            
                             <TextBlock Grid.Row="4" Grid.Column="2" Text="Công suất hiệu dụng ra (kVA)" TextWrapping="Wrap" VerticalAlignment="Center" Margin="10 0 5 0"/>
-                            <TextBox Grid.Row="4" Grid.Column="3" Text="{Binding BienTan.CongSuatHieuDungRa, Mode=OneWay}" IsReadOnly="True" Margin="0 5"/>
+                            <TextBox Grid.Row="4" Grid.Column="3" Text="{Binding BienTan.CongSuatHieuDungRa, Mode=OneWay}"  />
 
-                            <TextBlock Grid.Row="5" Grid.Column="0" Text="Hiệu suất nối trục (%)" VerticalAlignment="Center" Margin="10 0 5 0"/>
-                            <TextBox Grid.Row="5" Grid.Column="1" Text="{Binding BienTan.HieuSuatNoiTruc, Mode=OneWay}" IsReadOnly="True" Margin="0 5"/>
+                            <TextBlock Grid.Row="5" Grid.Column="0" Text="Hiệu suất của khớp nối trục đàn hồi (%)" TextWrapping="Wrap" VerticalAlignment="Center" Margin="10 0 5 0"/>
+                            <TextBox Grid.Row="5" Grid.Column="1" Text="{Binding BienTan.HieuSuatNoiTruc, Mode=OneWay}"  />
+                            
                             <TextBlock Grid.Row="5" Grid.Column="2" Text="Công suất gối trục (%)" TextWrapping="Wrap" VerticalAlignment="Center" Margin="10 0 5 0"/>
-                            <TextBox Grid.Row="5" Grid.Column="3" Text="{Binding BienTan.HieuSuatGoiTruc, Mode=OneWay}" IsReadOnly="True" Margin="0 5"/>
+                            <TextBox Grid.Row="5" Grid.Column="3" Text="{Binding BienTan.HieuSuatGoiTruc, Mode=OneWay}"  />
                         </Grid>
                     </GroupBox>
+                    
                     <GroupBox Grid.Row="1" Header="{lex:Loc groupbox_Duct}" FontSize="13" Margin="0 0 0 10">
-                        <Grid>
+                        <Grid IsEnabled="False">
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto" MinWidth="200"/>
                                 <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto" MinWidth="200"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
 
                             <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="Auto"/>
                             </Grid.RowDefinitions>
 
                             <TextBlock Grid.Row="0" Grid.Column="0" Text="Đường kính ống gió" VerticalAlignment="Center" Margin="10 0 5 0"/>
-                            <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding OngGio.DuongKinhOngGio, Mode=OneWay}" IsReadOnly="True" Margin="0 5"/>
+                            <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding OngGio.DuongKinhOngGio, Mode=OneWay}"  />
                             <TextBlock Grid.Row="0" Grid.Column="2" Text="Đường kính lỗ phụt" VerticalAlignment="Center" Margin="10 0 5 0"/>
-                            <TextBox Grid.Row="0" Grid.Column="3" Text="{Binding OngGio.DuongKinhLoPhut, Mode=OneWay}" IsReadOnly="True" Margin="0 5"/>
+                            <TextBox Grid.Row="0" Grid.Column="3" Text="{Binding OngGio.DuongKinhLoPhut, Mode=OneWay}"  />
 
                             <TextBlock Grid.Row="1" Grid.Column="0" Text="Đường kính miệng quạt" VerticalAlignment="Center" Margin="10 0 5 0"/>
-                            <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding OngGio.DuongKinhMiengQuat, Mode=OneWay}" IsReadOnly="True" Margin="0 5"/>
+                            <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding OngGio.DuongKinhMiengQuat, Mode=OneWay}"  />
                             <TextBlock Grid.Row="1" Grid.Column="2" Text="Chiều dài côn quạt" VerticalAlignment="Center" Margin="10 0 5 0"/>
-                            <TextBox Grid.Row="1" Grid.Column="3" Text="{Binding OngGio.ChieuDaiConQuat, Mode=OneWay}" IsReadOnly="True" Margin="0 5"/>
+                            <TextBox Grid.Row="1" Grid.Column="3" Text="{Binding OngGio.ChieuDaiConQuat, Mode=OneWay}"  />
+
+                            <TextBlock Grid.Row="2" Grid.Column="0" Text="Hệ số ma sát" VerticalAlignment="Center" Margin="10 0 5 0"/>
+                            <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding OngGio.HeSoMaSat, Mode=OneWay}"  />
                         </Grid>
                     </GroupBox>
 
                     <GroupBox Grid.Row="2" Header="{lex:Loc groupbox_Sensor}" FontSize="13">
-                        <Grid Margin="5 10 0 5">
+                        <Grid Margin="5 10 0 5" IsEnabled="False">
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto" MinWidth="250"/>
+                                <ColumnDefinition Width="2*"/>
+                                <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="*"/>
@@ -304,65 +324,112 @@
                                 <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
                             </Grid.RowDefinitions>
-                            
-                            <TextBlock Grid.Row="0" Grid.Column="0" Text="Dải đo cảm biến (đơn vị đo - SI)" VerticalAlignment="Center" Margin="10 0 5 0" FontWeight="SemiBold"/>
+                            <TextBlock Grid.Row="0" Grid.Column="0" Text="{lex:Loc lbl_Sensor_range}" VerticalAlignment="Center" Margin="10 0 5 0" FontWeight="SemiBold"/>
+                            <TextBlock Grid.Row="0" Grid.Column="1" Text="Nhập tay" VerticalAlignment="Center" Margin="10 0 5 5" FontWeight="SemiBold" HorizontalAlignment="Center"/>
+                            <TextBlock Grid.Row="0" Grid.Column="2" Text="Value" VerticalAlignment="Center" Margin="10 0 5 5" FontWeight="SemiBold" HorizontalAlignment="Center"/>
+                            <TextBlock Grid.Row="0" Grid.Column="3" Text="Zero" VerticalAlignment="Center" Margin="10 0 5 5" FontWeight="SemiBold" HorizontalAlignment="Center"/>
+                            <TextBlock Grid.Row="0" Grid.Column="4" Text="Span" VerticalAlignment="Center" Margin="10 0 5 5" FontWeight="SemiBold" HorizontalAlignment="Center"/>
 
-                            <TextBlock Grid.Row="0" Grid.Column="1" Text="Zero" VerticalAlignment="Center" Margin="10 0 5 5" FontWeight="SemiBold" HorizontalAlignment="Center"/>
-                            <TextBlock Grid.Row="0" Grid.Column="2" Text="Span" VerticalAlignment="Center" Margin="10 0 5 5" FontWeight="SemiBold" HorizontalAlignment="Center"/>
+                            <!-- 1. Cảm biến nhiệt độ môi trường (°C) -->
+                            <TextBlock Grid.Row="1" Grid.Column="0" Text="1. Cảm biến nhiệt độ môi trường (°C)" TextWrapping="Wrap" VerticalAlignment="Center" Margin="10 0 5 0"/>
+                            <CheckBox x:Name="chkImportNhietDoMoiTruong" Grid.Row="1" Grid.Column="1" Margin="10 0 5 0" IsChecked="{Binding CamBien.IsImportNhietDoMoiTruong, Mode=TwoWay}" HorizontalAlignment="Center"/>
+                            <TextBox Grid.Row="1" Grid.Column="2" Margin="10 0 5 0" Text="{Binding CamBien.NhietDoMoiTruongValue, Mode=TwoWay}" IsEnabled="{Binding IsChecked, ElementName=chkImportNhietDoMoiTruong}"/>
+                            <TextBox Grid.Row="1" Grid.Column="3" Margin="10 0 5 0" Text="{Binding CamBien.NhietDoMoiTruongMin, Mode=TwoWay}" IsEnabled="{Binding IsChecked, ElementName=chkImportNhietDoMoiTruong, Converter={StaticResource BooleanNegationConverter}}"/>
+                            <TextBox Grid.Row="1" Grid.Column="4" Margin="10 0 5 0" Text="{Binding CamBien.NhietDoMoiTruongMax, Mode=TwoWay}" IsEnabled="{Binding IsChecked, ElementName=chkImportNhietDoMoiTruong, Converter={StaticResource BooleanNegationConverter}}"/>
 
-                            <TextBlock Grid.Row="1" Grid.Column="0" Text="1. Cảm biến nhiệt độ môi trường (oC)" TextWrapping="Wrap" VerticalAlignment="Center" Margin="10 0 5 0"/>
-                            <TextBox Grid.Row="1" Grid.Column="1" Margin="10 0 5 5" Text="{Binding CamBien.NhietDoMoiTruongMin, Mode=OneWay}" IsReadOnly="True"/>
-                            <TextBox Grid.Row="1" Grid.Column="2" Margin="10 0 5 5" Text="{Binding CamBien.NhietDoMoiTruongMax, Mode=OneWay}" IsReadOnly="True"/>
-
+                            <!-- 2. Cảm biến độ ẩm môi trường (%) -->
                             <TextBlock Grid.Row="2" Grid.Column="0" Text="2. Cảm biến độ ẩm môi trường (%)" VerticalAlignment="Center" Margin="10 0 5 0"/>
-                            <TextBox Grid.Row="2" Grid.Column="1" Margin="10 0 5 5" Text="{Binding CamBien.DoAmMoiTruongMin, Mode=OneWay}" IsReadOnly="True"/>
-                            <TextBox Grid.Row="2" Grid.Column="2" Margin="10 0 5 5" Text="{Binding CamBien.DoAmMoiTruongMax, Mode=OneWay}" IsReadOnly="True"/>
+                            <CheckBox x:Name="chkImportDoAmMoiTruong" Grid.Row="2" Grid.Column="1" Margin="10 0 5 0" IsChecked="{Binding CamBien.IsImportDoAmMoiTruong, Mode=TwoWay}" HorizontalAlignment="Center"/>
+                            <TextBox Grid.Row="2" Grid.Column="2" Margin="10 0 5 0" Text="{Binding CamBien.DoAmMoiTruongValue, Mode=TwoWay}" IsEnabled="{Binding IsChecked, ElementName=chkImportDoAmMoiTruong}"/>
+                            <TextBox Grid.Row="2" Grid.Column="3" Margin="10 0 5 0" Text="{Binding CamBien.DoAmMoiTruongMin, Mode=TwoWay}" IsEnabled="{Binding IsChecked, ElementName=chkImportDoAmMoiTruong, Converter={StaticResource BooleanNegationConverter}}"/>
+                            <TextBox Grid.Row="2" Grid.Column="4" Margin="10 0 5 0" Text="{Binding CamBien.DoAmMoiTruongMax, Mode=TwoWay}" IsEnabled="{Binding IsChecked, ElementName=chkImportDoAmMoiTruong, Converter={StaticResource BooleanNegationConverter}}"/>
 
+                            <!-- 3. Cảm biến áp suất khí quyển (Pa) -->
                             <TextBlock Grid.Row="3" Grid.Column="0" Text="3. Cảm biến áp suất khí quyển (Pa)" VerticalAlignment="Center" Margin="10 0 5 0"/>
-                            <TextBox Grid.Row="3" Grid.Column="1" Margin="10 0 5 5" Text="{Binding CamBien.ApSuatKhiQuyenMin, Mode=OneWay}" IsReadOnly="True"/>
-                            <TextBox Grid.Row="3" Grid.Column="2" Margin="10 0 5 5" Text="{Binding CamBien.ApSuatKhiQuyenMax, Mode=OneWay}" IsReadOnly="True"/>
+                            <CheckBox x:Name="chkImportApSuatKhiQuyen" Grid.Row="3" Grid.Column="1" Margin="10 0 5 0" IsChecked="{Binding CamBien.IsImportApSuatKhiQuyen, Mode=TwoWay}" HorizontalAlignment="Center"/>
+                            <TextBox Grid.Row="3" Grid.Column="2" Margin="10 0 5 0" Text="{Binding CamBien.ApSuatKhiQuyenValue, Mode=TwoWay}" IsEnabled="{Binding IsChecked, ElementName=chkImportApSuatKhiQuyen}"/>
+                            <TextBox Grid.Row="3" Grid.Column="3" Margin="10 0 5 0" Text="{Binding CamBien.ApSuatKhiQuyenMin, Mode=TwoWay}" IsEnabled="{Binding IsChecked, ElementName=chkImportApSuatKhiQuyen, Converter={StaticResource BooleanNegationConverter}}"/>
+                            <TextBox Grid.Row="3" Grid.Column="4" Margin="10 0 5 0" Text="{Binding CamBien.ApSuatKhiQuyenMax, Mode=TwoWay}" IsEnabled="{Binding IsChecked, ElementName=chkImportApSuatKhiQuyen, Converter={StaticResource BooleanNegationConverter}}"/>
 
+                            <!-- 4. Cảm biến chênh lệch áp suất (Pa) -->
                             <TextBlock Grid.Row="4" Grid.Column="0" Text="4. Cảm biến chênh lệch áp suất (Pa)" VerticalAlignment="Center" Margin="10 0 5 0"/>
-                            <TextBox Grid.Row="4" Grid.Column="1" Margin="10 0 5 5" Text="{Binding CamBien.ChenhLechApSuatMin, Mode=OneWay}" IsReadOnly="True"/>
-                            <TextBox Grid.Row="4" Grid.Column="2" Margin="10 0 5 5" Text="{Binding CamBien.ChenhLechApSuatMax, Mode=OneWay}" IsReadOnly="True"/>
+                            <CheckBox x:Name="chkImportChenhLechApSuat" Grid.Row="4" Grid.Column="1" Margin="10 0 5 0" IsChecked="{Binding CamBien.IsImportChenhLechApSuat, Mode=TwoWay}" HorizontalAlignment="Center"/>
+                            <TextBox Grid.Row="4" Grid.Column="2" Margin="10 0 5 0" Text="{Binding CamBien.ChenhLechApSuatValue, Mode=TwoWay}" IsEnabled="{Binding IsChecked, ElementName=chkImportChenhLechApSuat}"/>
+                            <TextBox Grid.Row="4" Grid.Column="3" Margin="10 0 5 0" Text="{Binding CamBien.ChenhLechApSuatMin, Mode=TwoWay}" IsEnabled="{Binding IsChecked, ElementName=chkImportChenhLechApSuat, Converter={StaticResource BooleanNegationConverter}}"/>
+                            <TextBox Grid.Row="4" Grid.Column="4" Margin="10 0 5 0" Text="{Binding CamBien.ChenhLechApSuatMax, Mode=TwoWay}" IsEnabled="{Binding IsChecked, ElementName=chkImportChenhLechApSuat, Converter={StaticResource BooleanNegationConverter}}"/>
 
+                            <!-- 5. Cảm biến áp suất tĩnh (Pa) -->
                             <TextBlock Grid.Row="5" Grid.Column="0" Text="5. Cảm biến áp suất tĩnh (Pa)" VerticalAlignment="Center" Margin="10 0 5 0"/>
-                            <TextBox Grid.Row="5" Grid.Column="1" Margin="10 0 5 5" Text="{Binding CamBien.ApSuatTinhMin, Mode=OneWay}" IsReadOnly="True"/>
-                            <TextBox Grid.Row="5" Grid.Column="2" Margin="10 0 5 5" Text="{Binding CamBien.ApSuatTinhMax, Mode=OneWay}" IsReadOnly="True"/>
+                            <CheckBox x:Name="chkImportApSuatTinh" Grid.Row="5" Grid.Column="1" Margin="10 0 5 0" IsChecked="{Binding CamBien.IsImportApSuatTinh, Mode=TwoWay}" HorizontalAlignment="Center"/>
+                            <TextBox Grid.Row="5" Grid.Column="2" Margin="10 0 5 0" Text="{Binding CamBien.ApSuatTinhValue, Mode=TwoWay}" IsEnabled="{Binding IsChecked, ElementName=chkImportApSuatTinh}"/>
+                            <TextBox Grid.Row="5" Grid.Column="3" Margin="10 0 5 0" Text="{Binding CamBien.ApSuatTinhMin, Mode=TwoWay}" IsEnabled="{Binding IsChecked, ElementName=chkImportApSuatTinh, Converter={StaticResource BooleanNegationConverter}}"/>
+                            <TextBox Grid.Row="5" Grid.Column="4" Margin="10 0 5 0" Text="{Binding CamBien.ApSuatTinhMax, Mode=TwoWay}" IsEnabled="{Binding IsChecked, ElementName=chkImportApSuatTinh, Converter={StaticResource BooleanNegationConverter}}"/>
 
+                            <!-- 6. Cảm biến độ rung -->
                             <TextBlock Grid.Row="6" Grid.Column="0" Text="6. Cảm biến độ rung" VerticalAlignment="Center" Margin="10 0 5 0"/>
-                            <TextBox Grid.Row="6" Grid.Column="1" Margin="10 0 5 5" Text="{Binding CamBien.DoRungMin, Mode=OneWay}" IsReadOnly="True"/>
-                            <TextBox Grid.Row="6" Grid.Column="2" Margin="10 0 5 5" Text="{Binding CamBien.DoRungMax, Mode=OneWay}" IsReadOnly="True"/>
+                            <CheckBox x:Name="chkImportDoRung" Grid.Row="6" Grid.Column="1" Margin="10 0 5 0" IsChecked="{Binding CamBien.IsImportDoRung, Mode=TwoWay}" HorizontalAlignment="Center"/>
+                            <TextBox Grid.Row="6" Grid.Column="2" Margin="10 0 5 0" Text="{Binding CamBien.DoRungValue, Mode=TwoWay}" IsEnabled="{Binding IsChecked, ElementName=chkImportDoRung}"/>
+                            <TextBox Grid.Row="6" Grid.Column="3" Margin="10 0 5 0" Text="{Binding CamBien.DoRungMin, Mode=TwoWay}" IsEnabled="{Binding IsChecked, ElementName=chkImportDoRung, Converter={StaticResource BooleanNegationConverter}}"/>
+                            <TextBox Grid.Row="6" Grid.Column="4" Margin="10 0 5 0" Text="{Binding CamBien.DoRungMax, Mode=TwoWay}" IsEnabled="{Binding IsChecked, ElementName=chkImportDoRung, Converter={StaticResource BooleanNegationConverter}}"/>
 
+                            <!-- 7. Cảm biến độ ồn -->
                             <TextBlock Grid.Row="7" Grid.Column="0" Text="7. Cảm biến độ ồn" VerticalAlignment="Center" Margin="10 0 5 0"/>
-                            <TextBox Grid.Row="7" Grid.Column="1" Margin="10 0 5 5" Text="{Binding CamBien.DoOnMin, Mode=OneWay}" IsReadOnly="True"/>
-                            <TextBox Grid.Row="7" Grid.Column="2" Margin="10 0 5 5" Text="{Binding CamBien.DoOnMax, Mode=OneWay}" IsReadOnly="True"/>
+                            <CheckBox x:Name="chkImportDoOn" Grid.Row="7" Grid.Column="1" Margin="10 0 5 0" IsChecked="{Binding CamBien.IsImportDoOn, Mode=TwoWay}" HorizontalAlignment="Center"/>
+                            <TextBox Grid.Row="7" Grid.Column="2" Margin="10 0 5 0" Text="{Binding CamBien.DoOnValue, Mode=TwoWay}" IsEnabled="{Binding IsChecked, ElementName=chkImportDoOn}"/>
+                            <TextBox Grid.Row="7" Grid.Column="3" Margin="10 0 5 0" Text="{Binding CamBien.DoOnMin, Mode=TwoWay}" IsEnabled="{Binding IsChecked, ElementName=chkImportDoOn, Converter={StaticResource BooleanNegationConverter}}"/>
+                            <TextBox Grid.Row="7" Grid.Column="4" Margin="10 0 5 0" Text="{Binding CamBien.DoOnMax, Mode=TwoWay}" IsEnabled="{Binding IsChecked, ElementName=chkImportDoOn, Converter={StaticResource BooleanNegationConverter}}"/>
 
+                            <!-- 8. Số vòng quay -->
                             <TextBlock Grid.Row="8" Grid.Column="0" Text="8. Số vòng quay" VerticalAlignment="Center" Margin="10 0 5 0"/>
-                            <TextBox Grid.Row="8" Grid.Column="1" Margin="10 0 5 5" Text="{Binding CamBien.SoVongQuayMin, Mode=OneWay}" IsReadOnly="True"/>
-                            <TextBox Grid.Row="8" Grid.Column="2" Margin="10 0 5 5" Text="{Binding CamBien.SoVongQuayMax, Mode=OneWay}" IsReadOnly="True"/>
+                            <CheckBox x:Name="chkImportSoVongQuay" Grid.Row="8" Grid.Column="1" Margin="10 0 5 0" IsChecked="{Binding CamBien.IsImportSoVongQuay, Mode=TwoWay}" HorizontalAlignment="Center"/>
+                            <TextBox Grid.Row="8" Grid.Column="2" Margin="10 0 5 0" Text="{Binding CamBien.SoVongQuayValue, Mode=TwoWay}" IsEnabled="{Binding IsChecked, ElementName=chkImportSoVongQuay}"/>
+                            <TextBox Grid.Row="8" Grid.Column="3" Margin="10 0 5 0" Text="{Binding CamBien.SoVongQuayMin, Mode=TwoWay}" IsEnabled="{Binding IsChecked, ElementName=chkImportSoVongQuay, Converter={StaticResource BooleanNegationConverter}}"/>
+                            <TextBox Grid.Row="8" Grid.Column="4" Margin="10 0 5 0" Text="{Binding CamBien.SoVongQuayMax, Mode=TwoWay}" IsEnabled="{Binding IsChecked, ElementName=chkImportSoVongQuay, Converter={StaticResource BooleanNegationConverter}}"/>
 
-                            <TextBlock Grid.Row="9" Grid.Column="0" Text="9. Cảm biến momen xoắn" VerticalAlignment="Center" Margin="10 0 5 0"/>
-                            <TextBox Grid.Row="9" Grid.Column="1" Margin="10 0 5 5" Text="{Binding CamBien.MomenMin, Mode=OneWay}" IsReadOnly="True"/>
-                            <TextBox Grid.Row="9" Grid.Column="2" Margin="10 0 5 5" Text="{Binding CamBien.MomenMax, Mode=OneWay}" IsReadOnly="True"/>
+                            <!-- 9. Cảm biến mô men xoắn -->
+                            <TextBlock Grid.Row="9" Grid.Column="0" Text="9. Cảm biến mô men xoắn" VerticalAlignment="Center" Margin="10 0 5 0"/>
+                            <CheckBox x:Name="chkImportMomen" Grid.Row="9" Grid.Column="1" Margin="10 0 5 0" IsChecked="{Binding CamBien.IsImportMomen, Mode=TwoWay}" HorizontalAlignment="Center"/>
+                            <TextBox Grid.Row="9" Grid.Column="2" Margin="10 0 5 0" Text="{Binding CamBien.MomenValue, Mode=TwoWay}" IsEnabled="{Binding IsChecked, ElementName=chkImportMomen}"/>
+                            <TextBox Grid.Row="9" Grid.Column="3" Margin="10 0 5 0" Text="{Binding CamBien.MomenMin, Mode=TwoWay}" IsEnabled="{Binding IsChecked, ElementName=chkImportMomen, Converter={StaticResource BooleanNegationConverter}}"/>
+                            <TextBox Grid.Row="9" Grid.Column="4" Margin="10 0 5 0" Text="{Binding CamBien.MomenMax, Mode=TwoWay}" IsEnabled="{Binding IsChecked, ElementName=chkImportMomen, Converter={StaticResource BooleanNegationConverter}}"/>
 
+                            <!-- 10. Phản hồi dòng điện (AO1_INV) -->
                             <TextBlock Grid.Row="10" Grid.Column="0" Text="10. Phản hồi dòng điện (AO1_INV)" VerticalAlignment="Center" Margin="10 0 5 0"/>
-                            <TextBox Grid.Row="10" Grid.Column="1" Margin="10 0 5 5" Text="{Binding CamBien.PhanHoiDongDienMin, Mode=OneWay}" IsReadOnly="True"/>
-                            <TextBox Grid.Row="10" Grid.Column="2" Margin="10 0 5 5" Text="{Binding CamBien.PhanHoiDongDienMax, Mode=OneWay}" IsReadOnly="True"/>
+                            <CheckBox x:Name="chkImportPhanHoiDongDien" Grid.Row="10" Grid.Column="1" Margin="10 0 5 0" IsChecked="{Binding CamBien.IsImportPhanHoiDongDien, Mode=TwoWay}" HorizontalAlignment="Center"/>
+                            <TextBox Grid.Row="10" Grid.Column="2" Margin="10 0 5 0" Text="{Binding CamBien.PhanHoiDongDienValue, Mode=TwoWay}" IsEnabled="{Binding IsChecked, ElementName=chkImportPhanHoiDongDien}"/>
+                            <TextBox Grid.Row="10" Grid.Column="3" Margin="10 0 5 0" Text="{Binding CamBien.PhanHoiDongDienMin, Mode=TwoWay}" IsEnabled="{Binding IsChecked, ElementName=chkImportPhanHoiDongDien, Converter={StaticResource BooleanNegationConverter}}"/>
+                            <TextBox Grid.Row="10" Grid.Column="4" Margin="10 0 5 0" Text="{Binding CamBien.PhanHoiDongDienMax, Mode=TwoWay}" IsEnabled="{Binding IsChecked, ElementName=chkImportPhanHoiDongDien, Converter={StaticResource BooleanNegationConverter}}"/>
 
+                            <!-- 11. Phản hồi công suất (AO2_INV) -->
                             <TextBlock Grid.Row="11" Grid.Column="0" Text="11. Phản hồi công suất (AO2_INV)" VerticalAlignment="Center" Margin="10 0 5 0"/>
-                            <TextBox Grid.Row="11" Grid.Column="1" Margin="10 0 5 5" Text="{Binding CamBien.PhanHoiCongSuatMin, Mode=OneWay}" IsReadOnly="True"/>
-                            <TextBox Grid.Row="11" Grid.Column="2" Margin="10 0 5 5" Text="{Binding CamBien.PhanHoiCongSuatMax, Mode=OneWay}" IsReadOnly="True"/>
+                            <CheckBox x:Name="chkImportPhanHoiCongSuat" Grid.Row="11" Grid.Column="1" Margin="10 0 5 0" IsChecked="{Binding CamBien.IsImportPhanHoiCongSuat, Mode=TwoWay}" HorizontalAlignment="Center"/>
+                            <TextBox Grid.Row="11" Grid.Column="2" Margin="10 0 5 0" Text="{Binding CamBien.PhanHoiCongSuatValue, Mode=TwoWay}" IsEnabled="{Binding IsChecked, ElementName=chkImportPhanHoiCongSuat}"/>
+                            <TextBox Grid.Row="11" Grid.Column="3" Margin="10 0 5 0" Text="{Binding CamBien.PhanHoiCongSuatMin, Mode=TwoWay}" IsEnabled="{Binding IsChecked, ElementName=chkImportPhanHoiCongSuat, Converter={StaticResource BooleanNegationConverter}}"/>
+                            <TextBox Grid.Row="11" Grid.Column="4" Margin="10 0 5 0" Text="{Binding CamBien.PhanHoiCongSuatMax, Mode=TwoWay}" IsEnabled="{Binding IsChecked, ElementName=chkImportPhanHoiCongSuat, Converter={StaticResource BooleanNegationConverter}}"/>
 
+                            <!-- 12. Phản hồi vị trí van (CV) -->
                             <TextBlock Grid.Row="12" Grid.Column="0" Text="12. Phản hồi vị trí van (CV)" VerticalAlignment="Center" Margin="10 0 5 0"/>
-                            <TextBox Grid.Row="12" Grid.Column="1" Margin="10 0 5 5" Text="{Binding CamBien.PhanHoiViTriVanMin, Mode=OneWay}" IsReadOnly="True"/>
-                            <TextBox Grid.Row="12" Grid.Column="2" Margin="10 0 5 5" Text="{Binding CamBien.PhanHoiViTriVanMax, Mode=OneWay}" IsReadOnly="True"/>
-                          
-                            <TextBlock Grid.Row="13" Grid.Column="0" Text="13. Tần số" VerticalAlignment="Center" Margin="10 0 5 0"/>
-                            <TextBox Grid.Row="13" Grid.Column="1" Margin="10 0 5 0" Text="{Binding CamBien.PhanHoiTanSoMin, Mode=OneWay}" IsReadOnly="True"/>
-                            <TextBox Grid.Row="13" Grid.Column="2" Margin="10 0 5 0" Text="{Binding CamBien.PhanHoiTanSoMax, Mode=OneWay}" IsReadOnly="True"/>
-                            </Grid>
+                            <CheckBox x:Name="chkImportPhanHoiViTriVan" Grid.Row="12" Grid.Column="1" Margin="10 0 5 0" IsChecked="{Binding CamBien.IsImportPhanHoiViTriVan, Mode=TwoWay}" HorizontalAlignment="Center"/>
+                            <TextBox Grid.Row="12" Grid.Column="2" Margin="10 0 5 0" Text="{Binding CamBien.PhanHoiViTriVanValue, Mode=TwoWay}" IsEnabled="{Binding IsChecked, ElementName=chkImportPhanHoiViTriVan}"/>
+                            <TextBox Grid.Row="12" Grid.Column="3" Margin="10 0 5 0" Text="{Binding CamBien.PhanHoiViTriVanMin, Mode=TwoWay}" IsEnabled="{Binding IsChecked, ElementName=chkImportPhanHoiViTriVan, Converter={StaticResource BooleanNegationConverter}}"/>
+                            <TextBox Grid.Row="12" Grid.Column="4" Margin="10 0 5 0" Text="{Binding CamBien.PhanHoiViTriVanMax, Mode=TwoWay}" IsEnabled="{Binding IsChecked, ElementName=chkImportPhanHoiViTriVan, Converter={StaticResource BooleanNegationConverter}}"/>
+
+                            <!-- 13. Phản hồi điện áp -->
+                            <TextBlock Grid.Row="13" Grid.Column="0" Text="13. Phản hồi điện áp" VerticalAlignment="Center" Margin="10 0 5 0"/>
+                            <CheckBox x:Name="chkImportPhanHoiDienAp" Grid.Row="13" Grid.Column="1" Margin="10 0 5 0" IsChecked="{Binding CamBien.IsImportPhanHoiDienAp, Mode=TwoWay}" HorizontalAlignment="Center"/>
+                            <TextBox Grid.Row="13" Grid.Column="2" Margin="10 0 5 0" Text="{Binding CamBien.PhanHoiDienApValue, Mode=TwoWay}" IsEnabled="{Binding IsChecked, ElementName=chkImportPhanHoiDienAp}"/>
+                            <TextBox Grid.Row="13" Grid.Column="3" Margin="10 0 5 0" Text="{Binding CamBien.PhanHoiDienApMin, Mode=TwoWay}" IsEnabled="{Binding IsChecked, ElementName=chkImportPhanHoiDienAp, Converter={StaticResource BooleanNegationConverter}}"/>
+                            <TextBox Grid.Row="13" Grid.Column="4" Margin="10 0 5 0" Text="{Binding CamBien.PhanHoiDienApMax, Mode=TwoWay}" IsEnabled="{Binding IsChecked, ElementName=chkImportPhanHoiDienAp, Converter={StaticResource BooleanNegationConverter}}"/>
+
+                            <!-- 14. Tần số -->
+                            <TextBlock Grid.Row="14" Grid.Column="0" Text="14. Phản hồi tần số" VerticalAlignment="Center" Margin="10 0 5 0"/>
+                            <CheckBox x:Name="chkImportPhanHoiTanSo" Grid.Row="14" Grid.Column="1" Margin="10 0 5 0" IsChecked="{Binding CamBien.IsImportPhanHoiTanSo, Mode=TwoWay}" HorizontalAlignment="Center"/>
+                            <TextBox Grid.Row="14" Grid.Column="2" Margin="10 0 5 0" Text="{Binding CamBien.PhanHoiTanSoValue, Mode=TwoWay}" IsEnabled="{Binding IsChecked, ElementName=chkImportPhanHoiTanSo}"/>
+                            <TextBox Grid.Row="14" Grid.Column="3" Margin="10 0 5 0" Text="{Binding CamBien.PhanHoiTanSoMin, Mode=TwoWay}" IsEnabled="{Binding IsChecked, ElementName=chkImportPhanHoiTanSo, Converter={StaticResource BooleanNegationConverter}}"/>
+                            <TextBox Grid.Row="14" Grid.Column="4" Margin="10 0 5 0" Text="{Binding CamBien.PhanHoiTanSoMax, Mode=TwoWay}" IsEnabled="{Binding IsChecked, ElementName=chkImportPhanHoiTanSo, Converter={StaticResource BooleanNegationConverter}}"/>
+                        </Grid>
                     </GroupBox>
                 </Grid>
             </ScrollViewer>

@@ -18,6 +18,7 @@ namespace TESMEA_TMS.DTOs
         public float SoVongQuay_sen { get; set; } // tốc độ thực của guồn cánh
         public float Momen_sen { get; set; }
         public float DongDien_fb { get; set; }
+        public float DienAp_fb { get; set; }
         public float CongSuat_fb { get; set; }
         public float ViTriVan_fb { get; set; }
         public float TanSo_fb { get; set; }

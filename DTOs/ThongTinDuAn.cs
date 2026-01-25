@@ -7,6 +7,7 @@ namespace TESMEA_TMS.DTOs
         public ThamSo ThamSo { get; set; }
         public ThongTinChung ThongTinChung { get; set; }
         public ThongTinMauThuNghiem ThongTinMauThuNghiem { get; set; }
+        //public DieuKienLamViecThucTe DieuKienLamViecThucTe { get; set; }
 
         public ThongTinDuAn() { }
         public ThongTinDuAn(ThamSo thamSo, ThongTinChung thongTinChung, ThongTinMauThuNghiem thongTinMauThuNghiem)
@@ -60,4 +61,11 @@ namespace TESMEA_TMS.DTOs
         public float TocDoDongCo { get; set; } // tốc độ động cơ
         public string HangDongCo { get; set; } = "HEM"; // hãng động cơ
     }
+
+    //public class DieuKienLamViecThucTe
+    //{
+    //    public double NhietDoLamViec { get; set; } = 20;
+    //    public double TyTrongKhongKhiLamViec { get; set; } = 1.204;
+    //}
+
 }

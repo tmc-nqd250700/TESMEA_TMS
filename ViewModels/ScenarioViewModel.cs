@@ -234,6 +234,18 @@ namespace TESMEA_TMS.ViewModels
         {
             try
             {
+
+                //if (HasUnsavedChanges)
+                //{
+                //    var result = MessageBoxHelper.ShowQuestion(
+                //        "Bạn có thay đổi chưa được lưu. Bạn có chắc chắn muốn tải lại dữ liệu và mất các thay đổi?");
+
+                //    if (!result)
+                //    {
+                //        return;
+                //    }
+                //}
+
                 if (parameter == null)
                     return;
 

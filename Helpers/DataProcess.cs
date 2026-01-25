@@ -325,7 +325,7 @@ namespace TESMEA_TMS.Helpers
 
                 Power_fb = measure.CongSuat_fb;
                 Current_fb = measure.DongDien_fb;
-                Voltage_fb = 0;
+                Voltage_fb = measure.DienAp_fb;
 
                 LogCalculation($"Giá trị chênh lệch áp suất deltap: {deltap}");
                 LogCalculation($"Giá trị áp suất tĩnh pe3: {pe3}");
@@ -799,7 +799,7 @@ namespace TESMEA_TMS.Helpers
             // thông số phản hồi
             float Power_fb = measure.CongSuat_fb;
             float Current_fb = measure.DongDien_fb;
-            float Voltage_fb = 0;
+            float Voltage_fb = measure.DienAp_fb;
 
 
             //// note

@@ -153,5 +153,6 @@ namespace TESMEA_TMS.Models.Entities
 
         public float DuongKinhMiengQuat { get; set; }
         public float ChieuDaiConQuat { get; set; }
+        public float HeSoMaSat { get; set; } = 0.025f;
     }
 }

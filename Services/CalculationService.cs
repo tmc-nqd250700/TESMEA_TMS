@@ -41,7 +41,7 @@ namespace TESMEA_TMS.Services
                     double doNhotKhongKhi = CalcDoNhotKhongKhi(item.NhietDoBauKho);
 
                     // B6-B11: Hệ số lưu lượng, Lưu lượng khối lượng, Lưu lượng thể tích, KLR tại điểm đo áp suất PL3, Lưu lượng thể tích tại PL3, Lưu lượng thể tích theo RPM, Hiệu chỉnh lưu lượng thể tích theo RPM
-                    double heSoLuuLuong = 1; // Assuming this is a constant or calculated elsewhere
+                    double heSoLuuLuong = 1;
                     double luuLuongKhoiLuong = CalcLuuLuongKhoiLuong(thongSo.ThongSoDuongOngGio.DuongKinhOngD5, item.ChenhLechApSuat, klrTaiDiemDoLuuLuongPL5, heSoLuuLuong);
                     double luuLuongTheTich = CalcLuuLuongTheTich(klrTaiDiemDoLuuLuongPL5, luuLuongKhoiLuong);
                     double klrTaiDiemDoApSuatPL3 = CalcKlrDiemDoApSuatPL3(thongSo.ThongSoCoBanCuaQuat.ApSuatKhiQuyen, item.NhietDoBauKho, item.ApSuatTinh, xacDinhRW);
@@ -54,7 +54,6 @@ namespace TESMEA_TMS.Services
                     double tonThatDuongOng = CalcTonThatDuongOng(thongSo.ThongSoDuongOngGio.ChieuDaiOngGioTonThatL, thongSo.ThongSoDuongOngGio.DuongKinhOngGioD3, thongSo.ThongSoDuongOngGio.HeSoMaSatOngK, apSuatDong);
 
 
-                    // 0808: fix thay công thức: thay áp suất tĩnh -> áp suất tĩnh hiệu chỉnh tại điều kiện đo kiểm
                     double apSuatTinh = CalcApSuatTinh(apSuatTinhHieuChinhVeDieukienThietKe, apSuatDong, tonThatDuongOng);
 
 

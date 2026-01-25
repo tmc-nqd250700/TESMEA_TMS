@@ -260,89 +260,95 @@ namespace TESMEA_TMS.Services
                 for (int i = 0; i < input.DanhSachThongSoDoKiem.Count; i++)
                 {
                     var item = input.DanhSachThongSoDoKiem[i];
-                    int row = 29 + i;
-                    ws.Cells[row, 1].Value = item.KiemTraSo;
-                    ws.Cells[row, 2].Value = item.NhietDoBauKho;
-                    ws.Cells[row, 3].Value = item.DoAmTuongDoi;
-                    ws.Cells[row, 4].Value = item.SoVongQuayNTT;
-                    ws.Cells[row, 5].Value = item.ChenhLechApSuat;
-                    ws.Cells[row, 6].Value = item.ApSuatTinh;
-                    ws.Cells[row, 7].Value = item.DongLamViec;
-                    ws.Cells[row, 8].Value = item.DienAp;
+                    //int row = 29 + i;
+                    int col = 3 + i;
+                    ws.Cells[28, col].Value = item.KiemTraSo;
+                    ws.Cells[29, col].Value = item.NhietDoBauKho;
+                    ws.Cells[30, col].Value = item.DoAmTuongDoi;
+                    ws.Cells[31, col].Value = item.SoVongQuayNTT;
+                    ws.Cells[32, col].Value = item.ChenhLechApSuat;
+                    ws.Cells[33, col].Value = item.ApSuatTinh;
+                    ws.Cells[34, col].Value = item.DongLamViec;
+                    ws.Cells[35, col].Value = item.DienAp;
+                    ws.Cells[36, col].Value = item.TanSo;
                 }
 
 
                 var kqtsDoKiem = ketQua.DanhSachketQuaTaiDieuKienDoKiem;
-                var kqhcTieuChuan = ketQua.DanhSachhieuChuanVeDieuKienTieuChuan;
-                var kqhcLamViec = ketQua.DanhSachhieuChuanVeDieuKienLamviec;
+                
                 #region export kết quả đo kiểm
                 for (int i = 0; i < kqtsDoKiem.Count; i++)
                 {
                     var item = kqtsDoKiem[i];
-                    int row = 44 + i;
-                    ws.Cells[row, 2].Value = item.NhietDoBauUot;
-                    ws.Cells[row, 3].Value = item.ApSuatBaoHoaPsat;
-                    ws.Cells[row, 4].Value = item.ApSuatRiengPhanPv;
-                    ws.Cells[row, 5].Value = item.KLRMoiTruong;
-                    ws.Cells[row, 6].Value = item.XacDinhRW;
-                    ws.Cells[row, 7].Value = item.ApSuatTaiDiemDoChenhLechApSuatP5;
-                    ws.Cells[row, 8].Value = item.KLRTaiDiemDoLuuLuongPL5;
-                    ws.Cells[row, 9].Value = item.DoNhotKhongKhi;
+                    //int row = 44 + i;
+                    int col = 3 + i;
+                    ws.Cells[42, col].Value = item.STT;
+                    ws.Cells[43, col].Value = item.NhietDoBauUot;
+                    ws.Cells[44, col].Value = item.ApSuatBaoHoaPsat;
+                    ws.Cells[45, col].Value = item.ApSuatRiengPhanPv;
+                    ws.Cells[46, col].Value = item.KLRMoiTruong;
+                    ws.Cells[47, col].Value = item.XacDinhRW;
+                    ws.Cells[48, col].Value = item.ApSuatTaiDiemDoChenhLechApSuatP5;
+                    ws.Cells[49, col].Value = item.KLRTaiDiemDoLuuLuongPL5;
+                    ws.Cells[50, col].Value = item.DoNhotKhongKhi;
+                    //int row1 = 57 + i;
+                    ws.Cells[51, col].Value = item.HeSoLuuLuong;
+                    ws.Cells[52, col].Value = item.LuuLuongKhoiLuong;
+                    ws.Cells[53, col].Value = item.LuuLuongTheTich;
+                    ws.Cells[54, col].Value = item.KLRTaiDiemDoApSuatPL3;
+                    ws.Cells[55, col].Value = item.LuuLuongTheTichTaiPL3;
+                    ws.Cells[56, col].Value = item.LuuLuongTheTichTheoRPM;
+                    ws.Cells[57, col].Value = item.HieuChinhLuuLuongTheTichTheoRPM;
 
-
-                    int row1 = 57 + i;
-                    ws.Cells[row1, 2].Value = item.HeSoLuuLuong;
-                    ws.Cells[row1, 3].Value = item.LuuLuongKhoiLuong;
-                    ws.Cells[row1, 4].Value = item.LuuLuongTheTich;
-                    ws.Cells[row1, 5].Value = item.KLRTaiDiemDoApSuatPL3;
-                    ws.Cells[row1, 6].Value = item.LuuLuongTheTichTaiPL3;
-                    ws.Cells[row1, 7].Value = item.LuuLuongTheTichTheoRPM;
-                    ws.Cells[row1, 8].Value = item.HieuChinhLuuLuongTheTichTheoRPM;
-
-                    int row2 = 74 + i;
-                    ws.Cells[row2, 2].Value = item.VanTocDongKhi;
-                    ws.Cells[row2, 3].Value = item.ApSuatDong;
-                    ws.Cells[row2, 4].Value = item.TonThatDuongOng;
-                    ws.Cells[row2, 5].Value = item.ApSuatTinh;
-                    ws.Cells[row2, 6].Value = item.ApSuatTong;
-                    ws.Cells[row2, 7].Value = item.CongSuatDongCoTaiDieuKienDoKiem;
-                    ws.Cells[row2, 8].Value = item.CongSuatDongCoThucTe;
-                    ws.Cells[row2, 9].Value = item.HieuSuatTinh;
-                    ws.Cells[row2, 10].Value = item.HieuSuatTong;
+                    //int row2 = 74 + i;
+                    ws.Cells[58, col].Value = item.VanTocDongKhi;
+                    ws.Cells[59, col].Value = item.ApSuatDong;
+                    ws.Cells[60, col].Value = item.TonThatDuongOng;
+                    ws.Cells[61, col].Value = item.ApSuatTinh;
+                    ws.Cells[62, col].Value = item.ApSuatTong;
+                    ws.Cells[63, col].Value = item.CongSuatDongCoTaiDieuKienDoKiem;
+                    ws.Cells[64, col].Value = item.CongSuatDongCoThucTe;
+                    ws.Cells[65, col].Value = item.HieuSuatTinh;
+                    ws.Cells[66, col].Value = item.HieuSuatTong;
                 }
 
                 #endregion
-
+               
                 #region export hiệu chỉnh điều kiện tiêu chuẩn
+                var kqhcTieuChuan = ketQua.DanhSachhieuChuanVeDieuKienTieuChuan;
                 for (int i = 0; i < kqhcTieuChuan.Count; i++)
                 {
                     var item = kqhcTieuChuan[i];
-                    int row = 88 + i;
-                    ws.Cells[row, 2].Value = item.LuuLuongTieuChuan_m3s;
-                    ws.Cells[row, 3].Value = item.LuuLuongTieuChuan_m3h;
-                    ws.Cells[row, 4].Value = item.ApSuatTinhTieuChuan;
-                    ws.Cells[row, 5].Value = item.ApSuatDongTieuChuan;
-                    ws.Cells[row, 6].Value = item.ApSuatTongTieuChuan;
-                    ws.Cells[row, 7].Value = item.CongSuatHapThuTieuChuan;
-                    ws.Cells[row, 8].Value = item.HieuSuatTinh;
-                    ws.Cells[row, 9].Value = item.HieuSuatTong;
+                    //int row = 88 + i;
+                    int col = 3 + i;
+                    ws.Cells[71, col].Value = item.STT;
+                    ws.Cells[72, col].Value = item.LuuLuongTieuChuan_m3s;
+                    ws.Cells[73, col].Value = item.LuuLuongTieuChuan_m3h;
+                    ws.Cells[74, col].Value = item.ApSuatTinhTieuChuan;
+                    ws.Cells[75, col].Value = item.ApSuatDongTieuChuan;
+                    ws.Cells[76, col].Value = item.ApSuatTongTieuChuan;
+                    ws.Cells[77, col].Value = item.CongSuatHapThuTieuChuan;
+                    ws.Cells[78, col].Value = item.HieuSuatTinh;
+                    ws.Cells[79, col].Value = item.HieuSuatTong;
                 }
                 #endregion
-
                 #region export hiệu chỉnh điều kiện làm việc
+                var kqhcLamViec = ketQua.DanhSachhieuChuanVeDieuKienLamviec;
                 for (int i = 0; i < kqhcLamViec.Count; i++)
                 {
                     var item = kqhcLamViec[i];
-                    int row = 103 + i;
-                    ws.Cells[row, 2].Value = item.KLRTaiDieuKienLamViec;
-                    ws.Cells[row, 3].Value = item.LuuLuongLamViec_m3s;
-                    ws.Cells[row, 4].Value = item.LuuLuongLamViec_m3h;
-                    ws.Cells[row, 5].Value = item.ApSuatTinhLamViec;
-                    ws.Cells[row, 6].Value = item.ApSuatDongLamViec;
-                    ws.Cells[row, 7].Value = item.ApSuatTongLamViec;
-                    ws.Cells[row, 8].Value = item.CongSuatHapThuLamViec;
-                    ws.Cells[row, 9].Value = item.HieuSuatTinh;
-                    ws.Cells[row, 10].Value = item.HieuSuatTong;
+                    //int row = 103 + i;
+                    int col = 3 + i;
+                    ws.Cells[83, col].Value = item.STT;
+                    ws.Cells[84, col].Value = item.KLRTaiDieuKienLamViec;
+                    ws.Cells[85, col].Value = item.LuuLuongLamViec_m3s;
+                    ws.Cells[86, col].Value = item.LuuLuongLamViec_m3h;
+                    ws.Cells[87, col].Value = item.ApSuatTinhLamViec;
+                    ws.Cells[88, col].Value = item.ApSuatDongLamViec;
+                    ws.Cells[89, col].Value = item.ApSuatTongLamViec;
+                    ws.Cells[90, col].Value = item.CongSuatHapThuLamViec;
+                    ws.Cells[91, col].Value = item.HieuSuatTinh;
+                    ws.Cells[92, col].Value = item.HieuSuatTong;
                 }
                 #endregion
                 return new KetQuaDoKiem
@@ -371,9 +377,10 @@ namespace TESMEA_TMS.Services
 
                 await FillThongTinChung(ws, project.ThongTinChung);
 
-                for (int i = 0; i < 10; i++)
+                for (int i = 0; i < data.DanhSachketQuaTaiDieuKienDoKiem?.Count; i++)
                 {
                     var item = data.DanhSachketQuaTaiDieuKienDoKiem?.ElementAtOrDefault(i);
+                    ws.Cells[19, 4 + i].Value = item?.STT;
                     ws.Cells[20, 4 + i].Value = item?.HieuChinhLuuLuongTheTichTheoRPM;
                     ws.Cells[21, 4 + i].Value = item?.ApSuatTinh;
                     ws.Cells[22, 4 + i].Value = item?.ApSuatTong;
@@ -420,11 +427,12 @@ namespace TESMEA_TMS.Services
                 }
                 await FillThongTinChung(ws, project.ThongTinChung);
 
-                for (int i = 0; i < 10; i++)
+                for (int i = 0; i < data.DanhSachketQuaTaiDieuKienDoKiem?.Count; i++)
                 {
                     var item = data.DanhSachhieuChuanVeDieuKienTieuChuan?.ElementAtOrDefault(i);
                     var item1 = data.DanhSachketQuaTaiDieuKienDoKiem?.ElementAtOrDefault(i);
 
+                    ws.Cells[19, 4 + i].Value = item1?.STT;
                     ws.Cells[20, 4 + i].Value = item1?.HieuChinhLuuLuongTheTichTheoRPM;
                     ws.Cells[21, 4 + i].Value = item?.ApSuatTinhTieuChuan;
                     ws.Cells[22, 4 + i].Value = item?.ApSuatTongTieuChuan;
@@ -472,10 +480,11 @@ namespace TESMEA_TMS.Services
 
                 await FillThongTinChung(ws, project.ThongTinChung);
 
-                for (int i = 0; i < 10; i++)
+                for (int i = 0; i < data.DanhSachketQuaTaiDieuKienDoKiem?.Count; i++)
                 {
                     var item = data.DanhSachhieuChuanVeDieuKienLamviec?.ElementAtOrDefault(i);
                     var item1 = data.DanhSachketQuaTaiDieuKienDoKiem?.ElementAtOrDefault(i);
+                    ws.Cells[19, 4 + i].Value = item?.STT;
                     ws.Cells[20, 4 + i].Value = item?.LuuLuongLamViec_m3h;
                     ws.Cells[21, 4 + i].Value = item?.ApSuatTinhLamViec;
                     ws.Cells[22, 4 + i].Value = item?.ApSuatTongLamViec;
@@ -523,7 +532,7 @@ namespace TESMEA_TMS.Services
 
                 await FillThongTinChung(ws, project.ThongTinChung);
 
-                for (int i = 0; i < 10; i++)
+                for (int i = 0; i < data.DanhSachketQuaTaiDieuKienDoKiem?.Count; i++)
                 {
                     var item = data.DanhSachketQuaTaiDieuKienDoKiem?.ElementAtOrDefault(i);
                     ws.Cells[20, 4 + i].Value = item?.HieuChinhLuuLuongTheTichTheoRPM;
@@ -532,7 +541,7 @@ namespace TESMEA_TMS.Services
                     ws.Cells[23, 4 + i].Value = item?.HieuSuatTinh;
                 }
 
-                for (int i = 0; i < 10; i++)
+                for (int i = 0; i < data.DanhSachketQuaTaiDieuKienDoKiem?.Count; i++)
                 {
                     var item = data.DanhSachhieuChuanVeDieuKienTieuChuan?.ElementAtOrDefault(i);
                     var item1 = data.DanhSachketQuaTaiDieuKienDoKiem?.ElementAtOrDefault(i);
@@ -557,7 +566,7 @@ namespace TESMEA_TMS.Services
                     }
                 }
 
-                for (int i = 0; i < 10; i++)
+                for (int i = 0; i < data.DanhSachketQuaTaiDieuKienDoKiem?.Count; i++)
                 {
                     var item = data.DanhSachhieuChuanVeDieuKienLamviec?.ElementAtOrDefault(i);
                     var item1 = data.DanhSachketQuaTaiDieuKienDoKiem?.ElementAtOrDefault(i);

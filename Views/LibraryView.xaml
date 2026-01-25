@@ -46,7 +46,6 @@
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
                     <TextBlock Grid.Row="0" Grid.Column="0" Text="Điện áp vào (V)" VerticalAlignment="Center" Margin="10 0 5 0"/>
                     <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding BienTan.DienApVao, Mode=TwoWay}" />
@@ -78,15 +77,15 @@
                     <TextBlock Grid.Row="4" Grid.Column="0" Text="Hiệu suất bộ truyền (%)" TextWrapping="Wrap" VerticalAlignment="Center" Margin="10 0 5 0"/>
                     <TextBox Grid.Row="4" Grid.Column="1" Text="{Binding BienTan.HieuSuatBoTruyen, Mode=TwoWay}" VerticalAlignment="Center"/>
 
-                    <TextBlock Grid.Row="5" Grid.Column="0" Text="Hiệu suất nối trục (%)" TextWrapping="Wrap" VerticalAlignment="Center" Margin="10 0 5 0"/>
+                    <TextBlock Grid.Row="5" Grid.Column="0" Text="Hiệu suất của khớp nối trục đàn hồi (%)" TextWrapping="Wrap" VerticalAlignment="Center" Margin="10 0 5 0"/>
                     <TextBox Grid.Row="5" Grid.Column="1" Text="{Binding BienTan.HieuSuatNoiTruc, Mode=TwoWay}" VerticalAlignment="Center"/>
 
-                    <TextBlock Grid.Row="6" Grid.Column="0" Text="Hiệu suất gối trục (%)" TextWrapping="Wrap" VerticalAlignment="Center" Margin="10 0 5 0"/>
-                    <TextBox Grid.Row="6" Grid.Column="1" Text="{Binding BienTan.HieuSuatGoiTruc, Mode=TwoWay}" VerticalAlignment="Center"/>
+                    <TextBlock Grid.Row="5" Grid.Column="2" Text="Hiệu suất gối trục (%)" TextWrapping="Wrap" VerticalAlignment="Center" Margin="10 0 5 0"/>
+                    <TextBox Grid.Row="5" Grid.Column="3" Text="{Binding BienTan.HieuSuatGoiTruc, Mode=TwoWay}" VerticalAlignment="Center"/>
                 </Grid>
             </GroupBox>
             <GroupBox Header="{lex:Loc groupbox_Duct}" Grid.Row="1" FontSize="13">
-                <UniformGrid Rows="3" Columns="4">
+                <UniformGrid Rows="4" Columns="4">
                     <TextBlock Text="Đường kính ống gió" VerticalAlignment="Center" Margin="10 0 5 0"/>
                     <TextBox Text="{Binding OngGio.DuongKinhOngGio, Mode=TwoWay}" />
                     <TextBlock Text="Đường kính lỗ phụt" VerticalAlignment="Center" Margin="10 0 5 0"/>
@@ -103,6 +102,9 @@
 
                     <TextBlock Text="Chiều dài côn quạt" VerticalAlignment="Center" Margin="10 0 5 0"/>
                     <TextBox Text="{Binding OngGio.ChieuDaiConQuat, Mode=TwoWay}" />
+                    
+                    <TextBlock Text="Hệ số ma sát" VerticalAlignment="Center" Margin="10 0 5 0"/>
+                    <TextBox Text="{Binding OngGio.HeSoMaSat, Mode=TwoWay}" />
                 </UniformGrid>
             </GroupBox>
 
@@ -114,7 +116,7 @@
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
+                    </Grid.ColumnDefinitions>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
@@ -230,7 +232,7 @@
                         <TextBox Grid.Row="13" Grid.Column="4" Margin="10 0 5 0" Text="{Binding CamBien.PhanHoiDienApMax, Mode=TwoWay}" IsEnabled="{Binding IsChecked, ElementName=chkImportPhanHoiDienAp, Converter={StaticResource BooleanNegationConverter}}"/>
 
                         <!-- 14. Tần số -->
-                        <TextBlock Grid.Row="14" Grid.Column="0" Text="14. Tần số" VerticalAlignment="Center" Margin="10 0 5 0"/>
+                        <TextBlock Grid.Row="14" Grid.Column="0" Text="14. Phản hồi tần số" VerticalAlignment="Center" Margin="10 0 5 0"/>
                         <CheckBox x:Name="chkImportPhanHoiTanSo" Grid.Row="14" Grid.Column="1" Margin="10 0 5 0" IsChecked="{Binding CamBien.IsImportPhanHoiTanSo, Mode=TwoWay}" HorizontalAlignment="Center"/>
                         <TextBox Grid.Row="14" Grid.Column="2" Margin="10 0 5 0" Text="{Binding CamBien.PhanHoiTanSoValue, Mode=TwoWay}" IsEnabled="{Binding IsChecked, ElementName=chkImportPhanHoiTanSo}"/>
                         <TextBox Grid.Row="14" Grid.Column="3" Margin="10 0 5 0" Text="{Binding CamBien.PhanHoiTanSoMin, Mode=TwoWay}" IsEnabled="{Binding IsChecked, ElementName=chkImportPhanHoiTanSo, Converter={StaticResource BooleanNegationConverter}}"/>

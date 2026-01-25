@@ -1,4 +1,5 @@
-﻿using System.Collections.ObjectModel;
+﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Windows.Input;
 using TESMEA_TMS.Configs;
 using TESMEA_TMS.DTOs;
@@ -55,7 +56,7 @@ namespace TESMEA_TMS.ViewModels
                 OnPropertyChanged(nameof(SelectedReportTemplate));
             }
         }
-
+        private bool IsEn { get; set; } = UserSetting.Instance.Language == "en";
         public ICommand BrowseCommand { get; }
         public ICommand ExportResultCommand { get; }
         public ICommand ExportReportCommand { get; }
@@ -74,10 +75,10 @@ namespace TESMEA_TMS.ViewModels
             Quat = new ThongSoCoBanCuaQuat();
             DanhSachThongSoDoKiem = new ObservableCollection<ThongSoDoKiem>();
             ReportTemplates = new ObservableCollection<ComboBoxInfo>();
-            ReportTemplates.Add(new ComboBoxInfo("DESIGN", "Design condition"));
-            ReportTemplates.Add(new ComboBoxInfo("NORMALIZED", "Normalized condition"));
-            ReportTemplates.Add(new ComboBoxInfo("OPERATION", "Operation condition"));
-            ReportTemplates.Add(new ComboBoxInfo("FULL", "Full"));
+            ReportTemplates.Add(new ComboBoxInfo("DESIGN", IsEn ? "Design condition" : "Điều kiện thiết kế"));
+            ReportTemplates.Add(new ComboBoxInfo("NORMALIZED", IsEn ? "Normalized condition" : "Điều kiện tiêu chuẩn"));
+            ReportTemplates.Add(new ComboBoxInfo("OPERATION", IsEn ? "Operation condition" : "Điều kiện hoạt động"));
+            ReportTemplates.Add(new ComboBoxInfo("FULL", IsEn ? "Full" : "Tất cả"));
             SelectedReportTemplate = new ComboBoxInfo();
             SelectedReportTemplate.Value = ReportTemplates[0].Value;
 
@@ -148,11 +149,10 @@ namespace TESMEA_TMS.ViewModels
         private async void ExecuteExportResultCommand(object obj)
         {
             var timestamp = DateTime.Now.ToString("yyyy_MM_dd_HH_mm_ss");
-            bool isEn = UserSetting.Instance.Language == "en";
             var sfd = new SaveFileDialog
             {
                 Filter = "Excel Files|*.xlsx;*.xls",
-                Title = isEn ? "Select where to save measurement calculation results" : "Chọn nơi lưu kết quả tính toán",
+                Title = IsEn ? "Select where to save measurement calculation results" : "Chọn nơi lưu kết quả tính toán",
                 FileName = $"Result_{timestamp}.xlsx",
                 InitialDirectory = ThongTinDuAn.ThamSo.DuongDanLuuDuAn
             };
@@ -170,18 +170,17 @@ namespace TESMEA_TMS.ViewModels
                          tsdv: tsdv,
                          project: ThongTinDuAn
                      );
-                MessageBoxHelper.ShowSuccess(isEn ? "Export result successfully" : "Kết quả tính toán đã được xuất thành công");
+                MessageBoxHelper.ShowSuccess(IsEn ? "Export result successfully" : "Kết quả tính toán đã được xuất thành công");
             }
         }
 
         private async void ExecuteExportReportCommand(object obj)
         {
             var timestamp = DateTime.Now.ToString("yyyy_MM_dd_HH_mm_ss");
-            bool isEn = UserSetting.Instance.Language == "en";
             var sfd = new SaveFileDialog
             {
                 Filter = "Word Files|*.docx",
-                Title = isEn ? "Select where to save measurement reports" : "Chọn nơi lưu báo cáo",
+                Title = IsEn ? "Select where to save measurement reports" : "Chọn nơi lưu báo cáo",
                 FileName = $"Report_{timestamp}.docx",
                 InitialDirectory = ThongTinDuAn.ThamSo.DuongDanLuuDuAn
             };
@@ -199,7 +198,7 @@ namespace TESMEA_TMS.ViewModels
                          tsdv: tsdv,
                          project: ThongTinDuAn
                      );
-                MessageBoxHelper.ShowSuccess(isEn ? "Export report successfully" : "Báo cáo đã được xuất thành công");
+                MessageBoxHelper.ShowSuccess(IsEn ? "Export report successfully" : "Báo cáo đã được xuất thành công");
             }
         }
     }
