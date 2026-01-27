@@ -901,40 +901,78 @@ namespace TESMEA_TMS.DTOs
         }
     }
 
-    /// <summary>
-    /// DTO cho OngGio với tracking thay đổi
-    /// </summary>
     public class OngGioDto : INotifyPropertyChanged
     {
-        private float _duongKinhOngGio;
-        private float _chieuDaiOngGioSauQuat;
-        private float _chieuDaiOngGioTruocQuat;
-        private float _duongKinhLoPhut;
-        private float _duongKinhMiengQuat;
+        private float _duongKinhOngD5;
         private float _chieuDaiConQuat;
-        private float _heSoMaSat;
+        private float _duongKinhOngD3;
+        private float _tietDienOngD5;
+        private float _heSoMaSat = 0.025f;
+        private float _tietDienOngD3;
+        private float _duongKinhMiengQuat;
+        private float _duongKinhLoPhut;
 
         public Guid LibId { get; set; }
 
-        public float DuongKinhOngGio
+        public float DuongKinhOngD5
         {
-            get => _duongKinhOngGio;
-            set { _duongKinhOngGio = value; OnPropertyChanged(); NotifyChanged(); }
+            get => _duongKinhOngD5;
+            set
+            {
+                if (_duongKinhOngD5 != value)
+                {
+                    _duongKinhOngD5 = value;
+                    TietDienOngD5 = (float)(3.14 * Math.Pow(DuongKinhOngD5 / 1000, 2) / 4);
+                    OnPropertyChanged(nameof(DuongKinhOngD5));
+                    OnPropertyChanged(nameof(TietDienOngD5));
+                }
+            }
         }
-        public float ChieuDaiOngGioSauQuat
+
+        public float ChieuDaiConQuat
         {
-            get => _chieuDaiOngGioSauQuat;
-            set { _chieuDaiOngGioSauQuat = value; OnPropertyChanged(); NotifyChanged(); }
+            get => _chieuDaiConQuat;
+            set { _chieuDaiConQuat = value; OnPropertyChanged(); NotifyChanged(); }
         }
-        public float ChieuDaiOngGioTruocQuat
+
+        public float DuongKinhOngD3
         {
-            get => _chieuDaiOngGioTruocQuat;
-            set { _chieuDaiOngGioTruocQuat = value; OnPropertyChanged(); NotifyChanged(); }
+            get => _duongKinhOngD3;
+            set
+            {
+                if (_duongKinhOngD3 != value)
+                {
+                    _duongKinhOngD3 = value;
+                    TietDienOngD3 = (float)(3.14 * Math.Pow(DuongKinhOngD3 / 1000, 2) / 4);
+                    OnPropertyChanged(nameof(DuongKinhOngD3));
+                    OnPropertyChanged(nameof(TietDienOngD3));
+                }
+            }
         }
-        public float DuongKinhLoPhut
+
+        public float TietDienOngD5
         {
-            get => _duongKinhLoPhut;
-            set { _duongKinhLoPhut = value; OnPropertyChanged(); NotifyChanged(); }
+            get => _tietDienOngD5;
+            set
+            {
+                if (_tietDienOngD5 != value)
+                {
+                    _tietDienOngD5 = value;
+                    OnPropertyChanged(nameof(TietDienOngD5));
+                }
+            }
+        }
+
+        public float HeSoMaSat
+        {
+            get => _heSoMaSat;
+            set { _heSoMaSat = value; OnPropertyChanged(); NotifyChanged(); }
+        }
+
+        public float TietDienOngD3
+        {
+            get => _tietDienOngD3;
+            set { _tietDienOngD3 = value; OnPropertyChanged(); NotifyChanged(); }
         }
 
         public float DuongKinhMiengQuat
@@ -942,16 +980,11 @@ namespace TESMEA_TMS.DTOs
             get => _duongKinhMiengQuat;
             set { _duongKinhMiengQuat = value; OnPropertyChanged(); NotifyChanged(); }
         }
-        public float ChieuDaiConQuat
-        {
-            get => _chieuDaiConQuat;
-            set { _chieuDaiConQuat = value; OnPropertyChanged(); NotifyChanged(); }
-        }
 
-        public float HeSoMaSat
+        public float DuongKinhLoPhut
         {
-            get => _heSoMaSat;
-            set { _heSoMaSat = value; OnPropertyChanged(); NotifyChanged(); }
+            get => _duongKinhLoPhut;
+            set { _duongKinhLoPhut = value; OnPropertyChanged(); NotifyChanged(); }
         }
 
         public event EventHandler DataChanged;
@@ -965,13 +998,14 @@ namespace TESMEA_TMS.DTOs
             return new OngGioDto
             {
                 LibId = entity.LibId,
-                DuongKinhOngGio = entity.DuongKinhOngGio,
-                ChieuDaiOngGioSauQuat = entity.ChieuDaiOngGioSauQuat,
-                ChieuDaiOngGioTruocQuat = entity.ChieuDaiOngGioTruocQuat,
-                DuongKinhLoPhut = entity.DuongKinhLoPhut,
-                DuongKinhMiengQuat = entity.DuongKinhMiengQuat,
+                DuongKinhOngD5 = entity.DuongKinhOngD5,
                 ChieuDaiConQuat = entity.ChieuDaiConQuat,
+                DuongKinhOngD3 = entity.DuongKinhOngD3,
+                TietDienOngD5 = entity.TietDienOngD5,
                 HeSoMaSat = entity.HeSoMaSat,
+                TietDienOngD3 = entity.TietDienOngD3,
+                DuongKinhMiengQuat = entity.DuongKinhMiengQuat,
+                DuongKinhLoPhut = entity.DuongKinhLoPhut,
             };
         }
 
@@ -980,13 +1014,14 @@ namespace TESMEA_TMS.DTOs
             return new OngGio
             {
                 LibId = LibId,
-                DuongKinhOngGio = DuongKinhOngGio,
-                ChieuDaiOngGioSauQuat = ChieuDaiOngGioSauQuat,
-                ChieuDaiOngGioTruocQuat = ChieuDaiOngGioTruocQuat,
-                DuongKinhLoPhut = DuongKinhLoPhut,
-                DuongKinhMiengQuat = DuongKinhMiengQuat,
+                DuongKinhOngD5 = DuongKinhOngD5,
                 ChieuDaiConQuat = ChieuDaiConQuat,
+                DuongKinhOngD3 = DuongKinhOngD3,
+                TietDienOngD5 = TietDienOngD5,
                 HeSoMaSat = HeSoMaSat,
+                TietDienOngD3 = TietDienOngD3,
+                DuongKinhMiengQuat = DuongKinhMiengQuat,
+                DuongKinhLoPhut = DuongKinhLoPhut,
             };
         }
 

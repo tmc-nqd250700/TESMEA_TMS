@@ -63,17 +63,6 @@ namespace TESMEA_TMS.ViewModels
         }
         public ThongTinDuAn ThongTinDuAn { get; set; } = new ThongTinDuAn();
 
-        private ThongTinDoKiem _thongTinDoKiem;
-        public ThongTinDoKiem ThongTinDoKiem
-        {
-            get => _thongTinDoKiem;
-            set
-            {
-                _thongTinDoKiem = value;
-                OnPropertyChanged(nameof(ThongTinDoKiem));
-            }
-        }
-
 
         #region Các thuộc tính hiển thị trên màn hình
 
@@ -160,7 +149,6 @@ namespace TESMEA_TMS.ViewModels
             _fileService = fileService;
 
             MeasureRows = new ObservableCollection<Measure>();
-            ThongTinDoKiem = new ThongTinDoKiem();
             ParameterShow = new ParameterShow();
             InitializePowerPlotModel();
             InitializeEfficiencyPlotModel();
@@ -453,7 +441,6 @@ namespace TESMEA_TMS.ViewModels
         private void ClearData()
         {
             MeasureRows.Clear();
-            ThongTinDoKiem = new ThongTinDoKiem();
             ThongTinDuAn = new ThongTinDuAn();
         }
         private bool CanConnect(object obj) => !_isConnected && !_isConnectedRow1;
@@ -1189,7 +1176,7 @@ namespace TESMEA_TMS.ViewModels
                 ThongSoDauVao tsdv = new ThongSoDauVao();
                 ThongSoDuongOngGio tsOngGio = new ThongSoDuongOngGio();
                 ThongSoCoBanCuaQuat tsQuat = new ThongSoCoBanCuaQuat();
-                List<ThongSoDoKiem> dstsDoKiem = new List<ThongSoDoKiem>();
+                List<Measure> dstsDoKiem = new List<Measure>();
 
                 (var bienTan, _camBien, var ongGio) = await _parameterService.GetLibraryByIdAsync(Guid.Parse(ThongTinDuAn.ThamSo.ThongSo));
                 if (bienTan == null || _camBien == null || ongGio == null)
@@ -1198,16 +1185,16 @@ namespace TESMEA_TMS.ViewModels
                 }
 
                 // thông số đường ống gió
-                tsOngGio.DuongKinhOngD5 = ongGio.DuongKinhOngGio;
+                tsOngGio.DuongKinhOngD5 = ongGio.DuongKinhOngD5;
                 tsOngGio.ChieuDaiOngGioTonThatL = ongGio.ChieuDaiConQuat;
                 tsOngGio.DuongKinhOngGioD3 = ongGio.DuongKinhMiengQuat;
                 tsOngGio.TietDienOngD5 = 3.14 * Math.Pow(tsOngGio.DuongKinhOngD5 / 1000, 2) / 4;
-                tsOngGio.HeSoMaSatOngK = ongGio.HeSoMaSat; // chưa có công thức tính
+                tsOngGio.HeSoMaSatOngK = ongGio.HeSoMaSat;
                 tsOngGio.TietDienOngGioD3 = 3.14 * Math.Pow(tsOngGio.DuongKinhOngGioD3 / 1000, 2) / 4;
 
                 // thông số cơ bản của quạt
                 var mauThuNghiem = ThongTinDuAn.ThongTinMauThuNghiem;
-                tsQuat.SoVongQuayCuaQuatNLT = 0; // chwa cso
+                tsQuat.SoVongQuayCuaQuatNLT = mauThuNghiem.TocDoThietKeCuaQuat;
                 tsQuat.CongSuatDongCo = mauThuNghiem.CongSuatDongCo;
                 tsQuat.HeSoDongCo = mauThuNghiem.HeSoCongSuatDongCo;
                 tsQuat.Tanso = mauThuNghiem.TanSoDongCoTheoThietKe;
@@ -1219,24 +1206,24 @@ namespace TESMEA_TMS.ViewModels
                 {
                     throw new BusinessException("Chưa có kết quả đo kiểm");
                 }
-                int stt = 1;
-                foreach (var item in MeasureRows)
-                {
-                    ThongSoDoKiem tsDokiem = new ThongSoDoKiem();
-                    tsDokiem.KiemTraSo = stt;
-                    tsDokiem.NhietDoBauKho = item.NhietDoMoiTruong_sen;
-                    tsDokiem.DoAmTuongDoi = item.DoAm_sen;
-                    tsDokiem.SoVongQuayNTT = item.SoVongQuay_sen;
-                    tsDokiem.ChenhLechApSuat = item.ChenhLechApSuat_sen;
-                    tsDokiem.ApSuatTinh = item.ApSuatTinh_sen;
-                    tsDokiem.DongLamViec = item.DongDien_fb;
-                    tsDokiem.DienAp = item.DienAp_fb;
-                    tsDokiem.TanSo = item.TanSo_fb;
-                    dstsDoKiem.Add(tsDokiem);
-                }
+                //int stt = 1;
+                //foreach (var item in MeasureRows)
+                //{
+                //    Measure tsDokiem = new Measure();
+                //    tsDokiem.KiemTraSo = stt;
+                //    tsDokiem.NhietDoBauKho = item.NhietDoMoiTruong_sen;
+                //    tsDokiem.DoAmTuongDoi = item.DoAm_sen;
+                //    tsDokiem.SoVongQuayNTT = item.SoVongQuay_sen;
+                //    tsDokiem.ChenhLechApSuat = item.ChenhLechApSuat_sen;
+                //    tsDokiem.ApSuatTinh = item.ApSuatTinh_sen;
+                //    tsDokiem.DongLamViec = item.DongDien_fb;
+                //    tsDokiem.DienAp = item.DienAp_fb;
+                //    tsDokiem.TanSo = item.TanSo_fb;
+                //    dstsDoKiem.Add(tsDokiem);
+                //}
                 tsdv.ThongSoDuongOngGio = tsOngGio;
                 tsdv.ThongSoCoBanCuaQuat = tsQuat;
-                tsdv.DanhSachThongSoDoKiem = dstsDoKiem;
+                tsdv.DanhSachThongSoDoKiem = MeasureRows.ToList();
                 return tsdv;
             }
             catch(BusinessException ex)

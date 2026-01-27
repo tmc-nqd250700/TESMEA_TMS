@@ -215,7 +215,8 @@
             <md:PackIcon Grid.Column="1" Kind="ArrowRightBold" Width="40" Height="40" Foreground="DodgerBlue" VerticalAlignment="Center" Margin="10"/>
 
             <!-- DataGrid Con - Thông số chi tiết -->
-            <GroupBox Grid.Column="2" Margin="0 5" Header="{Binding SelectedScenario.ScenarioName, Mode=OneWay}">
+            <StackPanel Grid.Column="2" Margin="0 5">
+                <TextBlock Text="{Binding SelectedScenario.ScenarioName, Mode=OneWay}" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="15" FontWeight="Bold"/>
                 <DataGrid Background="White" 
                           ItemsSource="{Binding ScenarioParams}"
                           AutoGenerateColumns="False" 
@@ -319,7 +320,15 @@
                         <DataGridTextColumn Header="{lex:Loc col_Scenario_cv}" Binding="{Binding CV, StringFormat=N0}" Width="*"/>
                     </DataGrid.Columns>
                 </DataGrid>
-            </GroupBox>
+                <TextBlock
+                     Text="Chưa chọn kịch bản"
+                     Foreground="Gray"
+                     FontStyle="Italic"
+                     FontSize="16"
+                     HorizontalAlignment="Center"
+                     VerticalAlignment="Center"
+                     Visibility="{Binding ScenarioParams.Count, Converter={StaticResource ZeroToVisibilityConverter}, ConverterParameter=False}"/>
+            </StackPanel>
         </Grid>
 
         <!-- Bottom action buttons -->

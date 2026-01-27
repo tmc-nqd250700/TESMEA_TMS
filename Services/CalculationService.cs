@@ -27,26 +27,27 @@ namespace TESMEA_TMS.Services
             try
             {
                 List<KetQuaTaiDieuKienDoKiem> dstskqDoKiem = new List<KetQuaTaiDieuKienDoKiem>();
+                int stt = 1;
                 foreach (var item in thongSo.DanhSachThongSoDoKiem)
                 {
-                    double apSuatTinhHieuChinhVeDieukienThietKe = item.ApSuatTinh * Math.Pow(thongSo.ThongSoCoBanCuaQuat.SoVongQuayCuaQuatNLT / item.SoVongQuayNTT, 2);
+                    double apSuatTinhHieuChinhVeDieukienThietKe = item.ApSuatTinh_sen * Math.Pow(thongSo.ThongSoCoBanCuaQuat.SoVongQuayCuaQuatNLT / item.SoVongQuay_sen, 2);
 
-                    double nhietDoBauUot = CalcNhietDoBauUot(item.NhietDoBauKho, item.DoAmTuongDoi);
+                    double nhietDoBauUot = CalcNhietDoBauUot(item.NhietDoMoiTruong_sen, item.DoAm_sen);
                     double apSuatBaoHoa = CalcApSuatBaoHoa(nhietDoBauUot);
-                    double apSuatRiengPhanPv = CalcApSuatRiengPhanPv(thongSo.ThongSoCoBanCuaQuat.ApSuatKhiQuyen, item.NhietDoBauKho, nhietDoBauUot, apSuatBaoHoa);
-                    double klrMoiTruong = CalcKLRMoiTruong(thongSo.ThongSoCoBanCuaQuat.ApSuatKhiQuyen, item.NhietDoBauKho, apSuatRiengPhanPv);
+                    double apSuatRiengPhanPv = CalcApSuatRiengPhanPv(thongSo.ThongSoCoBanCuaQuat.ApSuatKhiQuyen, item.NhietDoMoiTruong_sen, nhietDoBauUot, apSuatBaoHoa);
+                    double klrMoiTruong = CalcKLRMoiTruong(thongSo.ThongSoCoBanCuaQuat.ApSuatKhiQuyen, item.NhietDoMoiTruong_sen, apSuatRiengPhanPv);
                     double xacDinhRW = CalcXacDinhRW(thongSo.ThongSoCoBanCuaQuat.ApSuatKhiQuyen, apSuatRiengPhanPv);
-                    double apSuatTaiDiemDoChenhLechApSuatP5 = CalcApSuatTaiDiemDoChenhLechApSuatPL5(thongSo.ThongSoCoBanCuaQuat.ApSuatKhiQuyen, item.ChenhLechApSuat);
-                    double klrTaiDiemDoLuuLuongPL5 = CalcKLRTaiDiemDoLuuLuongPL5(item.NhietDoBauKho, xacDinhRW, apSuatTaiDiemDoChenhLechApSuatP5);
-                    double doNhotKhongKhi = CalcDoNhotKhongKhi(item.NhietDoBauKho);
+                    double apSuatTaiDiemDoChenhLechApSuatP5 = CalcApSuatTaiDiemDoChenhLechApSuatPL5(thongSo.ThongSoCoBanCuaQuat.ApSuatKhiQuyen, item.ChenhLechApSuat_sen);
+                    double klrTaiDiemDoLuuLuongPL5 = CalcKLRTaiDiemDoLuuLuongPL5(item.NhietDoMoiTruong_sen, xacDinhRW, apSuatTaiDiemDoChenhLechApSuatP5);
+                    double doNhotKhongKhi = CalcDoNhotKhongKhi(item.NhietDoMoiTruong_sen);
 
                     // B6-B11: Hệ số lưu lượng, Lưu lượng khối lượng, Lưu lượng thể tích, KLR tại điểm đo áp suất PL3, Lưu lượng thể tích tại PL3, Lưu lượng thể tích theo RPM, Hiệu chỉnh lưu lượng thể tích theo RPM
                     double heSoLuuLuong = 1;
-                    double luuLuongKhoiLuong = CalcLuuLuongKhoiLuong(thongSo.ThongSoDuongOngGio.DuongKinhOngD5, item.ChenhLechApSuat, klrTaiDiemDoLuuLuongPL5, heSoLuuLuong);
+                    double luuLuongKhoiLuong = CalcLuuLuongKhoiLuong(thongSo.ThongSoDuongOngGio.DuongKinhOngD5, item.ChenhLechApSuat_sen, klrTaiDiemDoLuuLuongPL5, heSoLuuLuong);
                     double luuLuongTheTich = CalcLuuLuongTheTich(klrTaiDiemDoLuuLuongPL5, luuLuongKhoiLuong);
-                    double klrTaiDiemDoApSuatPL3 = CalcKlrDiemDoApSuatPL3(thongSo.ThongSoCoBanCuaQuat.ApSuatKhiQuyen, item.NhietDoBauKho, item.ApSuatTinh, xacDinhRW);
+                    double klrTaiDiemDoApSuatPL3 = CalcKlrDiemDoApSuatPL3(thongSo.ThongSoCoBanCuaQuat.ApSuatKhiQuyen, item.NhietDoMoiTruong_sen, item.ApSuatTinh_sen, xacDinhRW);
                     double luuLuongTheTichTaiPL3 = CalcLuuLuongTheTichTaiPL3(luuLuongKhoiLuong, klrTaiDiemDoApSuatPL3);
-                    double luuLuongTheTichTheoRPM = CalcLuuLuongTheTichTheoRPM(thongSo.ThongSoCoBanCuaQuat.SoVongQuayCuaQuatNLT, item.SoVongQuayNTT, luuLuongTheTichTaiPL3);
+                    double luuLuongTheTichTheoRPM = CalcLuuLuongTheTichTheoRPM(thongSo.ThongSoCoBanCuaQuat.SoVongQuayCuaQuatNLT, item.SoVongQuay_sen, luuLuongTheTichTaiPL3);
                     double hieuChinhLuuLuongTheTichTheoRPM = CalcHieuChinhLuuLuongTheTichTheoRPM(luuLuongTheTichTheoRPM);
                     // B12-B19: Vận tốc dòng khí, Áp suất động, Tổn thất đường ống, Áp suất tĩnh tổng, Công suất động cơ tại điều kiện đo, Công suất động cơ thực tế, Hiệu suất tính tổng, Hiệu suất tổng
                     double vanTocDongKhi = CalcVanTocDongKhi(thongSo.ThongSoDuongOngGio.TietDienOngGioD3, luuLuongTheTichTheoRPM);
@@ -58,16 +59,17 @@ namespace TESMEA_TMS.Services
 
 
                     double apSuatTong = CalcApSuatTong(apSuatDong, apSuatTinh);
-                    double congSuatDongCoTaiDieuKienDo = CalcCongSuatDongCoDoTaiDiemDo(thongSo.ThongSoCoBanCuaQuat.HeSoDongCo, thongSo.ThongSoCoBanCuaQuat.HieuSuatDongCo, item.DongLamViec, item.DienAp);
-                    double congSuatDongCoThucTe = CalcCongSuatDongCoThucTe(thongSo.ThongSoCoBanCuaQuat.SoVongQuayCuaQuatNLT, item.SoVongQuayNTT, congSuatDongCoTaiDieuKienDo);
+                    double congSuatDongCoTaiDieuKienDo = CalcCongSuatDongCoDoTaiDiemDo(thongSo.ThongSoCoBanCuaQuat.HeSoDongCo, thongSo.ThongSoCoBanCuaQuat.HieuSuatDongCo, item.DongDien_fb, item.DienAp_fb);
+                    double congSuatDongCoThucTe = CalcCongSuatDongCoThucTe(thongSo.ThongSoCoBanCuaQuat.SoVongQuayCuaQuatNLT, item.SoVongQuay_sen, congSuatDongCoTaiDieuKienDo);
                     double hieuSuatTinh = CalcHieuSuatTinh(luuLuongTheTichTheoRPM, apSuatTinh, congSuatDongCoThucTe);
                     double hieuSuatTong = CalcHieuSuatTong(luuLuongTheTichTheoRPM, apSuatTong, congSuatDongCoThucTe);
                     // Assign calculated values to the result object
 
                     KetQuaTaiDieuKienDoKiem kqDoKiem = new KetQuaTaiDieuKienDoKiem
                     {
-                        STT = item.KiemTraSo,
-
+                        // không dùng k, bị lệch
+                        //STT = item.k,
+                        STT = stt,
                         // Bước 1 - 5
                         NhietDoBauUot = nhietDoBauUot,
                         ApSuatBaoHoaPsat = apSuatBaoHoa,
@@ -98,6 +100,7 @@ namespace TESMEA_TMS.Services
 
                     };
                     dstskqDoKiem.Add(kqDoKiem);
+                    stt++;
                 }
                 return Task.FromResult(dstskqDoKiem);
             }
@@ -145,14 +148,14 @@ namespace TESMEA_TMS.Services
 
 
         // Hàm tính toán hiệu chỉnh ở điều kiện làm việc
-        private Task<List<HieuChuanVeDieuKienLamviec>> TinhToanHieuChinhDieuKienLamViec(ThongSoCoBanCuaQuat tsCoBanCuaQuat, List<ThongSoDoKiem> dsThongSoDoKiem, List<KetQuaTaiDieuKienDoKiem> dstskqDoKiem)
+        private Task<List<HieuChuanVeDieuKienLamviec>> TinhToanHieuChinhDieuKienLamViec(ThongSoCoBanCuaQuat tsCoBanCuaQuat, List<Measure> dsThongSoDoKiem, List<KetQuaTaiDieuKienDoKiem> dstskqDoKiem)
         {
             try
             {
                 List<HieuChuanVeDieuKienLamviec> dskqLamViec = new List<HieuChuanVeDieuKienLamviec>();
                 foreach (var item in dstskqDoKiem)
                 {
-                    double klr = item.KLRTaiDiemDoApSuatPL3 * (273 + dsThongSoDoKiem[item.STT - 1].NhietDoBauKho) / (273 + tsCoBanCuaQuat.NhietDoLamViec);
+                    double klr = item.KLRTaiDiemDoApSuatPL3 * (273 + dsThongSoDoKiem[item.STT - 1].NhietDoMoiTruong_sen) / (273 + tsCoBanCuaQuat.NhietDoLamViec);
                     double luuLuong_m3s = item.LuuLuongTheTichTheoRPM;
                     double apSuatTinh = item.ApSuatTinh * (klr / item.KLRTaiDiemDoApSuatPL3);
                     double apSuatDong = item.ApSuatDong;
@@ -292,16 +295,6 @@ namespace TESMEA_TMS.Services
         private double CalcHieuSuatTong(double luuLuongTheTichTheoRPM, double apSuatTong, double congSuatDongCoThucTe)
         {
             return apSuatTong * luuLuongTheTichTheoRPM * 100 / (1000 * congSuatDongCoThucTe);
-        }
-
-        private double CalcTietDienOngD5(double duongKinhOngD5)
-        {
-            return piValue * Math.Pow(duongKinhOngD5 / 1000, 2) / 4;
-        }
-
-        private double CalcTietDienOngGioD3(double duongKinhOngGioD3)
-        {
-            return piValue * Math.Pow(duongKinhOngGioD3 / 1000, 2) / 4;
         }
         #endregion
     }

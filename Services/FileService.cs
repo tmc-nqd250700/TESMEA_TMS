@@ -23,7 +23,6 @@ namespace TESMEA_TMS.Services
 {
     public interface IFileService
     {
-        void CreateExcelFile(string filePath, string sheetName);
         ThongSoDauVao ImportCalculation(string filePath);
         Task ExportExcelTestResult(string outputPath, string option, ThongSoDauVao tsdv, ThongTinDuAn project);
         Task ExportReportTestResult(string outputPath, string option, ThongSoDauVao tsdv, ThongTinDuAn project);
@@ -38,6 +37,15 @@ namespace TESMEA_TMS.Services
         //void Report_tester(string filePath);
 
     }
+
+    public class KetQuaTheoTanSo
+    {
+        public double TanSo { get; set; }
+        public List<KetQuaTaiDieuKienDoKiem> DieuKienDoKiem { get; set; }
+        public List<HieuChuanVeDieuKienTieuChuan> HieuChuanTieuChuan { get; set; }
+        public List<HieuChuanVeDieuKienLamviec> HieuChuanLamViec { get; set; }
+    }
+
     public class FileService : IFileService
     {
         private readonly ICalculationService _calculationService;
@@ -45,19 +53,6 @@ namespace TESMEA_TMS.Services
         public FileService(ICalculationService calculationService)
         {
             _calculationService = calculationService;
-        }
-        public void CreateExcelFile(string filePath, string sheetName)
-        {
-            if (filePath == null)
-            {
-                return;
-            }
-            ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
-            using (var package = new ExcelPackage())
-            {
-                var ws = package.Workbook.Worksheets.Add(sheetName);
-                package.SaveAs(new FileInfo(filePath));
-            }
         }
 
         #region Xuất kết quả
@@ -92,46 +87,75 @@ namespace TESMEA_TMS.Services
                 using (var package = new ExcelPackage(new FileInfo(templatePath)))
                 {
                     var kqDoKiem = await ExportCalculation(package, tsdv, ketQuaDoKiem);
-
-                    if (option == "FULL")
-                    {
-                        await ExportDesignCondition(package, kqDoKiem, project);
-                        await ExportNormalizedCondition(package, kqDoKiem, project);
-                        await ExportOperatingCondition(package, kqDoKiem, project);
-                        await ExportFullCondition(package, kqDoKiem, project);
-                    }
-                    else
-                    {
-                        // Chỉ giữ lại sheet Calculation và sheet của option
-                        var keepSheets = new List<string> { "Calculation", "" };
-                        if (option == "DESIGN") keepSheets[1] = "Design Condition";
-                        else if (option == "NORMALIZED") keepSheets[1] = "Normalized Condition";
-                        else if (option == "OPERATION") keepSheets[1] = "Operating Condition";
-
-                        // Xóa các sheet không cần thiết
-                        for (int i = package.Workbook.Worksheets.Count - 1; i >= 0; i--)
+                    // Lấy danh sách các tần số duy nhất
+                    var freqGroups = tsdv.DanhSachThongSoDoKiem
+                        .Select((item, idx) => new { item.TanSo_fb, Index = idx })
+                        .GroupBy(x => x.TanSo_fb)
+                        .Select(g =>
                         {
-                            var sheet = package.Workbook.Worksheets[i];
-                            if (!keepSheets.Contains(sheet.Name))
-                                package.Workbook.Worksheets.Delete(sheet.Name);
-                        }
+                            var index = g.Select(x => x.Index).ToList();
+                            return new KetQuaTheoTanSo
+                            {
+                                TanSo = g.Key,
+                                DieuKienDoKiem = index
+                                    .Select(idx => kqDoKiem.DanhSachketQuaTaiDieuKienDoKiem.ElementAtOrDefault(idx))
+                                    .Where(x => x != null)
+                                    .ToList(),
+                                HieuChuanTieuChuan = index
+                                    .Select(idx => kqDoKiem.DanhSachhieuChuanVeDieuKienTieuChuan.ElementAtOrDefault(idx))
+                                    .Where(x => x != null)
+                                    .ToList(),
+                                HieuChuanLamViec = index
+                                    .Select(idx => kqDoKiem.DanhSachhieuChuanVeDieuKienLamviec.ElementAtOrDefault(idx))
+                                    .Where(x => x != null)
+                                    .ToList()
+                            };
+                        })
+                        .ToList();
 
-                        // Fill dữ liệu cho sheet option
-                        if (option == "DESIGN")
-                            await ExportDesignCondition(package, kqDoKiem, project);
-                        else if (option == "NORMALIZED")
-                            await ExportNormalizedCondition(package, kqDoKiem, project);
-                        else if (option == "OPERATION")
-                            await ExportOperatingCondition(package, kqDoKiem, project);
-                    }
-                    foreach (var ws in package.Workbook.Worksheets)
+                    foreach(var item in freqGroups)
                     {
-                        var logo = ws.Drawings["logo"] as OfficeOpenXml.Drawing.ExcelPicture;
-                        if (logo != null)
+                        if (option == "FULL")
                         {
-                            logo.SetSize((int)(7 * 96), (int)(0.88 * 96));
+                            await ExportDesignCondition(package, item.DieuKienDoKiem, project, $"{item.TanSo}Hz - Design Condition");
+                            await ExportNormalizedCondition(package, item.DieuKienDoKiem, item.HieuChuanTieuChuan, project, $"{item.TanSo}Hz - Normalized Condition");
+                            await ExportOperatingCondition(package, item.DieuKienDoKiem, item.HieuChuanLamViec, project, $"{item.TanSo}Hz - Operating Condition");
+                            await ExportFullCondition(package, item.DieuKienDoKiem, item.HieuChuanTieuChuan, item.HieuChuanLamViec, project, $"{item.TanSo}Hz - Full");
+                        }
+                        else
+                        {
+                            // Chỉ giữ lại sheet Calculation và sheet của option
+                            var keepSheets = new List<string> { "Calculation", "" };
+                            if (option == "DESIGN") keepSheets[1] = "Design Condition";
+                            else if (option == "NORMALIZED") keepSheets[1] = "Normalized Condition";
+                            else if (option == "OPERATION") keepSheets[1] = "Operating Condition";
+
+                            // Xóa các sheet không cần thiết
+                            for (int i = package.Workbook.Worksheets.Count - 1; i >= 0; i--)
+                            {
+                                var sheet = package.Workbook.Worksheets[i];
+                                if (!keepSheets.Contains(sheet.Name))
+                                    package.Workbook.Worksheets.Delete(sheet.Name);
+                            }
+
+                            // Fill dữ liệu cho sheet option
+                            if (option == "DESIGN")
+                                await ExportDesignCondition(package, item.DieuKienDoKiem, project, $"{item.TanSo}Hz - Design Condition");
+                            else if (option == "NORMALIZED")
+                                await ExportNormalizedCondition(package, item.DieuKienDoKiem, item.HieuChuanTieuChuan, project, $"{item.TanSo}Hz - Normalized Condition");
+                            else if (option == "OPERATION")
+                                await ExportOperatingCondition(package, item.DieuKienDoKiem, item.HieuChuanLamViec, project, $"{item.TanSo}Hz - Operating Condition");
+                        }
+                        foreach (var ws in package.Workbook.Worksheets)
+                        {
+                            var logo = ws.Drawings["logo"] as OfficeOpenXml.Drawing.ExcelPicture;
+                            if (logo != null)
+                            {
+                                logo.SetSize((int)(7 * 96), (int)(0.88 * 96));
+                            }
                         }
                     }
+                   
 
                     package.SaveAs(new FileInfo(outputPath));
                 }
@@ -152,70 +176,75 @@ namespace TESMEA_TMS.Services
                 {
                     var ws = package.Workbook.Worksheets["Calculation"] ?? package.Workbook.Worksheets.FirstOrDefault();
                     if (ws == null)
-                        throw new Exception("Không tìm thấy worksheet phù hợp, vui lòng kiểm tra lại");
+                        throw new BusinessException("Không tìm thấy worksheet phù hợp, vui lòng kiểm tra lại");
 
                     // helper parse cell to double, throw if fail
-                    double ParseCell(int row, int col)
+                    float ParseCell(int row, int col)
                     {
                         var cellValue = ws.Cells[row, col].Value;
-                        if (cellValue == null || !double.TryParse(cellValue.ToString(), out double result))
+                        if (cellValue == null || !float.TryParse(cellValue.ToString(), out float result))
                         {
-                            throw new Exception($"Thông số đầu vào không phù hợp: (dòng {row}, cột {col})");
+                            throw new BusinessException($"Thông số đầu vào không phù hợp: (dòng {row}, cột {col})");
                         }
                         return result;
                     }
                     double piValue = 3.14;
-                    double duongKinhOngD5 = ParseCell(5, 4);
-                    double duongKinhOngGioD3 = ParseCell(7, 4);
+                    double duongKinhOngD5 = ParseCell(19, 4);
+                    double duongKinhOngGioD3 = ParseCell(21, 4);
                     double tietDienOngD5 = piValue * Math.Pow(duongKinhOngD5 / 1000, 2) / 4;
                     double tietDienOngGioD3 = piValue * Math.Pow(duongKinhOngGioD3 / 1000, 2) / 4;
 
                     var thongSoDuongOngGio = new ThongSoDuongOngGio
                     {
                         DuongKinhOngD5 = duongKinhOngD5,
-                        ChieuDaiOngGioTonThatL = ParseCell(6, 4),
+                        ChieuDaiOngGioTonThatL = ParseCell(20, 4),
                         DuongKinhOngGioD3 = duongKinhOngGioD3,
                         TietDienOngD5 = tietDienOngD5,
-                        HeSoMaSatOngK = ParseCell(6, 8),
+                        HeSoMaSatOngK = ParseCell(20, 8),
                         TietDienOngGioD3 = tietDienOngGioD3,
                     };
 
                     var thongSoCoBanCuaQuat = new ThongSoCoBanCuaQuat
                     {
-                        SoVongQuayCuaQuatNLT = ParseCell(9, 4),
-                        CongSuatDongCo = ParseCell(10, 4),
-                        HeSoDongCo = ParseCell(11, 4),
-                        Tanso = ParseCell(12, 4),
-                        HieuSuatDongCo = ParseCell(9, 8),
-                        DoNhotKhongKhi = ParseCell(10, 8),
-                        ApSuatKhiQuyen = ParseCell(11, 8),
-                        NhietDoLamViec = ParseCell(12, 8)
+                        SoVongQuayCuaQuatNLT = ParseCell(23, 4),
+                        CongSuatDongCo = ParseCell(24, 4),
+                        HeSoDongCo = ParseCell(25, 4),
+                        Tanso = ParseCell(26, 4),
+                        HieuSuatDongCo = ParseCell(23, 8),
+                        DoNhotKhongKhi = ParseCell(24, 8),
+                        ApSuatKhiQuyen = ParseCell(25, 8),
+                        NhietDoLamViec = ParseCell(26, 8)
                     };
 
-                    var thongSoDoKiem = new List<ThongSoDoKiem>();
-                    for (int row = 16; row <= 25; row++)
+                    var thongSoDoKiem = new List<Measure>();
+                    var stt = 1;
+                    for(int col = 3; col <= ws.Dimension.End.Column; col++)
                     {
-                        var kiemTraSo = ParseCell(row, 1);
-                        var nhietDoBauKho = ParseCell(row, 2);
-                        var doAmTuongDoi = ParseCell(row, 3);
-                        var SoVongQuayNTT = ParseCell(row, 4);
-                        var chenhLechApSuat = ParseCell(row, 5);
-                        var apSuatTinh = ParseCell(row, 6);
-                        var dongLamViec = ParseCell(row, 7);
-                        var dienAp = ParseCell(row, 8);
+                        var kiemTraSoCell = ws.Cells[30, col].Value;
+                        if (kiemTraSoCell == null) continue;
 
-                        thongSoDoKiem.Add(new ThongSoDoKiem
+                        var measure = new Measure
                         {
-                            KiemTraSo = (int)kiemTraSo,
-                            NhietDoBauKho = nhietDoBauKho,
-                            DoAmTuongDoi = doAmTuongDoi,
-                            SoVongQuayNTT = SoVongQuayNTT,
-                            ChenhLechApSuat = chenhLechApSuat,
-                            ApSuatTinh = apSuatTinh,
-                            DongLamViec = dongLamViec,
-                            DienAp = dienAp,
-                        });
+                            k = stt,
+                            NhietDoMoiTruong_sen = ParseCell(31, col),
+                            DoAm_sen = ParseCell(32, col),
+                            ApSuatkhiQuyen_sen = ParseCell(33, col),
+                            ChenhLechApSuat_sen = ParseCell(34, col),
+                            ApSuatTinh_sen = ParseCell(35, col),
+                            DoRung_sen = ParseCell(36, col),
+                            DoOn_sen = ParseCell(37, col),
+                            SoVongQuay_sen = ParseCell(38, col),
+                            Momen_sen = ParseCell(39, col),
+                            DongDien_fb = ParseCell(40, col),
+                            DienAp_fb = ParseCell(41, col),
+                            CongSuat_fb = ParseCell(42, col),
+                            ViTriVan_fb = ParseCell(43, col),
+                            TanSo_fb = ParseCell(44, col),
+                        };
+                        thongSoDoKiem.Add(measure);
+                        stt++;
                     }
+
 
                     return new ThongSoDauVao
                     {
@@ -225,12 +254,14 @@ namespace TESMEA_TMS.Services
                     };
                 }
             }
+            catch(BusinessException ex)
+            { throw; }
             catch (Exception ex)
             {
                 throw new Exception($"Thông số đầu vào không phù hợp: {ex.Message}");
             }
         }
-        public async Task<KetQuaDoKiem> ExportCalculation(ExcelPackage package, ThongSoDauVao input, KetQuaDoKiem ketQua)
+        public async Task<KetQuaDoKiem> ExportCalculation(ExcelPackage package, ThongSoDauVao tsdv, KetQuaDoKiem ketQua)
         {
             try
             {
@@ -239,38 +270,44 @@ namespace TESMEA_TMS.Services
                 if (ws == null) return null;
 
                 // Thông số đường ống gió
-                ws.Cells[19, 4].Value = input.ThongSoDuongOngGio.DuongKinhOngD5;
-                ws.Cells[20, 4].Value = input.ThongSoDuongOngGio.ChieuDaiOngGioTonThatL;
-                ws.Cells[21, 4].Value = input.ThongSoDuongOngGio.DuongKinhOngGioD3;
-                ws.Cells[19, 8].Value = input.ThongSoDuongOngGio.TietDienOngD5;
-                ws.Cells[20, 8].Value = input.ThongSoDuongOngGio.HeSoMaSatOngK;
-                ws.Cells[21, 8].Value = input.ThongSoDuongOngGio.TietDienOngGioD3;
+                ws.Cells[19, 4].Value = tsdv.ThongSoDuongOngGio.DuongKinhOngD5;
+                ws.Cells[20, 4].Value = tsdv.ThongSoDuongOngGio.ChieuDaiOngGioTonThatL;
+                ws.Cells[21, 4].Value = tsdv.ThongSoDuongOngGio.DuongKinhOngGioD3;
+                ws.Cells[19, 8].Value = tsdv.ThongSoDuongOngGio.TietDienOngD5;
+                ws.Cells[20, 8].Value = tsdv.ThongSoDuongOngGio.HeSoMaSatOngK;
+                ws.Cells[21, 8].Value = tsdv.ThongSoDuongOngGio.TietDienOngGioD3;
 
                 // Thông số cơ bản của quạt
-                ws.Cells[23, 4].Value = input.ThongSoCoBanCuaQuat.SoVongQuayCuaQuatNLT;
-                ws.Cells[24, 4].Value = input.ThongSoCoBanCuaQuat.CongSuatDongCo;
-                ws.Cells[25, 4].Value = input.ThongSoCoBanCuaQuat.HeSoDongCo;
-                ws.Cells[26, 4].Value = input.ThongSoCoBanCuaQuat.Tanso;
-                ws.Cells[23, 8].Value = input.ThongSoCoBanCuaQuat.HieuSuatDongCo;
-                ws.Cells[24, 8].Value = input.ThongSoCoBanCuaQuat.DoNhotKhongKhi;
-                ws.Cells[25, 8].Value = input.ThongSoCoBanCuaQuat.ApSuatKhiQuyen;
-                ws.Cells[26, 8].Value = input.ThongSoCoBanCuaQuat.NhietDoLamViec;
+                ws.Cells[23, 4].Value = tsdv.ThongSoCoBanCuaQuat.SoVongQuayCuaQuatNLT;
+                ws.Cells[24, 4].Value = tsdv.ThongSoCoBanCuaQuat.CongSuatDongCo;
+                ws.Cells[25, 4].Value = tsdv.ThongSoCoBanCuaQuat.HeSoDongCo;
+                ws.Cells[26, 4].Value = tsdv.ThongSoCoBanCuaQuat.Tanso;
+                ws.Cells[23, 8].Value = tsdv.ThongSoCoBanCuaQuat.HieuSuatDongCo;
+                ws.Cells[24, 8].Value = tsdv.ThongSoCoBanCuaQuat.DoNhotKhongKhi;
+                ws.Cells[25, 8].Value = tsdv.ThongSoCoBanCuaQuat.ApSuatKhiQuyen;
+                ws.Cells[26, 8].Value = tsdv.ThongSoCoBanCuaQuat.NhietDoLamViec;
 
                 // Thông sô đo kiểm
-                for (int i = 0; i < input.DanhSachThongSoDoKiem.Count; i++)
+                for (int i = 0; i < tsdv.DanhSachThongSoDoKiem.Count; i++)
                 {
-                    var item = input.DanhSachThongSoDoKiem[i];
+                    var item = tsdv.DanhSachThongSoDoKiem[i];
                     //int row = 29 + i;
                     int col = 3 + i;
-                    ws.Cells[28, col].Value = item.KiemTraSo;
-                    ws.Cells[29, col].Value = item.NhietDoBauKho;
-                    ws.Cells[30, col].Value = item.DoAmTuongDoi;
-                    ws.Cells[31, col].Value = item.SoVongQuayNTT;
-                    ws.Cells[32, col].Value = item.ChenhLechApSuat;
-                    ws.Cells[33, col].Value = item.ApSuatTinh;
-                    ws.Cells[34, col].Value = item.DongLamViec;
-                    ws.Cells[35, col].Value = item.DienAp;
-                    ws.Cells[36, col].Value = item.TanSo;
+                    ws.Cells[29, col].Value = item.k;
+                    ws.Cells[30, col].Value = item.NhietDoMoiTruong_sen;
+                    ws.Cells[31, col].Value = item.DoAm_sen;
+                    ws.Cells[32, col].Value = item.ApSuatkhiQuyen_sen;
+                    ws.Cells[33, col].Value = item.ChenhLechApSuat_sen;
+                    ws.Cells[34, col].Value = item.ApSuatTinh_sen;
+                    ws.Cells[35, col].Value = item.DoRung_sen;
+                    ws.Cells[36, col].Value = item.DoOn_sen;
+                    ws.Cells[37, col].Value = item.SoVongQuay_sen;
+                    ws.Cells[38, col].Value = item.Momen_sen;
+                    ws.Cells[39, col].Value = item.DongDien_fb;
+                    ws.Cells[40, col].Value = item.CongSuat_fb;
+                    ws.Cells[41, col].Value = item.ViTriVan_fb;
+                    ws.Cells[42, col].Value = item.DienAp_fb;
+                    ws.Cells[43, col].Value = item.TanSo_fb;
                 }
 
 
@@ -280,40 +317,40 @@ namespace TESMEA_TMS.Services
                 for (int i = 0; i < kqtsDoKiem.Count; i++)
                 {
                     var item = kqtsDoKiem[i];
-                    //int row = 44 + i;
                     int col = 3 + i;
-                    ws.Cells[42, col].Value = item.STT;
-                    ws.Cells[43, col].Value = item.NhietDoBauUot;
-                    ws.Cells[44, col].Value = item.ApSuatBaoHoaPsat;
-                    ws.Cells[45, col].Value = item.ApSuatRiengPhanPv;
-                    ws.Cells[46, col].Value = item.KLRMoiTruong;
-                    ws.Cells[47, col].Value = item.XacDinhRW;
-                    ws.Cells[48, col].Value = item.ApSuatTaiDiemDoChenhLechApSuatP5;
-                    ws.Cells[49, col].Value = item.KLRTaiDiemDoLuuLuongPL5;
-                    ws.Cells[50, col].Value = item.DoNhotKhongKhi;
+                    ws.Cells[49, col].Value = item.STT;
+                    ws.Cells[50, col].Value = item.NhietDoBauUot;
+                    ws.Cells[51, col].Value = item.ApSuatBaoHoaPsat;
+                    ws.Cells[52, col].Value = item.ApSuatRiengPhanPv;
+                    ws.Cells[53, col].Value = item.KLRMoiTruong;
+                    ws.Cells[54, col].Value = item.XacDinhRW;
+                    ws.Cells[55, col].Value = item.ApSuatTaiDiemDoChenhLechApSuatP5;
+                    ws.Cells[56, col].Value = item.KLRTaiDiemDoLuuLuongPL5;
+                    ws.Cells[57, col].Value = item.DoNhotKhongKhi;
                     //int row1 = 57 + i;
-                    ws.Cells[51, col].Value = item.HeSoLuuLuong;
-                    ws.Cells[52, col].Value = item.LuuLuongKhoiLuong;
-                    ws.Cells[53, col].Value = item.LuuLuongTheTich;
-                    ws.Cells[54, col].Value = item.KLRTaiDiemDoApSuatPL3;
-                    ws.Cells[55, col].Value = item.LuuLuongTheTichTaiPL3;
-                    ws.Cells[56, col].Value = item.LuuLuongTheTichTheoRPM;
-                    ws.Cells[57, col].Value = item.HieuChinhLuuLuongTheTichTheoRPM;
+                    //B6
+                    ws.Cells[58, col].Value = item.HeSoLuuLuong;
+                    ws.Cells[59, col].Value = item.LuuLuongKhoiLuong;
+                    ws.Cells[60, col].Value = item.LuuLuongTheTich;
+                    ws.Cells[61, col].Value = item.KLRTaiDiemDoApSuatPL3;
+                    ws.Cells[62, col].Value = item.LuuLuongTheTichTaiPL3;
+                    ws.Cells[63, col].Value = item.LuuLuongTheTichTheoRPM;
+                    ws.Cells[64, col].Value = item.HieuChinhLuuLuongTheTichTheoRPM;
 
                     //int row2 = 74 + i;
-                    ws.Cells[58, col].Value = item.VanTocDongKhi;
-                    ws.Cells[59, col].Value = item.ApSuatDong;
-                    ws.Cells[60, col].Value = item.TonThatDuongOng;
-                    ws.Cells[61, col].Value = item.ApSuatTinh;
-                    ws.Cells[62, col].Value = item.ApSuatTong;
-                    ws.Cells[63, col].Value = item.CongSuatDongCoTaiDieuKienDoKiem;
-                    ws.Cells[64, col].Value = item.CongSuatDongCoThucTe;
-                    ws.Cells[65, col].Value = item.HieuSuatTinh;
-                    ws.Cells[66, col].Value = item.HieuSuatTong;
+                    // B12
+                    ws.Cells[65, col].Value = item.VanTocDongKhi;
+                    ws.Cells[66, col].Value = item.ApSuatDong;
+                    ws.Cells[67, col].Value = item.TonThatDuongOng;
+                    ws.Cells[68, col].Value = item.ApSuatTinh;
+                    ws.Cells[69, col].Value = item.ApSuatTong;
+                    ws.Cells[70, col].Value = item.CongSuatDongCoTaiDieuKienDoKiem;
+                    ws.Cells[71, col].Value = item.CongSuatDongCoThucTe;
+                    ws.Cells[72, col].Value = item.HieuSuatTinh;
+                    ws.Cells[73, col].Value = item.HieuSuatTong;
                 }
 
                 #endregion
-               
                 #region export hiệu chỉnh điều kiện tiêu chuẩn
                 var kqhcTieuChuan = ketQua.DanhSachhieuChuanVeDieuKienTieuChuan;
                 for (int i = 0; i < kqhcTieuChuan.Count; i++)
@@ -321,15 +358,15 @@ namespace TESMEA_TMS.Services
                     var item = kqhcTieuChuan[i];
                     //int row = 88 + i;
                     int col = 3 + i;
-                    ws.Cells[71, col].Value = item.STT;
-                    ws.Cells[72, col].Value = item.LuuLuongTieuChuan_m3s;
-                    ws.Cells[73, col].Value = item.LuuLuongTieuChuan_m3h;
-                    ws.Cells[74, col].Value = item.ApSuatTinhTieuChuan;
-                    ws.Cells[75, col].Value = item.ApSuatDongTieuChuan;
-                    ws.Cells[76, col].Value = item.ApSuatTongTieuChuan;
-                    ws.Cells[77, col].Value = item.CongSuatHapThuTieuChuan;
-                    ws.Cells[78, col].Value = item.HieuSuatTinh;
-                    ws.Cells[79, col].Value = item.HieuSuatTong;
+                    ws.Cells[78, col].Value = item.STT;
+                    ws.Cells[79, col].Value = item.LuuLuongTieuChuan_m3s;
+                    ws.Cells[80, col].Value = item.LuuLuongTieuChuan_m3h;
+                    ws.Cells[81, col].Value = item.ApSuatTinhTieuChuan;
+                    ws.Cells[82, col].Value = item.ApSuatDongTieuChuan;
+                    ws.Cells[83, col].Value = item.ApSuatTongTieuChuan;
+                    ws.Cells[84, col].Value = item.CongSuatHapThuTieuChuan;
+                    ws.Cells[85, col].Value = item.HieuSuatTinh;
+                    ws.Cells[86, col].Value = item.HieuSuatTong;
                 }
                 #endregion
                 #region export hiệu chỉnh điều kiện làm việc
@@ -339,16 +376,16 @@ namespace TESMEA_TMS.Services
                     var item = kqhcLamViec[i];
                     //int row = 103 + i;
                     int col = 3 + i;
-                    ws.Cells[83, col].Value = item.STT;
-                    ws.Cells[84, col].Value = item.KLRTaiDieuKienLamViec;
-                    ws.Cells[85, col].Value = item.LuuLuongLamViec_m3s;
-                    ws.Cells[86, col].Value = item.LuuLuongLamViec_m3h;
-                    ws.Cells[87, col].Value = item.ApSuatTinhLamViec;
-                    ws.Cells[88, col].Value = item.ApSuatDongLamViec;
-                    ws.Cells[89, col].Value = item.ApSuatTongLamViec;
-                    ws.Cells[90, col].Value = item.CongSuatHapThuLamViec;
-                    ws.Cells[91, col].Value = item.HieuSuatTinh;
-                    ws.Cells[92, col].Value = item.HieuSuatTong;
+                    ws.Cells[90, col].Value = item.STT;
+                    ws.Cells[91, col].Value = item.KLRTaiDieuKienLamViec;
+                    ws.Cells[92, col].Value = item.LuuLuongLamViec_m3s;
+                    ws.Cells[93, col].Value = item.LuuLuongLamViec_m3h;
+                    ws.Cells[94, col].Value = item.ApSuatTinhLamViec;
+                    ws.Cells[95, col].Value = item.ApSuatDongLamViec;
+                    ws.Cells[96, col].Value = item.ApSuatTongLamViec;
+                    ws.Cells[97, col].Value = item.CongSuatHapThuLamViec;
+                    ws.Cells[98, col].Value = item.HieuSuatTinh;
+                    ws.Cells[99, col].Value = item.HieuSuatTong;
                 }
                 #endregion
                 return new KetQuaDoKiem
@@ -363,7 +400,7 @@ namespace TESMEA_TMS.Services
                 throw ex;
             }
         }
-        public async Task ExportDesignCondition(ExcelPackage package, KetQuaDoKiem data, ThongTinDuAn project)
+        public async Task ExportDesignCondition(ExcelPackage package, List<KetQuaTaiDieuKienDoKiem> data, ThongTinDuAn project, string sheetName = "Design Condition")
         {
             try
             {
@@ -377,9 +414,9 @@ namespace TESMEA_TMS.Services
 
                 await FillThongTinChung(ws, project.ThongTinChung);
 
-                for (int i = 0; i < data.DanhSachketQuaTaiDieuKienDoKiem?.Count; i++)
+                for (int i = 0; i < data.Count; i++)
                 {
-                    var item = data.DanhSachketQuaTaiDieuKienDoKiem?.ElementAtOrDefault(i);
+                    var item = data.ElementAtOrDefault(i);
                     ws.Cells[19, 4 + i].Value = item?.STT;
                     ws.Cells[20, 4 + i].Value = item?.HieuChinhLuuLuongTheTichTheoRPM;
                     ws.Cells[21, 4 + i].Value = item?.ApSuatTinh;
@@ -415,7 +452,7 @@ namespace TESMEA_TMS.Services
         }
 
         // Xuất worksheet Normalized Condition
-        public async Task ExportNormalizedCondition(ExcelPackage package, KetQuaDoKiem data, ThongTinDuAn project)
+        public async Task ExportNormalizedCondition(ExcelPackage package, List<KetQuaTaiDieuKienDoKiem> doKiem, List<HieuChuanVeDieuKienTieuChuan> tieuChuan, ThongTinDuAn project, string sheetName = "Normalized Condition")
         {
             try
             {
@@ -427,10 +464,10 @@ namespace TESMEA_TMS.Services
                 }
                 await FillThongTinChung(ws, project.ThongTinChung);
 
-                for (int i = 0; i < data.DanhSachketQuaTaiDieuKienDoKiem?.Count; i++)
+                for (int i = 0; i < doKiem.Count; i++)
                 {
-                    var item = data.DanhSachhieuChuanVeDieuKienTieuChuan?.ElementAtOrDefault(i);
-                    var item1 = data.DanhSachketQuaTaiDieuKienDoKiem?.ElementAtOrDefault(i);
+                    var item = tieuChuan.ElementAtOrDefault(i);
+                    var item1 = doKiem.ElementAtOrDefault(i);
 
                     ws.Cells[19, 4 + i].Value = item1?.STT;
                     ws.Cells[20, 4 + i].Value = item1?.HieuChinhLuuLuongTheTichTheoRPM;
@@ -467,7 +504,7 @@ namespace TESMEA_TMS.Services
         }
 
         // Xuất worksheet Operating Condition
-        public async Task ExportOperatingCondition(ExcelPackage package, KetQuaDoKiem data, ThongTinDuAn project)
+        public async Task ExportOperatingCondition(ExcelPackage package, List<KetQuaTaiDieuKienDoKiem> doKiem, List<HieuChuanVeDieuKienLamviec> lamViec, ThongTinDuAn project, string sheetName = "Operating Condition")
         {
             try
             {
@@ -480,10 +517,10 @@ namespace TESMEA_TMS.Services
 
                 await FillThongTinChung(ws, project.ThongTinChung);
 
-                for (int i = 0; i < data.DanhSachketQuaTaiDieuKienDoKiem?.Count; i++)
+                for (int i = 0; i < doKiem.Count; i++)
                 {
-                    var item = data.DanhSachhieuChuanVeDieuKienLamviec?.ElementAtOrDefault(i);
-                    var item1 = data.DanhSachketQuaTaiDieuKienDoKiem?.ElementAtOrDefault(i);
+                    var item = lamViec.ElementAtOrDefault(i);
+                    var item1 = doKiem.ElementAtOrDefault(i);
                     ws.Cells[19, 4 + i].Value = item?.STT;
                     ws.Cells[20, 4 + i].Value = item?.LuuLuongLamViec_m3h;
                     ws.Cells[21, 4 + i].Value = item?.ApSuatTinhLamViec;
@@ -517,7 +554,7 @@ namespace TESMEA_TMS.Services
 
         }
 
-        public async Task ExportFullCondition(ExcelPackage package, KetQuaDoKiem data, ThongTinDuAn project)
+        public async Task ExportFullCondition(ExcelPackage package, List<KetQuaTaiDieuKienDoKiem> doKiem, List<HieuChuanVeDieuKienTieuChuan> tieuChuan, List<HieuChuanVeDieuKienLamviec> lamViec, ThongTinDuAn project, string sheetName = "Full")
         {
             try
             {
@@ -532,19 +569,19 @@ namespace TESMEA_TMS.Services
 
                 await FillThongTinChung(ws, project.ThongTinChung);
 
-                for (int i = 0; i < data.DanhSachketQuaTaiDieuKienDoKiem?.Count; i++)
+                for (int i = 0; i < doKiem.Count; i++)
                 {
-                    var item = data.DanhSachketQuaTaiDieuKienDoKiem?.ElementAtOrDefault(i);
+                    var item = doKiem.ElementAtOrDefault(i);
                     ws.Cells[20, 4 + i].Value = item?.HieuChinhLuuLuongTheTichTheoRPM;
                     ws.Cells[21, 4 + i].Value = item?.ApSuatTinh;
                     ws.Cells[22, 4 + i].Value = item?.CongSuatDongCoThucTe;
                     ws.Cells[23, 4 + i].Value = item?.HieuSuatTinh;
                 }
 
-                for (int i = 0; i < data.DanhSachketQuaTaiDieuKienDoKiem?.Count; i++)
+                for (int i = 0; i < doKiem.Count; i++)
                 {
-                    var item = data.DanhSachhieuChuanVeDieuKienTieuChuan?.ElementAtOrDefault(i);
-                    var item1 = data.DanhSachketQuaTaiDieuKienDoKiem?.ElementAtOrDefault(i);
+                    var item = tieuChuan.ElementAtOrDefault(i);
+                    var item1 = doKiem.ElementAtOrDefault(i);
 
                     ws.Cells[25, 4 + i].Value = item1?.HieuChinhLuuLuongTheTichTheoRPM;
                     ws.Cells[26, 4 + i].Value = item?.ApSuatTinhTieuChuan;
@@ -566,10 +603,10 @@ namespace TESMEA_TMS.Services
                     }
                 }
 
-                for (int i = 0; i < data.DanhSachketQuaTaiDieuKienDoKiem?.Count; i++)
+                for (int i = 0; i < doKiem.Count; i++)
                 {
-                    var item = data.DanhSachhieuChuanVeDieuKienLamviec?.ElementAtOrDefault(i);
-                    var item1 = data.DanhSachketQuaTaiDieuKienDoKiem?.ElementAtOrDefault(i);
+                    var item = lamViec.ElementAtOrDefault(i);
+                    var item1 = doKiem.ElementAtOrDefault(i);
                     ws.Cells[30, 4 + i].Value = item?.LuuLuongLamViec_m3h;
                     ws.Cells[31, 4 + i].Value = item?.ApSuatTinhLamViec;
                     ws.Cells[32, 4 + i].Value = item1?.CongSuatDongCoThucTe;

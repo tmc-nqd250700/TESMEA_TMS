@@ -307,13 +307,14 @@ namespace TESMEA_TMS.Services
                 }
                 if (exist.Item3 != null)
                 {
-                    exist.Item3.DuongKinhOngGio = ongGio.DuongKinhOngGio;
-                    exist.Item3.ChieuDaiOngGioSauQuat = ongGio.ChieuDaiOngGioSauQuat;
-                    exist.Item3.ChieuDaiOngGioTruocQuat = ongGio.ChieuDaiOngGioTruocQuat;
-                    exist.Item3.DuongKinhLoPhut = ongGio.DuongKinhLoPhut;
-                    exist.Item3.DuongKinhMiengQuat = ongGio.DuongKinhMiengQuat;
+                    exist.Item3.DuongKinhOngD5 = ongGio.DuongKinhOngD5;
                     exist.Item3.ChieuDaiConQuat = ongGio.ChieuDaiConQuat;
+                    exist.Item3.DuongKinhOngD3 = ongGio.DuongKinhOngD3;
+                    exist.Item3.DuongKinhLoPhut = ongGio.DuongKinhLoPhut;
                     exist.Item3.HeSoMaSat = ongGio.HeSoMaSat;
+                    exist.Item3.DuongKinhMiengQuat = ongGio.DuongKinhMiengQuat;
+                    exist.Item3.TietDienOngD5 = ongGio.TietDienOngD5;
+                    exist.Item3.TietDienOngD3 = ongGio.TietDienOngD3;
                     _dbContext.OngGios.Update(exist.Item3);
                 }
                 await _dbContext.SaveChangesAsync();

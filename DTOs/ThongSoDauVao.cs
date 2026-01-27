@@ -5,7 +5,7 @@
     {
         public ThongSoDuongOngGio ThongSoDuongOngGio { get; set; }
         public ThongSoCoBanCuaQuat ThongSoCoBanCuaQuat { get; set; }
-        public List<ThongSoDoKiem> DanhSachThongSoDoKiem { get; set; }
+        public List<Measure> DanhSachThongSoDoKiem { get; set; }
     }
     public class ThongSoDuongOngGio
     {
@@ -30,16 +30,16 @@
         public double NhietDoLamViec { get; set; }
     }
 
-    public class ThongSoDoKiem
-    {
-        public int KiemTraSo { get; set; }
-        public double NhietDoBauKho { get; set; }
-        public double DoAmTuongDoi { get; set; }
-        public double SoVongQuayNTT { get; set; }
-        public double ChenhLechApSuat { get; set; }
-        public double ApSuatTinh { get; set; }
-        public double DongLamViec { get; set; }
-        public double DienAp { get; set; }
-        public double TanSo { get; set; }
-    }
+    //public class ThongSoDoKiem
+    //{
+    //    public int KiemTraSo { get; set; }
+    //    public double NhietDoBauKho { get; set; }
+    //    public double DoAmTuongDoi { get; set; }
+    //    public double SoVongQuayNTT { get; set; }
+    //    public double ChenhLechApSuat { get; set; }
+    //    public double ApSuatTinh { get; set; }
+    //    public double DongLamViec { get; set; }
+    //    public double DienAp { get; set; }
+    //    public double TanSo { get; set; }
+    //}
 }

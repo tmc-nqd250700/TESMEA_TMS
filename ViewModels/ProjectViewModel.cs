@@ -337,6 +337,37 @@ namespace TESMEA_TMS.ViewModels
 
         private void ExecuteAddCalculationCommand(object parameter)
         {
+
+            var projectFolder = ThongTinDuAn.ThamSo.DuongDanLuuDuAn;
+            if (string.IsNullOrEmpty(projectFolder))
+            {
+                MessageBoxHelper.ShowWarning("Vui lòng chọn đường dẫn lưu dự án");
+                return;
+            }
+            if (!Directory.Exists(projectFolder))
+            {
+                MessageBoxHelper.ShowWarning("Thư mục lưu dự án không tồn tại");
+                return;
+            }
+
+            if (string.IsNullOrEmpty(ThongTinDuAn.ThamSo.KichBan))
+            {
+                MessageBoxHelper.ShowWarning("Vui lòng chọn kịch bản kiểm thử");
+                return;
+            }
+
+            if (string.IsNullOrEmpty(ThongTinDuAn.ThamSo.KieuKiemThu))
+            {
+                MessageBoxHelper.ShowWarning("Vui lòng chọn kiểu kiểm thử");
+                return;
+            }
+
+            if (string.IsNullOrEmpty(ThongTinDuAn.ThamSo.ThongSo))
+            {
+                MessageBoxHelper.ShowWarning("Vui lòng chọn thông số đo kiểm");
+                return;
+            }
+
             var locator = ((App)System.Windows.Application.Current).Resources["Locator"] as ViewModelLocator;
             if (locator != null)
             {

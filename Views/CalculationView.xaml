@@ -7,7 +7,7 @@
              xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
              xmlns:local="clr-namespace:TESMEA_TMS.Views"
              xmlns:lex="http://wpflocalizeextension.codeplex.com"
-            lex:LocalizeDictionary.DesignCulture="en"
+            lex:LocalizeDictionary.DesignCulture="vi"
             lex:ResxLocalizationProvider.DefaultAssembly="TESMEA_TMS"
             lex:ResxLocalizationProvider.DefaultDictionary="Strings"
              mc:Ignorable="d" 
@@ -25,7 +25,7 @@
             </Grid.RowDefinitions>
             <!-- Thông số cơ bản -->
             <UniformGrid Grid.Row="0" Columns="2">
-                <GroupBox Header="I.1 Thông số cơ bản của đường ống gió" Margin="5">
+                <GroupBox Header="Thông số cơ bản của đường ống gió" Margin="5">
                     <UniformGrid Columns="4" Rows="4" Margin="10">
                         <TextBlock Text="1. Đường kính ống D5 (mm):" VerticalAlignment="Center"/>
                         <TextBox Text="{Binding OngGio.DuongKinhOngD5, Mode=TwoWay}" Margin="0 5 10 0" IsReadOnly="True"/>
@@ -37,16 +37,16 @@
                         <TextBox Text="{Binding OngGio.DuongKinhOngGioD3, Mode=TwoWay}" Margin="0 5 10 0" IsReadOnly="True"/>
                         
                         <TextBlock Text="4. Tiết diện ống D5 (m2):" VerticalAlignment="Center"/>
-                        <TextBox IsReadOnly="True" Text="{Binding OngGio.TietDienOngD5, Mode=TwoWay}" Margin="0 5 0 0"/>
+                        <TextBox IsReadOnly="True" Text="{Binding OngGio.TietDienOngD5, Mode=TwoWay, StringFormat={}{0:N3}}" Margin="0 5 0 0"/>
                         
                         <TextBlock Text="5. Hệ số ma sát ống K:" VerticalAlignment="Center"/>
-                        <TextBox Text="{Binding OngGio.HeSoMaSatOngK}" Margin="0 5 10 0" IsReadOnly="True"/>
+                        <TextBox Text="{Binding OngGio.HeSoMaSatOngK, StringFormat={}{0:N3}}" Margin="0 5 10 0" IsReadOnly="True"/>
                         
                         <TextBlock Text="6. Tiết diện ống gió D3(m2):" VerticalAlignment="Center"/>
-                        <TextBox IsReadOnly="True" Text="{Binding OngGio.TietDienOngGioD3, Mode=TwoWay}" Margin="0 5 0 0"/>
+                        <TextBox IsReadOnly="True" Text="{Binding OngGio.TietDienOngGioD3, Mode=TwoWay, StringFormat={}{0:N3}}" Margin="0 5 0 0"/>
                     </UniformGrid>
                 </GroupBox>
-                <GroupBox Header="I.2 Thông số cơ bản của quạt" Margin="5">
+                <GroupBox Header="Thông số cơ bản của quạt" Margin="5">
                     <UniformGrid Columns="4" Rows="4" Margin="10">
                         <TextBlock Text="7. Số vòng quay của quạt NLT (rpm):" VerticalAlignment="Center" />
                         <TextBox Text="{Binding Quat.SoVongQuayCuaQuatNLT,Mode=TwoWay}" Margin="0 5 10 0" IsReadOnly="True"/>
@@ -71,7 +71,7 @@
             <Grid Grid.Row="1">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition />
                 </Grid.ColumnDefinitions>
                 
                 <GroupBox Grid.Column="0" Header="{lex:Loc groupbox_Report}" Margin="5" FontSize="13">
@@ -101,21 +101,18 @@
                         </StackPanel>
                     </StackPanel>
                 </GroupBox>
-                <GroupBox Grid.Column="1" Header="II. Thông số đo kiểm" Margin="5">
+                <GroupBox Grid.Column="1" Header="Thông số đo kiểm" Margin="5">
                     <DataGrid x:Name="dgvThongSoDoKiem"
                               ItemsSource="{Binding DanhSachThongSoDoKiem}"
-                               AutoGenerateColumns="False"
-                               CanUserAddRows="False"
-                               CanUserDeleteRows="False"
-                               CanUserReorderColumns="False"
-                               ColumnWidth="*"
-                               IsReadOnly="True"
+                              AutoGenerateColumns="False"
+                              CanUserAddRows="False"
+                              CanUserDeleteRows="False"
+                              CanUserReorderColumns="False"
+                              ColumnWidth="*"
+                              IsReadOnly="True"
                               AlternatingRowBackground="#F5F5F5"
-                            AlternationCount="2"
-                            FontSize="15"
-                              
-                              >
-
+                              AlternationCount="2"
+                              FontSize="15">
                         <DataGrid.Resources>
                             <Style TargetType="DataGridColumnHeader">
                                 <Setter Property="HorizontalContentAlignment" Value="Center"/>
@@ -135,14 +132,21 @@
                         </DataGrid.CellStyle>
 
                         <DataGrid.Columns>
-                            <DataGridTextColumn Header="Kiểm tra số" Binding="{Binding KiemTraSo}" IsReadOnly="True" Width="100"/>
-                            <DataGridTextColumn Header="Nhiệt độ bầu khô (oC)" Binding="{Binding NhietDoBauKho}"  Width="*"/>
-                            <DataGridTextColumn Header="Độ ẩm tương đối (%)" Binding="{Binding DoAmTuongDoi}"  Width="*"/>
-                            <DataGridTextColumn Header="Số vòng quay NTT (rpm)" Binding="{Binding SoVongQuayNTT}"  Width="*"/>
-                            <DataGridTextColumn Header="Chênh lệch áp suất (Pa)" Binding="{Binding ChenhLechApSuat}"  Width="*"/>
-                            <DataGridTextColumn Header="Áp suất tĩnh (Pa)" Binding="{Binding ApSuatTinh}"  Width="*"/>
-                            <DataGridTextColumn Header="Dòng làm việc (A)" Binding="{Binding DongLamViec}"  Width="*"/>
-                            <DataGridTextColumn Header="Điện áp (V)" Binding="{Binding DienAp}"  Width="*"/>
+                            <DataGridTextColumn Header="Kiểm tra số" Binding="{Binding k}" IsReadOnly="True" Width="100"/>
+                            <DataGridTextColumn Header="Nhiệt độ bầu khô (ºC)" Binding="{Binding NhietDoMoiTruong_sen}"  />
+                            <DataGridTextColumn Header="Độ ẩm tương đối (%)" Binding="{Binding DoAm_sen}"  />
+                            <DataGridTextColumn Header="Áp suất khí quyển (Pa)" Binding="{Binding ApSuatkhiQuyen_sen}"  />
+                            <DataGridTextColumn Header="Chênh lệch áp suất (Pa)" Binding="{Binding ChenhLechApSuat_sen}"  />
+                            <DataGridTextColumn Header="Áp suất tĩnh (Pa)" Binding="{Binding ApSuatTinh_sen}"  />
+                            <DataGridTextColumn Header="Độ rung" Binding="{Binding DoRung_sen}"  />
+                            <DataGridTextColumn Header="Độ ồn" Binding="{Binding DoOn_sen}"  />
+                            <DataGridTextColumn Header="Số vòng quay NTT (rpm)" Binding="{Binding SoVongQuay_sen}"  />
+                            <DataGridTextColumn Header="Momen xoắn" Binding="{Binding Momen_sen}"  />
+                            <DataGridTextColumn Header="Dòng làm việc (A)" Binding="{Binding DongDien_fb}"  />
+                            <DataGridTextColumn Header="Phản hồi công suất (kW)" Binding="{Binding CongSuat_fb}"  />
+                            <DataGridTextColumn Header="Phản hồi vị trí van (%)" Binding="{Binding ViTriVan_fb}"  />
+                            <DataGridTextColumn Header="Điện áp (V)" Binding="{Binding DienAp_fb}"  />
+                            <DataGridTextColumn Header="Phản hồi tần số (Hz)" Binding="{Binding TanSo_fb}"  />
                         </DataGrid.Columns>
                     </DataGrid>
                 </GroupBox>

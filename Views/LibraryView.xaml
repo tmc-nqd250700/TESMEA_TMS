@@ -16,124 +16,139 @@
     <Grid Margin="20" Background="Transparent">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         <GroupBox Grid.Row="0" Header="{Binding CurrentParameter.LibName, Mode=OneWay}" d:Header="Tên library">
-            
             <Grid Grid.Row="0" IsEnabled="{Binding IsParameterSelected, Mode=OneWay}" Margin="5">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="1.5*" />
-            </Grid.ColumnDefinitions>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
-            <GroupBox Grid.Row="0" Grid.Column="0" Header="{lex:Loc groupbox_Inverter}" FontSize="13">
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                    </Grid.RowDefinitions>
-                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Điện áp vào (V)" VerticalAlignment="Center" Margin="10 0 5 0"/>
-                    <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding BienTan.DienApVao, Mode=TwoWay}" />
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="1.5*" />
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <GroupBox Grid.Row="0" Grid.Column="0" Header="{lex:Loc groupbox_Inverter}" FontSize="13">
+                    <Grid IsEnabled="False">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="100"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="100"/>
+                        </Grid.ColumnDefinitions>
 
-                    <TextBlock Grid.Row="1" Grid.Column="0" Text="Dòng điện vào (A)" VerticalAlignment="Center" Margin="10 0 5 0"/>
-                    <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding BienTan.DongDienVao, Mode=TwoWay}"/>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
 
-                    <TextBlock Grid.Row="2" Grid.Column="0" Text="Tần số vào (Hz)" VerticalAlignment="Center" Margin="10 0 5 0"/>
-                    <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding BienTan.TanSoVao, Mode=TwoWay}"/>
+                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Điện áp vào (V)" VerticalAlignment="Center" Margin="10 0 5 0"/>
+                        <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding BienTan.DienApVao, Mode=OneWay}" />
+                        <TextBlock Grid.Row="0" Grid.Column="2" Text="Điện áp ra (V)" VerticalAlignment="Center" Margin="10 0 5 0"/>
+                        <TextBox Grid.Row="0" Grid.Column="3" Text="{Binding BienTan.DienApRa, Mode=OneWay}"  />
 
-                    <TextBlock Grid.Row="3" Grid.Column="0" Text="Công suất vào (kVA)" VerticalAlignment="Center" Margin="10 0 5 0"/>
-                    <TextBox Grid.Row="3" Grid.Column="1" Text="{Binding BienTan.CongSuatVao, Mode=TwoWay}" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Dòng điện vào (A)" VerticalAlignment="Center" Margin="10 0 5 0"/>
+                        <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding BienTan.DongDienVao, Mode=OneWay}"  />
+                        <TextBlock Grid.Row="1" Grid.Column="2" Text="Dòng điện ra (A)" VerticalAlignment="Center" Margin="10 0 5 0"/>
+                        <TextBox Grid.Row="1" Grid.Column="3" Text="{Binding BienTan.DongDienRa, Mode=OneWay}"  />
 
-                    <TextBlock Grid.Row="0" Grid.Column="2" Text="Điện áp ra (V)" VerticalAlignment="Center" Margin="10 0 5 0"/>
-                    <TextBox Grid.Row="0" Grid.Column="3" Text="{Binding BienTan.DienApRa, Mode=TwoWay}"/>
+                        <TextBlock Grid.Row="2" Grid.Column="0" Text="Tần số vào (Hz)" VerticalAlignment="Center" Margin="10 0 5 0"/>
+                        <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding BienTan.TanSoVao, Mode=OneWay}"  />
+                        <TextBlock Grid.Row="2" Grid.Column="2" Text="Tần số ra (Hz)" VerticalAlignment="Center" Margin="10 0 5 0"/>
+                        <TextBox Grid.Row="2" Grid.Column="3" Text="{Binding BienTan.TanSoRa, Mode=OneWay}"  />
 
-                    <TextBlock Grid.Row="1" Grid.Column="2" Text="Dòng điện ra (A)" VerticalAlignment="Center" Margin="10 0 5 0"/>
-                    <TextBox Grid.Row="1" Grid.Column="3" Text="{Binding BienTan.DongDienRa, Mode=TwoWay}"/>
+                        <TextBlock Grid.Row="3" Grid.Column="0" Text="Công suất vào (kVA)" VerticalAlignment="Center" Margin="10 0 5 0"/>
+                        <TextBox Grid.Row="3" Grid.Column="1" Text="{Binding BienTan.CongSuatVao, Mode=OneWay}"  />
+                        <TextBlock Grid.Row="3" Grid.Column="2" Text="Công suất tổng ra (kVA)" TextWrapping="Wrap" VerticalAlignment="Center" Margin="10 0 5 0"/>
+                        <TextBox Grid.Row="3" Grid.Column="3" Text="{Binding BienTan.CongSuatTongRa, Mode=OneWay}"  />
 
-                    <TextBlock Grid.Row="2" Grid.Column="2" Text="Tần số ra (Hz)" VerticalAlignment="Center" Margin="10 0 5 0"/>
-                    <TextBox Grid.Row="2" Grid.Column="3" Text="{Binding BienTan.TanSoRa, Mode=TwoWay}"/>
+                        <TextBlock Grid.Row="4" Grid.Column="0" Text="Hiệu suất bộ truyền (%)" VerticalAlignment="Center" Margin="10 0 5 0"/>
+                        <TextBox Grid.Row="4" Grid.Column="1" Text="{Binding BienTan.HieuSuatBoTruyen, Mode=OneWay}"  />
 
-                    <TextBlock Grid.Row="3" Grid.Column="2" Text="Công suất tổng ra (kVA)" TextWrapping="Wrap"  VerticalAlignment="Center" Margin="10 0 5 0"/>
-                    <TextBox Grid.Row="3" Grid.Column="3" Text="{Binding BienTan.CongSuatTongRa, Mode=TwoWay}" VerticalAlignment="Center"/>
-                    
-                    <TextBlock Grid.Row="4" Grid.Column="2" Text="Công suất hiệu dụng ra (kVA)" TextWrapping="Wrap" VerticalAlignment="Center" Margin="10 0 5 0"/>
-                    <TextBox Grid.Row="4" Grid.Column="3" Text="{Binding BienTan.CongSuatHieuDungRa, Mode=TwoWay}" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Row="4" Grid.Column="2" Text="Công suất hiệu dụng ra (kVA)" TextWrapping="Wrap" VerticalAlignment="Center" Margin="10 0 5 0"/>
+                        <TextBox Grid.Row="4" Grid.Column="3" Text="{Binding BienTan.CongSuatHieuDungRa, Mode=OneWay}"  />
 
-                    <TextBlock Grid.Row="4" Grid.Column="0" Text="Hiệu suất bộ truyền (%)" TextWrapping="Wrap" VerticalAlignment="Center" Margin="10 0 5 0"/>
-                    <TextBox Grid.Row="4" Grid.Column="1" Text="{Binding BienTan.HieuSuatBoTruyen, Mode=TwoWay}" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Row="5" Grid.Column="0" Text="Hiệu suất của khớp nối trục đàn hồi (%)" TextWrapping="Wrap" VerticalAlignment="Center" Margin="10 0 5 0"/>
+                        <TextBox Grid.Row="5" Grid.Column="1" Text="{Binding BienTan.HieuSuatNoiTruc, Mode=OneWay}"  />
 
-                    <TextBlock Grid.Row="5" Grid.Column="0" Text="Hiệu suất của khớp nối trục đàn hồi (%)" TextWrapping="Wrap" VerticalAlignment="Center" Margin="10 0 5 0"/>
-                    <TextBox Grid.Row="5" Grid.Column="1" Text="{Binding BienTan.HieuSuatNoiTruc, Mode=TwoWay}" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Row="5" Grid.Column="2" Text="Công suất gối trục (%)" TextWrapping="Wrap" VerticalAlignment="Center" Margin="10 0 5 0"/>
+                        <TextBox Grid.Row="5" Grid.Column="3" Text="{Binding BienTan.HieuSuatGoiTruc, Mode=OneWay}"  />
+                    </Grid>
+                </GroupBox>
+                <GroupBox Header="{lex:Loc groupbox_Duct}" Grid.Column="0" Grid.Row="1" FontSize="13">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="100"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="100"/>
+                        </Grid.ColumnDefinitions>
 
-                    <TextBlock Grid.Row="5" Grid.Column="2" Text="Hiệu suất gối trục (%)" TextWrapping="Wrap" VerticalAlignment="Center" Margin="10 0 5 0"/>
-                    <TextBox Grid.Row="5" Grid.Column="3" Text="{Binding BienTan.HieuSuatGoiTruc, Mode=TwoWay}" VerticalAlignment="Center"/>
-                </Grid>
-            </GroupBox>
-            <GroupBox Header="{lex:Loc groupbox_Duct}" Grid.Row="1" FontSize="13">
-                <UniformGrid Rows="4" Columns="4">
-                    <TextBlock Text="Đường kính ống gió" VerticalAlignment="Center" Margin="10 0 5 0"/>
-                    <TextBox Text="{Binding OngGio.DuongKinhOngGio, Mode=TwoWay}" />
-                    <TextBlock Text="Đường kính lỗ phụt" VerticalAlignment="Center" Margin="10 0 5 0"/>
-                    <TextBox Text="{Binding OngGio.DuongKinhLoPhut, Mode=TwoWay}" />
-                    
-                    <TextBlock Text="Chiều dài ống gió sau quạt" VerticalAlignment="Center" Margin="10 0 5 0"/>
-                    <TextBox Text="{Binding OngGio.ChieuDaiOngGioSauQuat, Mode=TwoWay}" />
-                    <TextBlock Text="Chiều dài ống gió trước quạt" VerticalAlignment="Center" Margin="10 0 5 0"/>
-                    <TextBox Text="{Binding OngGio.ChieuDaiOngGioTruocQuat, Mode=TwoWay}" />
-                    
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
 
-                    <TextBlock Text="Đường kính miệng quạt" VerticalAlignment="Center" Margin="10 0 5 0"/>
-                    <TextBox Text="{Binding OngGio.DuongKinhMiengQuat, Mode=TwoWay}" />
+                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Đường kính ống D5" VerticalAlignment="Center" Margin="10 0 5 0"/>
+                        <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding OngGio.DuongKinhOngD5, Mode=TwoWay}" />
 
-                    <TextBlock Text="Chiều dài côn quạt" VerticalAlignment="Center" Margin="10 0 5 0"/>
-                    <TextBox Text="{Binding OngGio.ChieuDaiConQuat, Mode=TwoWay}" />
-                    
-                    <TextBlock Text="Hệ số ma sát" VerticalAlignment="Center" Margin="10 0 5 0"/>
-                    <TextBox Text="{Binding OngGio.HeSoMaSat, Mode=TwoWay}" />
-                </UniformGrid>
-            </GroupBox>
+                        <TextBlock Grid.Row="0" Grid.Column="2" Text="Chiều dài côn quạt" VerticalAlignment="Center" Margin="10 0 5 0"/>
+                        <TextBox Grid.Row="0" Grid.Column="3" Text="{Binding OngGio.ChieuDaiConQuat, Mode=TwoWay}" />
 
-            <GroupBox Grid.Column="2" Grid.Row="0" Grid.RowSpan="3" Header="{lex:Loc groupbox_Sensor}" FontSize="13">
-                <Grid Margin="5 10 0 5">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="2*"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                    </Grid.RowDefinitions>
+                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Đường kính ống D3" VerticalAlignment="Center" Margin="10 0 5 0"/>
+                        <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding OngGio.DuongKinhOngD3, Mode=TwoWay}" />
+
+                        <TextBlock Grid.Row="1" Grid.Column="2" Text="Đường kính lỗ phụt" VerticalAlignment="Center" Margin="10 0 5 0"/>
+                        <TextBox Grid.Row="1" Grid.Column="3" Text="{Binding OngGio.DuongKinhLoPhut, Mode=TwoWay}" />
+
+                        <TextBlock Grid.Row="2" Grid.Column="0" Text="Tiết diện ống D5" VerticalAlignment="Center" Margin="10 0 5 0"/>
+                        <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding OngGio.TietDienOngD5, Mode=TwoWay, StringFormat={}{0:N3}}" />
+
+                        <TextBlock Grid.Row="2" Grid.Column="2" Text="Hệ số ma sát" VerticalAlignment="Center" Margin="10 0 5 0"/>
+                        <TextBox Grid.Row="2" Grid.Column="3" Text="{Binding OngGio.HeSoMaSat, Mode=TwoWay}" />
+
+                        <TextBlock Grid.Row="3" Grid.Column="0" Text="Tiết diện ống D3" VerticalAlignment="Center" Margin="10 0 5 0"/>
+                        <TextBox Grid.Row="3" Grid.Column="1" Text="{Binding OngGio.TietDienOngD3, Mode=TwoWay, StringFormat={}{0:N3}}" />
+
+                        <TextBlock Grid.Row="3" Grid.Column="2" Text="Đường kính miệng quạt" VerticalAlignment="Center" Margin="10 0 5 0"/>
+                        <TextBox Grid.Row="3" Grid.Column="3" Text="{Binding OngGio.DuongKinhMiengQuat, Mode=TwoWay}" />
+                    </Grid>
+                </GroupBox>
+                <GroupBox Grid.Column="1" Grid.Row="0" Grid.RowSpan="3" Header="{lex:Loc groupbox_Sensor}" FontSize="13">
+                    <Grid Margin="5 10 0 5">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="100"/>
+                            <ColumnDefinition Width="100"/>
+                            <ColumnDefinition Width="100"/>
+                            <ColumnDefinition Width="100"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
                         <TextBlock Grid.Row="0" Grid.Column="0" Text="{lex:Loc lbl_Sensor_range}" VerticalAlignment="Center" Margin="10 0 5 0" FontWeight="SemiBold"/>
                         <TextBlock Grid.Row="0" Grid.Column="1" Text="Nhập tay" VerticalAlignment="Center" Margin="10 0 5 5" FontWeight="SemiBold" HorizontalAlignment="Center"/>
                         <TextBlock Grid.Row="0" Grid.Column="2" Text="Value" VerticalAlignment="Center" Margin="10 0 5 5" FontWeight="SemiBold" HorizontalAlignment="Center"/>
@@ -238,11 +253,14 @@
                         <TextBox Grid.Row="14" Grid.Column="3" Margin="10 0 5 0" Text="{Binding CamBien.PhanHoiTanSoMin, Mode=TwoWay}" IsEnabled="{Binding IsChecked, ElementName=chkImportPhanHoiTanSo, Converter={StaticResource BooleanNegationConverter}}"/>
                         <TextBox Grid.Row="14" Grid.Column="4" Margin="10 0 5 0" Text="{Binding CamBien.PhanHoiTanSoMax, Mode=TwoWay}" IsEnabled="{Binding IsChecked, ElementName=chkImportPhanHoiTanSo, Converter={StaticResource BooleanNegationConverter}}"/>
                     </Grid>
-            </GroupBox>
-        </Grid>
+                </GroupBox>
+            </Grid>
         </GroupBox>
-
-            <DataGrid Grid.Row="1" Margin="0 5"
+        
+        <md:PackIcon Grid.Row="1" Kind="ArrowUpBold" Width="40" Height="40" Foreground="DodgerBlue" VerticalAlignment="Center" Margin="10" HorizontalAlignment="Center"/>
+        
+        <DataGrid Grid.Row="2" 
+                  Margin="0 5"
                   ItemsSource="{Binding InputParameters}"
                   SelectedItem="{Binding CurrentParameter, Mode=TwoWay}"
                   Background="White" 
@@ -261,8 +279,7 @@
                   VerticalScrollBarVisibility="Auto"
                   AlternatingRowBackground="#F5F5F5"
                   AlternationCount="2"
-                  FontSize="15">
-                
+                  FontSize="14">
                 <DataGrid.Resources>
                     <Style TargetType="DataGridColumnHeader">
                         <Setter Property="HorizontalContentAlignment" Value="Center"/>
@@ -424,9 +441,8 @@
                     <DataGridTextColumn Header="{lex:Loc col_Modified_user}" Binding="{Binding ModifiedUser}" IsReadOnly="True" Width="200"/>
                 </DataGrid.Columns>
             </DataGrid>
-       
 
-        <StackPanel Grid.Row="2" Margin="20 10 15 10" VerticalAlignment="Bottom" HorizontalAlignment="Right">
+        <StackPanel Grid.Row="3" Margin="20 10 15 10" VerticalAlignment="Bottom" HorizontalAlignment="Right">
             <Border Padding="5">
                 <StackPanel Orientation="Horizontal" Background="White">
                     <Button 

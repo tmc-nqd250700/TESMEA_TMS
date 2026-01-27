@@ -32,8 +32,8 @@ namespace TESMEA_TMS.ViewModels
                 OnPropertyChanged(nameof(Quat));
             }
         }
-        private ObservableCollection<ThongSoDoKiem> _danhSachThongSoDoKiem;
-        public ObservableCollection<ThongSoDoKiem> DanhSachThongSoDoKiem
+        private ObservableCollection<Measure> _danhSachThongSoDoKiem;
+        public ObservableCollection<Measure> DanhSachThongSoDoKiem
         {
             get => _danhSachThongSoDoKiem;
             set
@@ -73,7 +73,7 @@ namespace TESMEA_TMS.ViewModels
 
             OngGio = new ThongSoDuongOngGio();
             Quat = new ThongSoCoBanCuaQuat();
-            DanhSachThongSoDoKiem = new ObservableCollection<ThongSoDoKiem>();
+            DanhSachThongSoDoKiem = new ObservableCollection<Measure>();
             ReportTemplates = new ObservableCollection<ComboBoxInfo>();
             ReportTemplates.Add(new ComboBoxInfo("DESIGN", IsEn ? "Design condition" : "Điều kiện thiết kế"));
             ReportTemplates.Add(new ComboBoxInfo("NORMALIZED", IsEn ? "Normalized condition" : "Điều kiện tiêu chuẩn"));
@@ -141,7 +141,7 @@ namespace TESMEA_TMS.ViewModels
                 {
                     OngGio = importResult.ThongSoDuongOngGio;
                     Quat = importResult.ThongSoCoBanCuaQuat;
-                    DanhSachThongSoDoKiem = new ObservableCollection<ThongSoDoKiem>(importResult.DanhSachThongSoDoKiem);
+                    DanhSachThongSoDoKiem = new ObservableCollection<Measure>(importResult.DanhSachThongSoDoKiem);
                 }
             }
         }

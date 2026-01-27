@@ -56,9 +56,8 @@ namespace TESMEA_TMS.DTOs
         public float HieuSuatDongCo { get; set; } = 100;
         public float DongDienDinhMucCuaDongCo { get; set; } = 21.5f;
         public float DienApDongCo { get; set; } = 390;
-
+        public float DoNhotKhongKhi { get; set; } = 1.83e-5f; // độ nhớt không khí
         // add
-        public float TocDoDongCo { get; set; } // tốc độ động cơ
         public string HangDongCo { get; set; } = "HEM"; // hãng động cơ
     }
 

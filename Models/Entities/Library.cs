@@ -146,13 +146,20 @@ namespace TESMEA_TMS.Models.Entities
     {
         [Key]
         public Guid LibId { get; set; }
-        public float DuongKinhOngGio { get; set; } // đường kính ống gió
-        public float ChieuDaiOngGioSauQuat { get; set; } // %
-        public float ChieuDaiOngGioTruocQuat { get; set; } // %
-        public float DuongKinhLoPhut { get; set; } // Đường kính lỗ phụt
 
+        public float DuongKinhOngD5 { get; set; } // Đường kính ống D5
+        public float ChieuDaiConQuat { get; set; } // Chiều dài ống gió tổn thất L
+        public float DuongKinhOngD3 { get; set; } // Đường kính ống D3
+        public float DuongKinhLoPhut { get; set; } // Đường kính lỗ phụt
+        public float HeSoMaSat { get; set; } = 0.025f; // Hệ số ma sát ống K
         public float DuongKinhMiengQuat { get; set; }
-        public float ChieuDaiConQuat { get; set; }
-        public float HeSoMaSat { get; set; } = 0.025f;
+        public float TietDienOngD5 { get; set; } // Tiết diện ống D5
+        public float TietDienOngD3 { get; set; } // Tiết diện ống gió D3
+
+
+        //public float DuongKinhOngGio { get; set; } // đường kính ống gió
+        //public float ChieuDaiOngGioSauQuat { get; set; } // %
+        //public float ChieuDaiOngGioTruocQuat { get; set; } // %
+        
     }
 }

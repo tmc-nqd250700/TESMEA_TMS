@@ -302,7 +302,7 @@ namespace TESMEA_TMS.Helpers
                 float e_botruyen = inv.HieuSuatBoTruyen;
 
                 // thông số ống gió và van điều khiển
-                float D5 = duct.DuongKinhOngGio;
+                float D5 = duct.DuongKinhOngD5;
                 float d = duct.DuongKinhMiengQuat;
                 float L34 = duct.ChieuDaiConQuat;
 
@@ -345,7 +345,8 @@ namespace TESMEA_TMS.Helpers
                 LogCalculation($"Hiệu suất tổng e_Total: {e_Total}");
                 L1_3 = 3 * D5 + L34;
                 LogCalculation($"Chiều dài tổn thất L1_3: {L1_3}");
-                D3 = D5;
+                //D3 = D5;
+                D3 = duct.DuongKinhOngD5;
                 LogCalculation($"Đường kính ống tại điểm đo áp suất tĩnh D3: {D3}");
                 //// Công suất tiêu thụ
                 ////Delta inv
@@ -791,7 +792,7 @@ namespace TESMEA_TMS.Helpers
             float CosPhi = input.HeSoCongSuatDongCo;
 
             // thông số ống gió và van điều khiển
-            float D5 = duct.DuongKinhOngGio;
+            float D5 = duct.DuongKinhOngD5;
             float d = duct.DuongKinhMiengQuat;
             float L34 = duct.ChieuDaiConQuat;
 
@@ -821,7 +822,8 @@ namespace TESMEA_TMS.Helpers
 
             // Tính toán đầu
             L1_3 = 3 * D5 + L34;
-            D3 = D5;
+            //D3 = D5;
+            D3 = duct.DuongKinhOngD3;
 
             // Bước 1: Tính toán khối lượng riêng không khí tại khu vực đo kiểm 'rhoa'
             // Nhiệt độ bầu ướt

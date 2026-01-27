@@ -24,6 +24,7 @@
             <hp:StatusToColorConverter x:Key="StatusToColorConverter"/>
             <hp:BooleanReverseConverter x:Key="BooleanReverseConverter"/>
             <hp:BooleanNegationConverter x:Key="BooleanNegationConverter"/>
+            <hp:ZeroToVisibilityConverter x:Key="ZeroToVisibilityConverter"/>
             <DataTemplate DataType="{x:Type vm:ProgressSplashViewModel}">
                 <cctrl:ProgressSplashContent />
             </DataTemplate>

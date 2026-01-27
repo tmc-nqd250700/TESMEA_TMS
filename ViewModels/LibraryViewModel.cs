@@ -1,5 +1,4 @@
-﻿using DocumentFormat.OpenXml.Spreadsheet;
-using OfficeOpenXml;
+﻿using OfficeOpenXml;
 using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Input;
@@ -389,10 +388,10 @@ namespace TESMEA_TMS.ViewModels
                         var ongGio = new OngGioDto
                         {
                             LibId = CurrentParameter?.LibId ?? Guid.Empty,
-                            DuongKinhOngGio = GetCellValue(ductSheet, "B2"),
-                            ChieuDaiOngGioTruocQuat = GetCellValue(ductSheet, "B3"),
-                            ChieuDaiOngGioSauQuat = GetCellValue(ductSheet, "B4"),
-                            DuongKinhLoPhut = GetCellValue(ductSheet, "B5"),
+                            //DuongKinhOngGio = GetCellValue(ductSheet, "B2"),
+                            //ChieuDaiOngGioTruocQuat = GetCellValue(ductSheet, "B3"),
+                            //ChieuDaiOngGioSauQuat = GetCellValue(ductSheet, "B4"),
+                            //DuongKinhLoPhut = GetCellValue(ductSheet, "B5"),
                         };
 
                         BienTan = bienTan;
@@ -595,6 +594,10 @@ namespace TESMEA_TMS.ViewModels
             }
         }
 
+      
+       
+
+       
         #endregion
     }
 }
