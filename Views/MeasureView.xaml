@@ -99,7 +99,7 @@
                     <StackPanel>
                         <UniformGrid Columns="3">
                             <Button Content="CONNECT" Margin="0 0 5 5" Command="{Binding ConnectCommand}" Padding="0"/>
-                            <Button Content="CONNECT_2" Margin="0 0 5 5" Command="{Binding ConnectCommand2}" Padding="0"/>
+                            <!--<Button Content="CONNECT_2" Margin="0 0 5 5" Command="{Binding ConnectCommand2}" Padding="0"/>-->
                             <Button Content="START" Margin="0 0 5 5" Command="{Binding StartCommand}"/>
                             <Button Content="E-STOP" Margin="0 0 5 5" Style="{StaticResource ForceStopButtonStyle}" Command="{Binding StopCommand}" Padding="0"/>
                             <Button Content="TREND" Margin="0 0 5 5" Command="{Binding TrendCommand}"/>

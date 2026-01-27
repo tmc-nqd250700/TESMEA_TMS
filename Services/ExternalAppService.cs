@@ -15,7 +15,7 @@ namespace TESMEA_TMS.Services
         Task StartAppAsync();
         Task StopAppAsync();
         Task<bool> ConnectExchangeAsync(List<Measure> measures, BienTan inv, CamBien sensor, OngGio duct, ThongTinMauThuNghiem input, float maxmin, float timeRange);
-        Task<bool> ConnectExchangeAsync(Measure measure, float timeRange);
+        //Task<bool> ConnectExchangeAsync(float timeRange);
         Task StartExchangeAsync();
         Task StopExchangeAsync();
         void WriteTomfanLog(string message);
@@ -308,9 +308,14 @@ namespace TESMEA_TMS.Services
 
                 _simaticResults.Clear();
                 WriteTomfanLog($"Step: Kiểm tra kết nối qua dòng đầu tiên.");
+                //var m = new Measure
+                //{
+                //    k = 1,
+                //    S = 0,
+                //    CV = 0
+                //};
 
-
-                var m = measures.First();
+                var m = _measures[0];
                 WriteTomfanLog($"Connect - Thử dòng k={m.k}: Ghi file và chờ WinCC phản hồi...");
                 await WriteDataToFilesAsync(m, maxmin);
 
@@ -324,8 +329,8 @@ namespace TESMEA_TMS.Services
 
                 m.F = MeasureStatus.Completed;
                 WriteTomfanLog($"Connect - Dòng k={m.k} THÀNH CÔNG");
-                _currentIndex = m.k;
-                return true;
+                //_currentIndex = m.k;
+                return await ConnectExchangeAsync(timeRange);
             }
             catch (Exception ex)
             {
@@ -335,34 +340,36 @@ namespace TESMEA_TMS.Services
         }
 
         // kết nối dòng 2
-        public async Task<bool> ConnectExchangeAsync(Measure measure, float timeRange)
+        public async Task<bool> ConnectExchangeAsync(float timeRange)
         {
             try
             {
-                WriteTomfanLog("========== BẮT ĐẦU QUY TRÌNH KẾT NỐI ==========");
-                if (!Directory.Exists(_exchangeFolder))
+                //var measure = new Measure
+                //{
+                //    k = 2,
+                //    S = 0,
+                //    CV = 0
+                //};
+
+                var m = _measures[1];
+
+                WriteTomfanLog($"Connect - Thử dòng k={m.k}: Ghi file và chờ WinCC phản hồi...");
+                await WriteDataToFilesAsync(m, timeRange);
+
+                var result = await WaitForResultAsync(m.k, isConnection: true);
+                if (result == null || Math.Abs(result.S - m.S) > 0.01)
                 {
-                    WriteTomfanLog($"Thư mục trao đổi không tồn tại: {_exchangeFolder}");
-                    throw new BusinessException("Thư mục trao đổi dữ liệu với Simatic không tồn tại");
+                    string errorMsg = result == null ? "Timeout (Không có phản hồi)" : $"Dữ liệu không khớp (S_gửi={m.S}, S_nhận={result.S})";
+                    WriteTomfanLog($"Kết nối thất bại tại dòng k={m.k}: {errorMsg}");
+                    throw new Exception($"Không thể kết nối. Dòng {m.k} lỗi: {errorMsg}");
                 }
 
-                WriteTomfanLog($"Connect - Thử dòng k={measure.k}: Ghi file và chờ WinCC phản hồi...");
-                await WriteDataToFilesAsync(measure, timeRange);
-
-                var result = await WaitForResultAsync(measure.k, isConnection: true);
-                if (result == null || Math.Abs(result.S - measure.S) > 0.01)
-                {
-                    string errorMsg = result == null ? "Timeout (Không có phản hồi)" : $"Dữ liệu không khớp (S_gửi={measure.S}, S_nhận={result.S})";
-                    WriteTomfanLog($"Kết nối thất bại tại dòng k={measure.k}: {errorMsg}");
-                    throw new Exception($"Không thể kết nối. Dòng {measure.k} lỗi: {errorMsg}");
-                }
-
-                measure.F = MeasureStatus.Completed;
-                WriteTomfanLog($"Connect - Dòng k={measure.k} THÀNH CÔNG. Nghỉ 5s chờ WinCC sẵn sàng...");
+                m.F = MeasureStatus.Completed;
+                WriteTomfanLog($"Connect - Dòng k={m.k} THÀNH CÔNG. Nghỉ 5s chờ WinCC sẵn sàng...");
                 DataProcess.Initialize(_measures.Count);
                 IsConnectedToSimatic = true;
                 OnSimaticConnectionChanged?.Invoke(true);
-                _currentIndex = measure.k;
+                //_currentIndex = measure.k;
                 WriteTomfanLog("Đã thiết lập kết nối với Simatic thành công.");
                 return true;
             }
@@ -394,9 +401,9 @@ namespace TESMEA_TMS.Services
                 //int sIndex = 0;
                 //int cvIndex = 0;
                 double currentS = _measures[_currentIndex].S;
-                int startIndex = 2; // track index của điểm bắt đầu trong dải đo
+                int startIndex = 0;
                 int timeoutMs = UserSetting.Instance.TimeoutMilliseconds;
-                
+
                 for (int i = _currentIndex; i < _measures.Count; i++)
                 {
                     _currentIndex = _measures[i].k;
@@ -443,7 +450,7 @@ namespace TESMEA_TMS.Services
                             //sIndex++;
                             //cvIndex = 0;
                         }
-                        
+
                         //string fileName = $"{sIndex}{cvIndex}.csv";
                         //string filePath = Path.Combine(_trendFolder, fileName);
                         ////using (var fs = File.Create(filePath)) { }
@@ -700,7 +707,7 @@ namespace TESMEA_TMS.Services
                 // 1. nhiệt độ môi trường
                 m.NhietDoMoiTruong_sen = _sensor.IsImportNhietDoMoiTruong
                     ? _sensor.NhietDoMoiTruongValue
-                    : CalcSimatic(_sensor.NhietDoMoiTruongMin, _sensor.NhietDoMoiTruongMax, GetContinuousAverage(x=>x.NhietDoMoiTruong_sen, "Nhiệt độ môi trường"));
+                    : CalcSimatic(_sensor.NhietDoMoiTruongMin, _sensor.NhietDoMoiTruongMax, GetContinuousAverage(x => x.NhietDoMoiTruong_sen, "Nhiệt độ môi trường"));
 
                 // 2. độ ẩm
                 m.DoAm_sen = _sensor.IsImportDoAmMoiTruong
@@ -937,7 +944,7 @@ namespace TESMEA_TMS.Services
                                             m = CalculateTrendData(m.S, m.CV, m.k);
                                         }
                                     }
-                                    
+
                                     return m;
                                 }
                             }

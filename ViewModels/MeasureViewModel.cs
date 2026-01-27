@@ -131,7 +131,7 @@ namespace TESMEA_TMS.ViewModels
 
         // Commands
         public ICommand ConnectCommand { get; }
-        public ICommand ConnectCommand2 { get; }
+        //public ICommand ConnectCommand2 { get; }
         public ICommand StartCommand { get; }
         public ICommand StopCommand { get; }
         public ICommand ResetCommand { get; }
@@ -186,7 +186,7 @@ namespace TESMEA_TMS.ViewModels
             SelectedReportTemplate.Value = ReportTemplates[0].Value;
 
             ConnectCommand = new ViewModelCommand(CanConnect, ExecuteConnectCommand);
-            ConnectCommand2 = new ViewModelCommand(CanConnect2, ExecuteConnectCommand2);
+            //ConnectCommand2 = new ViewModelCommand(CanConnect2, ExecuteConnectCommand2);
 
             StartCommand = new ViewModelCommand(CanStart, ExecuteStartCommand);
             StopCommand = new ViewModelCommand(CanStop, ExecuteStopCommand);
@@ -451,45 +451,45 @@ namespace TESMEA_TMS.ViewModels
         private bool CanReset(object obj) => _isCompleted && !_isMeasuring;
         private bool CanTrend(object obj) => SelectedMeasure != null && (TrendLineDialog == null || !TrendLineDialog.IsLoaded);
 
-        private async void ExecuteConnectCommand2(object obj)
-        {
-            var splashViewModel = new ProgressSplashViewModel
-            {
-                Message = "Đang kiểm tra kết nối với Simatic...",
-                IsIndeterminate = true
-            };
-            var splash = new Views.CustomControls.ProgressSplashContent { DataContext = splashViewModel };
-            var dialogTask = DialogHost.Show(splash, "MainDialogHost");
-            try
-            {
-                if (!MeasureRows.Where(x => x.k == 2).Any())
-                {
-                    throw new BusinessException("Không có dữ liệu cho dòng kết nối thứ 2");
-                }
-                SelectedMeasure = MeasureRows.Where(x => x.k == 2).First();
-                var scenario = await _parameterService.GetScenarioAsync(ThongTinDuAn.ThamSo.KichBan);
-                if (scenario == null)
-                {
-                    throw new BusinessException("Không tìm thấy kịch bản đo kiểm");
-                }
+        //private async void ExecuteConnectCommand2(object obj)
+        //{
+        //    var splashViewModel = new ProgressSplashViewModel
+        //    {
+        //        Message = "Đang kiểm tra kết nối với Simatic...",
+        //        IsIndeterminate = true
+        //    };
+        //    var splash = new Views.CustomControls.ProgressSplashContent { DataContext = splashViewModel };
+        //    var dialogTask = DialogHost.Show(splash, "MainDialogHost");
+        //    try
+        //    {
+        //        if (!MeasureRows.Where(x => x.k == 2).Any())
+        //        {
+        //            throw new BusinessException("Không có dữ liệu cho dòng kết nối thứ 2");
+        //        }
+        //        SelectedMeasure = MeasureRows.Where(x => x.k == 2).First();
+        //        var scenario = await _parameterService.GetScenarioAsync(ThongTinDuAn.ThamSo.KichBan);
+        //        if (scenario == null)
+        //        {
+        //            throw new BusinessException("Không tìm thấy kịch bản đo kiểm");
+        //        }
 
-                if (await _externalAppService.ConnectExchangeAsync(SelectedMeasure, scenario.TimeRange))
-                {
-                    _isConnected = true;
-                    _isCompleted = false;
-                    if (DialogHost.IsDialogOpen("MainDialogHost"))
-                        DialogHost.Close("MainDialogHost");
-                    OnPropertyChanged(nameof(SimaticStatus));
-                }
+        //        if (await _externalAppService.ConnectExchangeAsync(SelectedMeasure, scenario.TimeRange))
+        //        {
+        //            _isConnected = true;
+        //            _isCompleted = false;
+        //            if (DialogHost.IsDialogOpen("MainDialogHost"))
+        //                DialogHost.Close("MainDialogHost");
+        //            OnPropertyChanged(nameof(SimaticStatus));
+        //        }
 
-            }
-            catch (Exception ex)
-            {
-                if (DialogHost.IsDialogOpen("MainDialogHost"))
-                    DialogHost.Close("MainDialogHost");
-                throw;
-            }
-        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        if (DialogHost.IsDialogOpen("MainDialogHost"))
+        //            DialogHost.Close("MainDialogHost");
+        //        throw;
+        //    }
+        //}
 
         private async void ExecuteConnectCommand(object obj)
         {

@@ -43,6 +43,25 @@ namespace TESMEA_TMS.DTOs
         Error      // X - đỏ
     }
 
+    public class MeasureConnect
+    {
+        public int Step { get; set; }
+        public string Property { get; set; }
+        public float Value { get; set; }
+        private MeasureStatus _f;
+        public MeasureStatus F
+        {
+            get => _f;
+            set { _f = value; OnPropertyChanged(nameof(F)); }
+        }
+
+        protected void OnPropertyChanged(string propertyName)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+        public event PropertyChangedEventHandler PropertyChanged;
+    }
+
     // Class hiển thị kết quả tính toán thông số đo kiểm trên datagrid
     public class MeasureResponse
     {
