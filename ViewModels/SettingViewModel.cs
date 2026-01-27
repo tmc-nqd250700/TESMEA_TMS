@@ -195,16 +195,26 @@ namespace TESMEA_TMS.ViewModels
                 MessageBox.Show("Mật khẩu mới và mật khẩu xác nhận không khớp", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
-            if (string.IsNullOrEmpty(SimaticPath))
+            if (!Validation.IsValidPassword(ChangePassword.NewPassword))
             {
-                MessageBox.Show("Đường dẫn tới Simatic không được để trống", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show("Mật khẩu mới không hợp lệ", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
-            if (!File.Exists(SimaticPath))
+            if (!Validation.IsValidPassword(ChangePassword.ConfirmNewPassword))
             {
-                MessageBox.Show("Đường dẫn tới Simatic không tồn tại", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show("Mật khẩu xác nhận không hợp lệ", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
+            //if (string.IsNullOrEmpty(SimaticPath))
+            //{
+            //    MessageBox.Show("Đường dẫn tới Simatic không được để trống", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Warning);
+            //    return;
+            //}
+            //if (!File.Exists(SimaticPath))
+            //{
+            //    MessageBox.Show("Đường dẫn tới Simatic không tồn tại", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Warning);
+            //    return;
+            //}
             if (Timeout <= 60)
             {
                 MessageBox.Show("Nhập timeout lớn hơn 60 giây", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Warning);
@@ -222,16 +232,6 @@ namespace TESMEA_TMS.ViewModels
                 if (!Validation.IsValidPassword(ChangePassword.CurrentPassword))
                 {
                     MessageBox.Show("Mật khẩu hiện tại không hợp lệ", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Warning);
-                    return;
-                }
-                if (!Validation.IsValidPassword(ChangePassword.NewPassword))
-                {
-                    MessageBox.Show("Mật khẩu mới không hợp lệ", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Warning);
-                    return;
-                }
-                if (!Validation.IsValidPassword(ChangePassword.ConfirmNewPassword))
-                {
-                    MessageBox.Show("Mật khẩu xác nhận không hợp lệ", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
                 changePasswordSuccess = await _authenticationService.ChangePasswordAsync(ChangePassword);

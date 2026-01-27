@@ -210,7 +210,7 @@ namespace TESMEA_TMS.ViewModels
             TestTypes.Add(new ComboBoxInfo("B", "Kiểu B: Đầu vào tự do, đầu ra lắp ống dẫn"));
             TestTypes.Add(new ComboBoxInfo("C", "Kiểu C: Đầu vào lắp ống dẫn, đầu ra tự do"));
             TestTypes.Add(new ComboBoxInfo("D", "Kiểu D: Đầu vào lắp ống dẫn, đầu ra lắp ống dẫn"));
-            this.ThamSo.KieuKiemThu = TestTypes.FirstOrDefault(x=>x.Value == "B").Value;
+            this.ThamSo.KieuKiemThu = TestTypes.FirstOrDefault(x=>x.Value == "C").Value;
 
             var libraries = await _parameterService.GetLibrariesAsync();
             LibTypes = libraries
@@ -311,10 +311,10 @@ namespace TESMEA_TMS.ViewModels
                     locator.MeasureViewModel.ThongTinDuAn = this.ThongTinDuAn;
                     var scenarioParams = (await _parameterService.GetScenarioDetailAsync(Guid.Parse(ThongTinDuAn.ThamSo.KichBan))).OrderBy(x => x.STT);
                     locator.MeasureViewModel.MeasureRows.Clear();
-                    var mearures = new List<Measure>();
+                    var measures = new List<Measure>();
                     foreach (var param in scenarioParams)
                     {
-                        mearures.Add(new Measure
+                        measures.Add(new Measure
                         {
                             k = param.STT,
                             S = param.S,
@@ -324,7 +324,17 @@ namespace TESMEA_TMS.ViewModels
                     }
                     locator.MeasureViewModel.InitializePowerPlotModel();
                     locator.MeasureViewModel.InitializeEfficiencyPlotModel();
-                    locator.MeasureViewModel.MeasureRows = new ObservableCollection<Measure>(mearures);
+                    locator.MeasureViewModel.MeasureRows = new ObservableCollection<Measure>(measures);
+                    
+                    if(ThongTinDuAn.ThamSo.KieuKiemThu == "B")
+                    {
+                        locator.MeasureViewModel.ImagePath = "/Assets/Images/type_B.png";
+                    }
+                    else
+                    {
+                        locator.MeasureViewModel.ImagePath = "/Assets/Images/type_C.png";
+                    }
+                   
                     locator.MainViewModel.CurrentView = new TESMEA_TMS.Views.MeasureView();
                 }
             }

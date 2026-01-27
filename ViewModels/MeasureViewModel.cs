@@ -5,7 +5,6 @@ using OxyPlot.Legends;
 using OxyPlot.Series;
 using System.Collections.ObjectModel;
 using System.IO;
-using System.Threading.Tasks;
 using System.Windows.Input;
 using TESMEA_TMS.Configs;
 using TESMEA_TMS.DTOs;
@@ -22,6 +21,19 @@ namespace TESMEA_TMS.ViewModels
     public class MeasureViewModel : ViewModelBase
     {
         public ObservableCollection<Measure> MeasureRows { get; set; }
+        private string _imagePath;
+        public string ImagePath
+        {
+            get => _imagePath;
+            set
+            {
+                if (_imagePath != value)
+                {
+                    _imagePath = value;
+                    OnPropertyChanged(nameof(ImagePath));
+                }
+            }
+        }
         public float StandardDeviation { get; set; }
         public float TimeRange { get; set; }
 

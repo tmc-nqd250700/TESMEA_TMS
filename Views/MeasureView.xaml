@@ -206,10 +206,6 @@
                                    Margin="15 0 5 0"/>
                         <TextBox Grid.Row="4" Grid.Column="3" IsReadOnly="True" Margin="0 0 0 5" Text="{Binding ParameterShow.Td_show, Mode=OneWay}"/>
 
-                        <!--<TextBlock Grid.Row="5" Grid.Column="0" 
-                                   Text="{Binding Source={lex:Loc lbl_Bearing_temp}, StringFormat={}{0} (ºC)}" VerticalAlignment="Center"
-                                   Margin="5 0"/>
-                        <TextBox Grid.Row="5" Grid.Column="1" IsReadOnly="True" Margin="0 0 0 5" Text="{Binding ParameterShow.TempB_show, Mode=OneWay}"/>-->
                         <TextBlock Grid.Row="5" Grid.Column="2" 
                                    Text="{Binding Source={lex:Loc lbl_Bearing_viab}, StringFormat={}{0} (mm/s)}" VerticalAlignment="Center"
                                    Margin="15 0 5 0"/>
@@ -227,7 +223,7 @@
                     </Grid>
                 </ScrollViewer>
             </GroupBox>
-            <Image Grid.Row="1" Source="/Assets/Images/Kiểu B.png" Stretch="Fill"/>
+            <Image Grid.Row="1" Source="{Binding ImagePath}" Stretch="Fill"/>
             <DataGrid Grid.Row="2"
                     ItemsSource="{Binding MeasureResponses}"
                      Background="White" 
@@ -267,16 +263,6 @@
 
                 <DataGrid.Columns>
                     <DataGridTextColumn Header="{lex:Loc col_No}" Width="50" Binding="{Binding STT}" IsReadOnly="True" CanUserResize="False"/>
-
-                    <!--<DataGridTemplateColumn Header="{lex:Loc col_No}" Width="40" IsReadOnly="True" CanUserResize="False">
-                        <DataGridTemplateColumn.CellTemplate>
-                            <DataTemplate>
-                                <TextBlock HorizontalAlignment="Center"
-                                        Text="{Binding RelativeSource={RelativeSource AncestorType=DataGridRow}, Converter={StaticResource RowIndexConverter}}"/>
-                            </DataTemplate>
-                        </DataGridTemplateColumn.CellTemplate>
-                    </DataGridTemplateColumn>-->
-
                     <DataGridTextColumn Header="{lex:Loc col_Airflow}" Binding="{Binding Airflow}" Width="*"/>
                     <DataGridTextColumn Header="{lex:Loc col_Ps}" Binding="{Binding Ps}" Width="*"/>
                     <DataGridTextColumn Header="{lex:Loc col_Pt}" Binding="{Binding Pt}" Width="*"/>
@@ -309,16 +295,6 @@
                                    BorderThickness="1" 
                                   Model="{Binding EfficiencyPlotModel}"/>
                 </Border>
-                <!--<Border Grid.Row="2" Background="#F8F8F8">
-    <oxy:PlotView x:Name="pvTrend" 
-               Background="#FFF"
-               Foreground="#222"
-               VerticalAlignment="Stretch"
-               HorizontalAlignment="Stretch"
-               BorderBrush="#E0E0E0"
-               BorderThickness="1" 
-                  Model="{Binding TrendPlotModel}"/>
-</Border>-->
             </UniformGrid>
         </Border>
     </Grid>

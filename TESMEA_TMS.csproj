@@ -12,8 +12,6 @@
   <ItemGroup>
     <None Remove="Assets\Images\eng.png" />
     <None Remove="Assets\Images\home_screen.PNG" />
-    <None Remove="Assets\Images\Kiểu B.png" />
-    <None Remove="Assets\Images\kiểu C.png" />
     <None Remove="Assets\Images\logo-tesmea-1.png" />
     <None Remove="Assets\Images\logo-tesmea-2.png" />
     <None Remove="Assets\Images\logo-tesmea-3.png" />
@@ -49,8 +47,8 @@
   <ItemGroup>
     <Resource Include="Assets\Images\eng.png" />
     <Resource Include="Assets\Images\home_screen.PNG" />
-    <Resource Include="Assets\Images\Kiểu B.png" />
-    <Resource Include="Assets\Images\kiểu C.png" />
+    <Resource Include="Assets\Images\type_B.png" />
+    <Resource Include="Assets\Images\type_C.png" />
     <Resource Include="Assets\Images\logo-tesmea-1.png" />
     <Resource Include="Assets\Images\logo-tesmea-2.png" />
     <Resource Include="Assets\Images\logo-tesmea-3.png" />
