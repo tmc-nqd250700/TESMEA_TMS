@@ -916,7 +916,7 @@ namespace TESMEA_TMS.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Dải đo cảm biến (đơn vị đo - SI).
+        ///   Looks up a localized string similar to Dải đo cảm biến.
         /// </summary>
         internal static string lbl_Sensor_range {
             get {

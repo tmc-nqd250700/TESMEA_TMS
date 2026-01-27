@@ -430,7 +430,7 @@
     <value>Library name</value>
   </data>
   <data name="lbl_Sensor_range" xml:space="preserve">
-    <value>Sensor measuring range (units - SI)</value>
+    <value>Sensor measuring range</value>
   </data>
   <data name="lbl_Sensor_Amb_temp" xml:space="preserve">
     <value>Ambient temperature sensor</value>
