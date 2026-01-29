@@ -243,7 +243,8 @@ namespace TESMEA_TMS.ViewModels
                 IsPanEnabled = false,
                 IsZoomEnabled = false,
                 MajorGridlineStyle = LineStyle.Solid,
-                MinorGridlineStyle = LineStyle.Dot
+                MinorGridlineStyle = LineStyle.Dot,
+                MajorStep = 50
             });
 
             PowerPlotModel.Axes.Add(new LinearAxis
@@ -251,10 +252,12 @@ namespace TESMEA_TMS.ViewModels
                 Position = AxisPosition.Left,
                 Title = IsEn ? "Power (kW)" : "Công suất (kW)",
                 Minimum = 0,
+                Maximum = 60,
                 IsPanEnabled = false,
                 IsZoomEnabled = false,
                 MajorGridlineStyle = LineStyle.Solid,
-                MinorGridlineStyle = LineStyle.Dot
+                MinorGridlineStyle = LineStyle.Dot,
+                MajorStep = 20
             });
 
             // Thêm trục Y
@@ -300,7 +303,8 @@ namespace TESMEA_TMS.ViewModels
                 IsPanEnabled = false,
                 IsZoomEnabled = false,
                 MajorGridlineStyle = LineStyle.Solid,
-                MinorGridlineStyle = LineStyle.Dot
+                MinorGridlineStyle = LineStyle.Dot,
+                MajorStep = 50
             });
 
             // Trục Y1 (Pressure)
@@ -313,7 +317,8 @@ namespace TESMEA_TMS.ViewModels
                 IsZoomEnabled = false,
                 MajorGridlineStyle = LineStyle.Solid,
                 MinorGridlineStyle = LineStyle.Dot,
-                Key = "PressureAxis"
+                Key = "PressureAxis",
+                MajorStep = 50
             });
 
             // Trục Y2 (Efficiency)
@@ -328,7 +333,8 @@ namespace TESMEA_TMS.ViewModels
                 MinorGridlineStyle = LineStyle.None,
                 TextColor = OxyColors.Blue,
                 TitleColor = OxyColors.Blue,
-                Key = "EfficiencyAxis"
+                Key = "EfficiencyAxis",
+                MajorStep = 50
             });
 
             // Thêm các series
@@ -340,7 +346,7 @@ namespace TESMEA_TMS.ViewModels
                 MarkerStroke = OxyColors.Red,
                 MarkerStrokeThickness = 1,
                 MarkerSize = 4,
-                YAxisKey = "PressureAxis"
+                YAxisKey = "PressureAxis",
             };
 
             var totalPressureSeries = new ScatterSeries
@@ -473,7 +479,7 @@ namespace TESMEA_TMS.ViewModels
                     throw new BusinessException("Không tìm thấy kịch bản đo kiểm");
                 }
 
-                if (await _externalAppService.ConnectExchangeAsync(SelectedMeasure, scenario.TimeRange))
+                if (await _externalAppService.ConnectExchangeAsync(SelectedMeasure, scenario.StandardDeviation))
                 {
                     _isConnected = true;
                     _isCompleted = false;

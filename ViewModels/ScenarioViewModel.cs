@@ -298,10 +298,8 @@ namespace TESMEA_TMS.ViewModels
                           .FirstOrDefault(w => w is TESMEA_TMS.Views.MainWindow);
 
 
-                var dialog = new ConfirmAddScenarioDialog
-                {
-                    Owner = System.Windows.Application.Current.MainWindow
-                };
+                var dialog = new ConfirmAddScenarioDialog();
+                
                 if (mainWindow != null && mainWindow != dialog)
                 {
                     dialog.Owner = mainWindow;
@@ -316,7 +314,10 @@ namespace TESMEA_TMS.ViewModels
                 var scenarioName = dialog.InputText?.Trim();
                 var standardDeviation = dialog.StandardDeviation;
                 var timeRange = dialog.TimeRange;
-
+                if(standardDeviation < 105)
+                {
+                    MessageBoxHelper.ShowWarning("Tỉ lệ giá trị max/min không được nhỏ hơn 1.05");
+                }
 
                 if (string.IsNullOrWhiteSpace(scenarioName))
                 {

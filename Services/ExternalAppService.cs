@@ -312,7 +312,7 @@ namespace TESMEA_TMS.Services
 
                 var m = measures.First();
                 WriteTomfanLog($"Connect - Thử dòng k={m.k}: Ghi file và chờ WinCC phản hồi...");
-                await WriteDataToFilesAsync(m, maxmin);
+                await WriteDataToFilesAsync(m, timeRange);
 
                 var result = await WaitForResultAsync(m.k, isConnection: true);
                 if (result == null || Math.Abs(result.S - m.S) > 0.01)
@@ -335,7 +335,7 @@ namespace TESMEA_TMS.Services
         }
 
         // kết nối dòng 2
-        public async Task<bool> ConnectExchangeAsync(Measure measure, float timeRange)
+        public async Task<bool> ConnectExchangeAsync(Measure measure, float maxmin)
         {
             try
             {
@@ -347,7 +347,7 @@ namespace TESMEA_TMS.Services
                 }
 
                 WriteTomfanLog($"Connect - Thử dòng k={measure.k}: Ghi file và chờ WinCC phản hồi...");
-                await WriteDataToFilesAsync(measure, timeRange);
+                await WriteDataToFilesAsync(measure, maxmin);
 
                 var result = await WaitForResultAsync(measure.k, isConnection: true);
                 if (result == null || Math.Abs(result.S - measure.S) > 0.01)
@@ -402,12 +402,19 @@ namespace TESMEA_TMS.Services
                     _currentIndex = _measures[i].k;
                     var m = _measures[i];
                     WriteTomfanLog($"Đang xử lý điểm đo k={m.k}/{_measures.Count}");
-
+                   
                     // tạo file trend.csv theo k
                     using (var fs = File.Create(Path.Combine(_trendFolder, $"{m.k}.csv"))) { }
                     await WriteDataToFilesAsync(m);
-
+                    if (_currentIndex > 3)
+                    {
+                        // delay 30s den khi ghi dong tiep theo
+                        WriteTomfanLog("Delay 15s sau đó chờ kết quả dòng tiếp theo");
+                        await Task.Delay(15000);
+                        WriteTomfanLog("Delay xong, tiếp tục lắng nghe dòng tiếp theo");
+                    }
                     // Chờ kết quả xử lý thực tế (isConnection = false để tính toán sensor)
+                    // Luôn lắng nghe dòng 3
                     var result = await WaitForResultAsync(m.k, isConnection: false);
 
                     if (result != null)
@@ -457,6 +464,13 @@ namespace TESMEA_TMS.Services
                         m.F = MeasureStatus.Error;
                         OnSimaticResultReceived?.Invoke(m);
                     }
+                    // delay 15s den khi ghi dong tiep theo
+                    WriteTomfanLog("Delay 15s trước khi ghi dòng tiếp theo");
+                    await Task.Delay(15000);
+                    WriteTomfanLog("Delay xong, tiếp tục ghi dữ liệu dòng tiếp theo");
+
+
+                   
                 }
 
                 // HOÀN THÀNH KỊCH BẢN ĐO KIỂM, DỪNG TRAO ĐỔI
@@ -805,7 +819,7 @@ namespace TESMEA_TMS.Services
                         using (var sr = new StreamReader(fs))
                         {
                             string[] lines = await File.ReadAllLinesAsync(path2);
-                            int targetIndex = expectedK - 1;
+                            int targetIndex = isConnection ? expectedK - 1 : 2;
                             if (lines.Length > targetIndex)
                             {
                                 string targetLine = lines[targetIndex];
@@ -832,7 +846,7 @@ namespace TESMEA_TMS.Services
 
                                     // 15 part gồm 3 parts đầu là hiển thị tín hiệu (100) - %S - %CV
                                     // 12 parts còn lại tương ứng với tín hiệu trả về của 12 cảm biến
-                                    if (!isConnection && parts.Length == 15)
+                                    if (!isConnection && parts.Length > 10)
                                     {
                                         // check nếu parts có giá trị -1 -> lỗi chốt dữ liệu từ simatic thì sẽ truy cập trực tiếp vào file trend lấy dữ liệu và thực hiện chốt ở đây
                                         bool isInvalid = parts.Any(p =>
@@ -947,7 +961,6 @@ namespace TESMEA_TMS.Services
                 catch (IOException)
                 {
                 }
-
                 await Task.Delay(200);
             }
 

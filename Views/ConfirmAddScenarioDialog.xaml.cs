@@ -11,7 +11,7 @@ namespace TESMEA_TMS.Views
     public partial class ConfirmAddScenarioDialog : Window, INotifyPropertyChanged
     {
         private string _inputText;
-        private float _standardDeviation = 5f;
+        private float _standardDeviation = 105f;
         private float _timeRange = 20;
         public string InputText
         {
