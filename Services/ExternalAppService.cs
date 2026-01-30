@@ -308,8 +308,6 @@ namespace TESMEA_TMS.Services
 
                 _simaticResults.Clear();
                 WriteTomfanLog($"Step: Kiểm tra kết nối qua dòng đầu tiên.");
-
-
                 var m = measures.First();
                 WriteTomfanLog($"Connect - Thử dòng k={m.k}: Ghi file và chờ WinCC phản hồi...");
                 await WriteDataToFilesAsync(m, timeRange);
@@ -329,7 +327,7 @@ namespace TESMEA_TMS.Services
             }
             catch (Exception ex)
             {
-                WriteTomfanLog($"[CRITICAL] Lỗi trong ConnectExchangeAsync: {ex.Message}");
+                WriteTomfanLog($"Lỗi trong ConnectExchangeAsync: {ex.Message}");
                 throw;
             }
         }
@@ -391,18 +389,28 @@ namespace TESMEA_TMS.Services
                     Directory.CreateDirectory(_trendFolder);
 
                 List<Measure> currentRange = new List<Measure>();
-                //int sIndex = 0;
-                //int cvIndex = 0;
                 double currentS = _measures[_currentIndex].S;
-                int startIndex = 2; // track index của điểm bắt đầu trong dải đo
+                int startIndex = 2;
                 int timeoutMs = UserSetting.Instance.TimeoutMilliseconds;
                 
                 for (int i = _currentIndex; i < _measures.Count; i++)
                 {
                     _currentIndex = _measures[i].k;
                     var m = _measures[i];
+
+                    // check chuyển tần số thì fitting
+                    if (_measures[i].S != currentS)
+                    {
+                        var fitting = DataProcess.FittingFC(currentRange.Count, startIndex);
+                        WriteTomfanLog($"Hoàn tất dải đo với tần số {currentRange.First().S} từ CV={currentRange.First().CV}% đến {currentRange.Last().CV}%");
+                        OnMeasureRangeCompleted?.Invoke(fitting, currentRange.LastOrDefault());
+                        currentRange.Clear();
+                        currentS = _measures[i].S;
+                        startIndex = i;
+                        WriteTomfanLog("Chuyển sang dải đo tiếp theo");
+                    }
+
                     WriteTomfanLog($"Đang xử lý điểm đo k={m.k}/{_measures.Count}");
-                   
                     // tạo file trend.csv theo k
                     using (var fs = File.Create(Path.Combine(_trendFolder, $"{m.k}.csv"))) { }
                     await WriteDataToFilesAsync(m);
@@ -433,29 +441,14 @@ namespace TESMEA_TMS.Services
                             currentRange.Add(_measures[i]);
                         }
 
-                        //OnSimaticResultReceived?.Invoke(_measures[i]);
-                        //var paramShow = DataProcess.ParaShow(result, _inv, _sensor, _duct, _input);
-                        //OnMeasurePointCompleted?.Invoke(measurePoint, paramShow);
-
-
-                        // check nếu chuyển % tần số hoặc là điểm đo cuối cùng thì thực hiện fitting FC và vẽ line cho chart
-                        if (_measures[i].S != currentS || i == _measures.Count - 1)
+                        // check là điểm đo cuối cùng thì thực hiện fitting FC và vẽ line cho chart
+                        if (i == _measures.Count - 1)
                         {
                             var fitting = DataProcess.FittingFC(currentRange.Count, startIndex);
-                            WriteTomfanLog($"Hoàn tất dải đo từ k={currentRange.First().k} đến k={currentRange.Last().k}");
+                            WriteTomfanLog($"Hoàn tất dải đo cuối cùng với tần số {currentRange.First().S} từ CV={currentRange.First().CV}% đến {currentRange.Last().CV}%");
                             OnMeasureRangeCompleted?.Invoke(fitting, currentRange.LastOrDefault());
                             currentRange.Clear();
-                            currentS = _measures[i].S;
-                            startIndex = i;
-                            //sIndex++;
-                            //cvIndex = 0;
                         }
-                        
-                        //string fileName = $"{sIndex}{cvIndex}.csv";
-                        //string filePath = Path.Combine(_trendFolder, fileName);
-                        ////using (var fs = File.Create(filePath)) { }
-                        //cvIndex++;
-
                         WriteTomfanLog($"Hoàn tất điểm đo k={m.k}");
                     }
                     else
@@ -468,12 +461,8 @@ namespace TESMEA_TMS.Services
                     WriteTomfanLog("Delay 15s trước khi ghi dòng tiếp theo");
                     await Task.Delay(15000);
                     WriteTomfanLog("Delay xong, tiếp tục ghi dữ liệu dòng tiếp theo");
-
-
-                   
                 }
 
-                // HOÀN THÀNH KỊCH BẢN ĐO KIỂM, DỪNG TRAO ĐỔI
                 WriteTomfanLog("========== HOÀN TẤT TOÀN BỘ KỊCH BẢN ĐO KIỂM, DỪNG ĐO KIỂM, GỬI LỆNH 96 TỚI SIMATIC ==========");
                 await StopExchangeAsync();
                 OnSimaticExchangeCompleted?.Invoke(_simaticResults);
@@ -488,17 +477,6 @@ namespace TESMEA_TMS.Services
         // estop
         public async Task StopExchangeAsync()
         {
-            //if (_watcher != null)
-            //{
-            //    _watcher.EnableRaisingEvents = false;
-            //    _watcher.Dispose();
-            //    _watcher = null;
-            //}
-            //_measures.Clear();
-            //_simaticResults.Clear();
-            //_currentIndex = 0;
-            //IsConnectedToSimatic = false;
-
             try
             {
                 WriteTomfanLog("--- LỆNH DỪNG KHẨN CẤP (E-STOP) ---");
@@ -511,8 +489,6 @@ namespace TESMEA_TMS.Services
                     S = 0,
                     CV = 0
                 };
-
-                // Gửi lệnh dừng: tham số eStop = true để ép số 96 vào cột k
                 await WriteDataToFilesAsync(eStopMeasure, 0, true);
 
                 IsConnectedToSimatic = false;
@@ -857,6 +833,8 @@ namespace TESMEA_TMS.Services
                                         });
                                         if (!isInvalid)
                                         {
+                                            // 6,12, 13, 14 chưa có
+
                                             // tần số tính từ %S
                                             m.TanSo_fb = _sensor.IsImportPhanHoiTanSo
                                                         ? _sensor.PhanHoiTanSoValue
@@ -918,7 +896,6 @@ namespace TESMEA_TMS.Services
                                               ? _sensor.PhanHoiDongDienValue
                                               : CalcSimatic(_sensor.PhanHoiDongDienMin, _sensor.PhanHoiDongDienMax, float.Parse(parts[12], CultureInfo.InvariantCulture));
                                             //: _sensor.PhanHoiDienApValue;
-
 
                                             // 11. áp suất tĩnh
                                             m.ApSuatTinh_sen = _sensor.IsImportApSuatTinh

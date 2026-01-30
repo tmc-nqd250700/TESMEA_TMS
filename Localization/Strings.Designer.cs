@@ -214,7 +214,7 @@ namespace TESMEA_TMS.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Lưu lượng.
+        ///   Looks up a localized string similar to Lưu lượng (m3/h).
         /// </summary>
         internal static string col_Airflow {
             get {

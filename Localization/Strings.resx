@@ -334,7 +334,7 @@
     <value>Chọn đường dẫn file cơ sử dữ liệu</value>
   </data>
   <data name="col_Airflow" xml:space="preserve">
-    <value>Lưu lượng</value>
+    <value>Lưu lượng (m3/h)</value>
   </data>
   <data name="col_Ps" xml:space="preserve">
     <value>Áp suất tĩnh (Pa)</value>
@@ -346,7 +346,7 @@
     <value>Hiệu suất tĩnh (%)</value>
   </data>
   <data name="col_Power" xml:space="preserve">
-    <value>Hiệu suất trên trục (kW)</value>
+    <value>Công suất trên trục (kW)</value>
   </data>
   <data name="col_TEff" xml:space="preserve">
     <value>Hiệu suất tổng (%)</value>

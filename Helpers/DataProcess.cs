@@ -311,7 +311,7 @@ namespace TESMEA_TMS.Helpers
                 MeasureResponse measurePoint = new MeasureResponse();
                 #endregion
 
-                deltap = measure.ChenhLechApSuat_sen;
+                deltap = measure.ChenhLechApSuat_sen * 750;
                 pe3 = measure.ApSuatTinh_sen;
                 Ta = measure.NhietDoMoiTruong_sen;
                 Pa = measure.ApSuatkhiQuyen_sen;
@@ -346,7 +346,7 @@ namespace TESMEA_TMS.Helpers
                 L1_3 = 3 * D5 + L34;
                 LogCalculation($"Chiều dài tổn thất L1_3: {L1_3}");
                 //D3 = D5;
-                D3 = duct.DuongKinhOngD5;
+                D3 = duct.DuongKinhOngD3;
                 LogCalculation($"Đường kính ống tại điểm đo áp suất tĩnh D3: {D3}");
                 //// Công suất tiêu thụ
                 ////Delta inv
@@ -591,22 +591,6 @@ namespace TESMEA_TMS.Helpers
                         LogCalculation($"Hiệu suất tổng tính theo momen xoắn Ope_EttPoint[{j}]: {Ope_EttPoint[j]}");
                     }
 
-                    // Trend
-                    //measurePoint = new MeasureResponse
-                    //{
-                    //    STT = measure.k,
-                    //    Airflow = FlowPoint[j],
-                    //    Ps = PsPoint[j],
-                    //    Pt = PtPoint[j],
-                    //    SEff = Ope_EsPoint[j],
-                    //    TEff = Ope_EtPoint[j],
-                    //    Power = Ope_PrPoint[j],
-                    //    Prt = PrtPoint[j],
-                    //    Est = Std_EstPoint[j],
-                    //    Ett = Std_EttPoint[j]
-                    //};
-
-
                     measurePoint = new MeasureResponse
                     {
                         STT = measure.k,
@@ -639,8 +623,6 @@ namespace TESMEA_TMS.Helpers
                     IdmPoint[j] = (float)Math.Round(Current_fb / 100, 3);
                     UdmPoint[j] = (float)Math.Round(Voltage_fb / 10, 3);
 
-                    //TestCaculate(qm, qV, Rw, Tw, pv, A3, v3, pv3, pf3, pcb, rhox, ae, M, Re, csi13);
-
                     //------------End While------------//
                     j++;
                     LogCalculation("========================================================");
@@ -655,8 +637,6 @@ namespace TESMEA_TMS.Helpers
             catch (Exception ex)
             {
 #if DEBUG
-                //throw new BusinessException("Lỗi khi tính toán tại một điểm đo: " + ex.Message);
-                // return tạm để chạy sang row tiếp theo
                 LogCalculation("Lỗi khi tính toán tại một điểm đo: " + ex.Message);
                 return new MeasureResponse
                 {
@@ -703,6 +683,18 @@ namespace TESMEA_TMS.Helpers
                 yPrt[i] = PrtPoint[index + i];
                 yEst[i] = Ope_EstPoint[index + i];
                 yEtt[i] = Ope_EttPoint[index + i];
+
+
+                fc.Ope_FlowPoint[i] = Ope_FlowPoint[index + i];
+                fc.Ope_PsPoint[i] = Ope_PsPoint[index + i];
+                fc.Ope_PtPoint[i] = Ope_PtPoint[index + i];
+                fc.Ope_EsPoint[i] = Ope_EsPoint[index + i];
+                fc.Ope_EtPoint[i] = Ope_EtPoint[index + i];
+                fc.Ope_PrPoint[i] = Ope_PrPoint[index + i];
+                fc.PrtPoint[i] = PrtPoint[index + i];
+                fc.Ope_EstPoint[i] = Ope_EstPoint[index + i];
+                fc.Ope_EttPoint[i] = Ope_EttPoint[index + i];
+
             }
 
             double[] polyPw = Fit.Polynomial(x, yPw, 3);    //1
@@ -736,19 +728,6 @@ namespace TESMEA_TMS.Helpers
                 fc.PrtPoint_ft[i] = a6 + b6 * x[i] + c6 * Math.Pow(x[i], 2) + d6 * Math.Pow(x[i], 3);
                 fc.EstPoint_ft[i] = a7 + b7 * x[i] + c7 * Math.Pow(x[i], 2);
                 fc.EttPoint_ft[i] = a8 + b8 * x[i] + c8 * Math.Pow(x[i], 2);
-
-
-                fc.Ope_FlowPoint[i] = x[i];
-                fc.Ope_PsPoint[i] = yPs[i];
-                fc.Ope_PtPoint[i] = yPt[i];
-                fc.Ope_EsPoint[i] = yEs[i];
-                fc.Ope_EtPoint[i] = yEt[i];
-                fc.Ope_PrPoint[i] = yPw[i];
-                fc.Ope_PrPoint[i] = yPrt[i];
-                fc.Ope_EstPoint[i] = yEst[i];
-                fc.Ope_EttPoint[i] = yEtt[i];
-                fc.PrtPoint[i] = yPrt[i];
-
             }
             return fc;
         }
@@ -804,7 +783,8 @@ namespace TESMEA_TMS.Helpers
 
 
             //// note
-            float deltap = measure.ChenhLechApSuat_sen; // chênh lệch áp suất điểm đo lưu lượng
+            ///
+            float deltap = measure.ChenhLechApSuat_sen * 750; // chênh lệch áp suất điểm đo lưu lượng
             float Pe3 = measure.ApSuatTinh_sen; // chênh lệch áp suất điểm đo áp suất tĩnh
             // nhiệt độ môi trường
             float Pa = measure.ApSuatkhiQuyen_sen; // áp suất khí quyển khu vực đo

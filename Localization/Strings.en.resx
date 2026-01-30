@@ -334,7 +334,7 @@
     <value>Select database path</value>
   </data>
   <data name="col_Airflow" xml:space="preserve">
-    <value>Airflow</value>
+    <value>Airflow (m3/h)</value>
   </data>
   <data name="col_Ps" xml:space="preserve">
     <value>Static pressure (Pa)</value>
