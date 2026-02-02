@@ -605,6 +605,7 @@ namespace TESMEA_TMS.ViewModels
                 measure.F = MeasureStatus.Pending;
             }
             OnPropertyChanged(nameof(MeasureRows));
+            DataProcess.Initialize(MeasureRows.Count);
             MeasureResponses.Clear();
             OnPropertyChanged(nameof(MeasureResponses));
             ParameterShow = new ParameterShow();

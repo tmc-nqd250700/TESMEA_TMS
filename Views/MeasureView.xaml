@@ -282,7 +282,7 @@
                     <DataGridTextColumn Header="{lex:Loc col_Pt}" Binding="{Binding Pt, StringFormat={}{0:N3}}"/>
                     <DataGridTextColumn Header="{lex:Loc col_SEff}" Binding="{Binding SEff, StringFormat={}{0:N3}}"/>
                     <DataGridTextColumn Header="{lex:Loc col_TEff}" Binding="{Binding TEff, StringFormat={}{0:N3}}"/>
-                    <DataGridTextColumn Header="{lex:Loc col_Power}" Binding="{Binding Power, StringFormat={}{0:N3}}"/>
+                    <DataGridTextColumn Header="{lex:Loc col_Power}" Binding="{Binding Power}"/>
                 </DataGrid.Columns>
             </DataGrid>
         </Grid>
