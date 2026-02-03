@@ -148,6 +148,7 @@
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
                         <TextBlock Grid.Row="0" Grid.Column="0" Text="{lex:Loc lbl_Sensor_range}" VerticalAlignment="Center" Margin="10 0 5 0" FontWeight="SemiBold"/>
                         <TextBlock Grid.Row="0" Grid.Column="1" Text="Nhập tay" VerticalAlignment="Center" Margin="10 0 5 5" FontWeight="SemiBold" HorizontalAlignment="Center"/>
@@ -252,6 +253,15 @@
                         <TextBox Grid.Row="14" Grid.Column="2" Margin="10 0 5 0" Text="{Binding CamBien.PhanHoiTanSoValue, Mode=TwoWay}" IsEnabled="{Binding IsChecked, ElementName=chkImportPhanHoiTanSo}"/>
                         <TextBox Grid.Row="14" Grid.Column="3" Margin="10 0 5 0" Text="{Binding CamBien.PhanHoiTanSoMin, Mode=TwoWay}" IsEnabled="{Binding IsChecked, ElementName=chkImportPhanHoiTanSo, Converter={StaticResource BooleanNegationConverter}}"/>
                         <TextBox Grid.Row="14" Grid.Column="4" Margin="10 0 5 0" Text="{Binding CamBien.PhanHoiTanSoMax, Mode=TwoWay}" IsEnabled="{Binding IsChecked, ElementName=chkImportPhanHoiTanSo, Converter={StaticResource BooleanNegationConverter}}"/>
+                    
+                    
+                        <!--Nhiệt độ gối trục-->
+                        <TextBlock Grid.Row="15" Grid.Column="0" Text="15. Nhiệt độ gối trục" VerticalAlignment="Center" Margin="10 0 5 0"/>
+                        <CheckBox x:Name="chkImportNhietDoGoiTruc" Grid.Row="15" Grid.Column="1" Margin="10 0 5 0" IsChecked="{Binding CamBien.IsImportNhietDoGoiTruc, Mode=TwoWay}" HorizontalAlignment="Center"/>
+                        <TextBox Grid.Row="15" Grid.Column="2" Margin="10 0 5 0" Text="{Binding CamBien.NhietDoGoiTrucValue, Mode=TwoWay}" IsEnabled="{Binding IsChecked, ElementName=chkImportNhietDoGoiTruc}"/>
+                        <TextBox Grid.Row="15" Grid.Column="3" Margin="10 0 5 0" Text="{Binding CamBien.NhietDoGoiTrucMin, Mode=TwoWay}" IsEnabled="{Binding IsChecked, ElementName=chkImportNhietDoGoiTruc, Converter={StaticResource BooleanNegationConverter}}"/>
+                        <TextBox Grid.Row="15" Grid.Column="4" Margin="10 0 5 0" Text="{Binding CamBien.NhietDoGoiTrucMax, Mode=TwoWay}" IsEnabled="{Binding IsChecked, ElementName=chkImportNhietDoGoiTruc, Converter={StaticResource BooleanNegationConverter}}"/>
+
                     </Grid>
                 </GroupBox>
             </Grid>

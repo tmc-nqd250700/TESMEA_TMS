@@ -22,6 +22,7 @@ namespace TESMEA_TMS.DTOs
         public float CongSuat_fb { get; set; }
         public float ViTriVan_fb { get; set; }
         public float TanSo_fb { get; set; }
+        public float NhietDoGoi { get; set; }
 
         private MeasureStatus _f;
         public MeasureStatus F

@@ -870,6 +870,9 @@ namespace TESMEA_TMS.Services
                                                 : _sensor.PhanHoiDienApValue;
                                             //CalcSimatic(_sensor.PhanHoiDienApMin, _sensor.PhanHoiDienApMax, float.Parse(parts[6], CultureInfo.InvariantCulture));
                                             // 5. nhiệt độ hồng ngoại
+                                            m.NhietDoGoi = _sensor.IsImportNhietDoGoiTruc
+                                                ? _sensor.NhietDoGoiTrucValue
+                                                : CalcSimatic(_sensor.NhietDoGoiTrucMin, _sensor.NhietDoGoiTrucMax, float.Parse(parts[7], CultureInfo.InvariantCulture));
 
                                             // 6. độ rung
                                             m.DoRung_sen = _sensor.IsImportDoRung
@@ -921,6 +924,7 @@ namespace TESMEA_TMS.Services
                                             WriteTomfanLog($"Công suất phản hồi: {m.CongSuat_fb}");
                                             WriteTomfanLog($"Vị trí van phản hồi: {m.ViTriVan_fb}");
                                             WriteTomfanLog($"Tần số phản hồi: {m.TanSo_fb}");
+                                            WriteTomfanLog($"Nhiệt độ gối trục: {m.NhietDoGoi}");
                                         }
                                         else
                                         {

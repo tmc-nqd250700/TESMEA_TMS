@@ -797,7 +797,7 @@ namespace TESMEA_TMS.Helpers
             float T = measure.Momen_sen; // momen xoắn
 
             float Freq_fb = measure.TanSo_fb; // tần số
-            float BearingTemp = 0; // nhiệt độ gối đứng
+            float BearingTemp = measure.NhietDoGoi; // nhiệt độ gối đứng
             float BearingVia = measure.DoRung_sen; // độ rung gối đứng
 
             // Tính toán đầu
@@ -952,7 +952,7 @@ namespace TESMEA_TMS.Helpers
                 Speed_show = (float)Math.Round((float)Math.Round(Freq_fb, 2) * n1 / 50, 2),
                 TempB_show = (float)Math.Round(BearingTemp, 2),
                 T_Show = (float)Math.Round(T, 2),
-                Ps_show = (float)Math.Round(Pe3 - pv3 + pf3 + pcb, 2),
+                Ps_show = (float)Math.Round(Pe3, 2),
                 Pt_show = (float)Math.Round((Pe3 - pv3 + pf3 + pcb) + pv3 + pf3, 2), 
                 Flow_show = (float)Math.Round(qV * 3600, 2),
                 Ta_show = (float)Math.Round(Ta, 2),
