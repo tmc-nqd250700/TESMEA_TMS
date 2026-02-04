@@ -532,6 +532,7 @@ namespace TESMEA_TMS.ViewModels
 
                 await _externalAppService.ConnectExchangeAsync(MeasureRows.ToList(), bienTan, _camBien, ongGio, ThongTinDuAn.ThongTinMauThuNghiem, scenario.StandardDeviation, scenario.TimeRange);
                 _isConnectedRow1 = true;
+                _isConnected = true;
                 _isCompleted = false;
                 if (DialogHost.IsDialogOpen("MainDialogHost"))
                     DialogHost.Close("MainDialogHost");

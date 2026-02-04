@@ -45,6 +45,8 @@ namespace TESMEA_TMS.Services
         private string _exchangeFolder;
         private string _trendFolder;
         private bool _isComma = true;
+
+        private bool _isEStop = false;
         public ExternalAppService()
         {
             _exchangeFolder = UserSetting.TOMFAN_folder;
@@ -302,35 +304,34 @@ namespace TESMEA_TMS.Services
 
                 if (!Directory.Exists(_exchangeFolder))
                 {
-                    WriteTomfanLog($"[FATAL] Thư mục trao đổi không tồn tại: {_exchangeFolder}");
+                    WriteTomfanLog($"Thư mục trao đổi không tồn tại: {_exchangeFolder}");
                     throw new BusinessException("Thư mục trao đổi dữ liệu với Simatic không tồn tại");
                 }
 
                 _simaticResults.Clear();
-                WriteTomfanLog($"Step: Kiểm tra kết nối qua dòng đầu tiên.");
+                WriteTomfanLog($"Kiểm tra kết nối qua dòng đầu tiên.");
                 //var m = new Measure
                 //{
-                //    k = 1,
+                //    k = 0,
                 //    S = 0,
                 //    CV = 0
                 //};
 
                 var m = _measures[0];
-                WriteTomfanLog($"Connect - Thử dòng k={m.k}: Ghi file và chờ WinCC phản hồi...");
-                await WriteDataToFilesAsync(m, timeRange);
+                WriteTomfanLog($"Connect - Ghi file và chờ WinCC phản hồi...");
+                await WriteDataToFilesAsync(m, maxmin);
 
-                var result = await WaitForResultAsync(m.k, isConnection: true);
+                var result = await WaitForResultAsync(1, isConnection: true);
                 if (result == null || Math.Abs(result.S - m.S) > 0.01)
                 {
-                    string errorMsg = result == null ? "Timeout" : $"Dữ liệu không khớp (S_gửi={m.S}, S_nhận={result.S})";
-                    WriteTomfanLog($"Kết nối thất bại tại dòng k={m.k}: {errorMsg}");
-                    throw new Exception($"Không thể kết nối. Dòng {m.k} lỗi: {errorMsg}");
+                    string errorMsg = result == null ? "Timeout" : "Dữ liệu không khớp";
+                    WriteTomfanLog($"Kết nối thất bại");
+                    throw new Exception($"Không thể kết nối, lỗi: {errorMsg}");
                 }
 
                 m.F = MeasureStatus.Completed;
-                WriteTomfanLog($"Connect - Dòng k={m.k} THÀNH CÔNG");
                 //_currentIndex = m.k;
-                return await ConnectExchangeAsync(timeRange);
+                return await ConnectExchangeAsync(maxmin);
             }
             catch (Exception ex)
             {
@@ -340,36 +341,34 @@ namespace TESMEA_TMS.Services
         }
 
         // kết nối dòng 2
-        public async Task<bool> ConnectExchangeAsync(float timeRange)
+        public async Task<bool> ConnectExchangeAsync(float maxmin)
         {
             try
             {
-                //var measure = new Measure
+                //var m = new Measure
                 //{
-                //    k = 2,
+                //    k = 0,
                 //    S = 0,
                 //    CV = 0
                 //};
-
                 var m = _measures[1];
+                await WriteDataToFilesAsync(m, maxmin);
 
-                WriteTomfanLog($"Connect - Thử dòng k={m.k}: Ghi file và chờ WinCC phản hồi...");
-                await WriteDataToFilesAsync(m, timeRange);
-
-                var result = await WaitForResultAsync(m.k, isConnection: true);
+                var result = await WaitForResultAsync(2, isConnection: true);
                 if (result == null || Math.Abs(result.S - m.S) > 0.01)
                 {
-                    string errorMsg = result == null ? "Timeout (Không có phản hồi)" : $"Dữ liệu không khớp (S_gửi={m.S}, S_nhận={result.S})";
-                    WriteTomfanLog($"Kết nối thất bại tại dòng k={m.k}: {errorMsg}");
-                    throw new Exception($"Không thể kết nối. Dòng {m.k} lỗi: {errorMsg}");
+                    string errorMsg = result == null ? "Timeout" : "Dữ liệu không khớp";
+                    WriteTomfanLog($"Kết nối thất bại");
+                    throw new Exception($"Không thể kết nối, lỗi: {errorMsg}");
                 }
 
                 m.F = MeasureStatus.Completed;
-                WriteTomfanLog($"Connect - Dòng k={m.k} THÀNH CÔNG. Nghỉ 5s chờ WinCC sẵn sàng...");
+                WriteTomfanLog($"Connect thành công");
                 DataProcess.Initialize(_measures.Count);
                 IsConnectedToSimatic = true;
                 OnSimaticConnectionChanged?.Invoke(true);
                 //_currentIndex = measure.k;
+                _isEStop = false;
                 WriteTomfanLog("Đã thiết lập kết nối với Simatic thành công.");
                 return true;
             }
@@ -392,7 +391,7 @@ namespace TESMEA_TMS.Services
                     return;
                 }
 
-                WriteTomfanLog("========== BẮT ĐẦU TRAO ĐỔI DỮ LIỆU HÀNG LOẠT ==========");
+                WriteTomfanLog("========== Bắt đầu đo kiểm ==========");
 
                 if (!Directory.Exists(_trendFolder))
                     Directory.CreateDirectory(_trendFolder);
@@ -507,6 +506,7 @@ namespace TESMEA_TMS.Services
                 await WriteDataToFilesAsync(eStopMeasure, 0, true);
 
                 IsConnectedToSimatic = false;
+                _isEStop = true;
                 WriteTomfanLog($"Đã chèn lệnh E-Stop (96) vào dòng mới k={nextIndex}");
             }
             catch (Exception ex)
@@ -549,6 +549,10 @@ namespace TESMEA_TMS.Services
         {
             try
             {
+
+                // force stop khi đã ấn estop, tránh tình trạng bên plc trả về kết quả dẫn đến việc tiếp tục gửi lệnh sau khi đã stop ở đây
+                if (_isEStop) return;
+
                 //string xlsxPath = Path.Combine(_exchangeFolder, "1_T_OUT.xlsx");
                 string csvPath = Path.Combine(_exchangeFolder, "1_T_OUT.csv");
                 char sep = _isComma ? ' ' : ';';
