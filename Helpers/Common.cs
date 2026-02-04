@@ -60,5 +60,10 @@ namespace TESMEA_TMS.Helpers
 
             return (value % factor == 0) ? (int)value : (int)(value + factor - (value % factor));
         }
+
+        public static int RoundUpToNearest(float value, int step = 50)
+        {
+            return (int)(Math.Ceiling(value / (double)step) * step);
+        }
     }
 }

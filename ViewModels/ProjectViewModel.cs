@@ -322,8 +322,8 @@ namespace TESMEA_TMS.ViewModels
                             F = MeasureStatus.Pending
                         });
                     }
-                    locator.MeasureViewModel.InitializePowerPlotModel();
-                    locator.MeasureViewModel.InitializeEfficiencyPlotModel();
+                    //locator.MeasureViewModel.InitializePowerPlotModel();
+                    //locator.MeasureViewModel.InitializeEfficiencyPlotModel();
                     locator.MeasureViewModel.MeasureRows = new ObservableCollection<Measure>(measures);
                     
                     if(ThongTinDuAn.ThamSo.KieuKiemThu == "B")

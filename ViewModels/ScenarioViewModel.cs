@@ -178,7 +178,6 @@ namespace TESMEA_TMS.ViewModels
 
         private void ScenarioParams_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
-            // Cập nhật STT khi collection thay đổi
             UpdateSTT();
 
             // Đánh dấu scenario là đã chỉnh sửa nếu thêm/xóa params
@@ -235,16 +234,11 @@ namespace TESMEA_TMS.ViewModels
             try
             {
 
-                //if (HasUnsavedChanges)
-                //{
-                //    var result = MessageBoxHelper.ShowQuestion(
-                //        "Bạn có thay đổi chưa được lưu. Bạn có chắc chắn muốn tải lại dữ liệu và mất các thay đổi?");
-
-                //    if (!result)
-                //    {
-                //        return;
-                //    }
-                //}
+                if (HasUnsavedChanges)
+                {
+                    MessageBoxHelper.ShowWarning("Còn thay đổi chưa lưu, vui lòng lưu để hoàn thành");
+                    return;
+                }
 
                 if (parameter == null)
                     return;
@@ -298,10 +292,8 @@ namespace TESMEA_TMS.ViewModels
                           .FirstOrDefault(w => w is TESMEA_TMS.Views.MainWindow);
 
 
-                var dialog = new ConfirmAddScenarioDialog
-                {
-                    Owner = System.Windows.Application.Current.MainWindow
-                };
+                var dialog = new ConfirmAddScenarioDialog();
+                
                 if (mainWindow != null && mainWindow != dialog)
                 {
                     dialog.Owner = mainWindow;
@@ -316,7 +308,10 @@ namespace TESMEA_TMS.ViewModels
                 var scenarioName = dialog.InputText?.Trim();
                 var standardDeviation = dialog.StandardDeviation;
                 var timeRange = dialog.TimeRange;
-
+                if(standardDeviation < 105)
+                {
+                    MessageBoxHelper.ShowWarning("Tỉ lệ giá trị max/min không được nhỏ hơn 1.05");
+                }
 
                 if (string.IsNullOrWhiteSpace(scenarioName))
                 {
@@ -362,6 +357,23 @@ namespace TESMEA_TMS.ViewModels
                 SelectedScenario = newScenario;
                 _currentViewedScenarioId = newScenario.ScenarioId;
                 ScenarioParams.Clear();
+                ScenarioParams.Add(new ScenarioParamDTO
+                {
+                    ScenarioId = newScenario.ScenarioId,
+                    STT = 1,
+                    S = 0,
+                    CV = 0,
+                    IsNew = true
+                });
+                ScenarioParams.Add(new ScenarioParamDTO
+                {
+                    ScenarioId = newScenario.ScenarioId,
+                    STT = 2,
+                    S = 0,
+                    CV = 0,
+                    IsNew = true
+                });
+
             }
             catch (Exception ex)
             {
@@ -444,7 +456,7 @@ namespace TESMEA_TMS.ViewModels
 
                 var result = MessageBoxHelper.ShowQuestion(
                     $"Bạn có chắc chắn muốn xóa scenario '{scenarioToDelete.ScenarioName}'?\n\n" +
-                    "Lưu ý: Thao tác này có thể hoàn tác trước khi lưu.");
+                    "Lưu ý: Thao tác này có thể hoàn tác trước khi lưu");
 
                 if (result)
                 {

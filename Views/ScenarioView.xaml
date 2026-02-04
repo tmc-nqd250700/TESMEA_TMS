@@ -217,7 +217,10 @@
             <!-- DataGrid Con - Thông số chi tiết -->
             <StackPanel Grid.Column="2" Margin="0 5">
                 <TextBlock Text="{Binding SelectedScenario.ScenarioName, Mode=OneWay}" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="15" FontWeight="Bold"/>
-                <DataGrid Background="White" 
+                <DataGrid 
+                        x:Name="ScenarioParamsDataGrid"
+                    PreviewKeyDown="ScenarioParamsDataGrid_PreviewKeyDown"
+                    Background="White" 
                           ItemsSource="{Binding ScenarioParams}"
                           AutoGenerateColumns="False" 
                           CanUserResizeColumns="False"

@@ -22,6 +22,7 @@ namespace TESMEA_TMS.DTOs
         public float CongSuat_fb { get; set; }
         public float ViTriVan_fb { get; set; }
         public float TanSo_fb { get; set; }
+        public float NhietDoGoi { get; set; }
 
         private MeasureStatus _f;
         public MeasureStatus F
@@ -100,6 +101,8 @@ namespace TESMEA_TMS.DTOs
     }
     public class MeasureFittingFC
     {
+
+        // Điều kiện đo kiểm
         public double[] FlowPoint_ft { get; set; }
         public double[] PrPoint_ft { get; set; }
         public double[] PsPoint_ft { get; set; }
@@ -110,7 +113,7 @@ namespace TESMEA_TMS.DTOs
         public double[] EstPoint_ft { get; set; }
         public double[] EttPoint_ft { get; set; }
 
-
+        // Điều kiện hoạt động
         public double[] Ope_FlowPoint { get; set; }
         public double[] Ope_PrPoint { get; set; }
         public double[] Ope_PsPoint { get; set; }
