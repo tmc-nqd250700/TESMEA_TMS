@@ -46,10 +46,6 @@ namespace TESMEA_TMS.ViewModels
             {
                 _selectedMeasure = value;
                 OnPropertyChanged(nameof(SelectedMeasure));
-                //if (TrendLineDialog != null && TrendLineDialog.IsLoaded && _selectedMeasure != null)
-                //{
-                //    TrendLineDialog.LoadTrendDataAndDraw(_selectedMeasure.k);
-                //}
             }
         }
 
@@ -138,7 +134,6 @@ namespace TESMEA_TMS.ViewModels
         // services
         private readonly IExternalAppService _externalAppService;
         private readonly IParameterService _parameterService;
-        private readonly IAppNavigationService _appNavigationService;
         private readonly IFileService _fileService;
 
         // Commands
@@ -153,11 +148,10 @@ namespace TESMEA_TMS.ViewModels
         public ICommand ExportReportCommand { get; }
         public ICommand BackCommand { get; }
         public ICommand FinishCommand { get; }
-        public MeasureViewModel(IExternalAppService externalAppService, IParameterService parameterService, IAppNavigationService appNavigationService, IFileService fileService)
+        public MeasureViewModel(IExternalAppService externalAppService, IParameterService parameterService, IFileService fileService)
         {
             _externalAppService = externalAppService;
             _parameterService = parameterService;
-            _appNavigationService = appNavigationService;
             _fileService = fileService;
 
             MeasureRows = new ObservableCollection<Measure>();
@@ -251,25 +245,28 @@ namespace TESMEA_TMS.ViewModels
             {
                 Position = AxisPosition.Bottom,
                 Title = IsEn ? "Air volume (m3/h)" : "Lưu lượng (m3/h)",
+                Key = "PowerXAxis",
                 Minimum = 0,
                 IsPanEnabled = false,
                 IsZoomEnabled = false,
                 MajorGridlineStyle = LineStyle.Solid,
-                MinorGridlineStyle = LineStyle.Dot
+                MinorGridlineStyle = LineStyle.Dot,
             });
 
+            // Thêm trục Y
             PowerPlotModel.Axes.Add(new LinearAxis
             {
                 Position = AxisPosition.Left,
                 Title = IsEn ? "Power (kW)" : "Công suất (kW)",
+                Key = "PowerYAxis",
                 Minimum = 0,
                 IsPanEnabled = false,
                 IsZoomEnabled = false,
                 MajorGridlineStyle = LineStyle.Solid,
-                MinorGridlineStyle = LineStyle.Dot
+                MinorGridlineStyle = LineStyle.Dot,
             });
 
-            // Thêm trục Y
+           
             var scatterSeries = new ScatterSeries
             {
                 Title = IsEn ? "Power" : "Công suất",
@@ -277,7 +274,7 @@ namespace TESMEA_TMS.ViewModels
                 MarkerFill = OxyColors.Red,
                 MarkerStroke = OxyColors.Red,
                 MarkerStrokeThickness = 1,
-                MarkerSize = 4
+                MarkerSize = 2
             };
             PowerPlotModel.Series.Add(scatterSeries);
         }
@@ -312,7 +309,7 @@ namespace TESMEA_TMS.ViewModels
                 IsPanEnabled = false,
                 IsZoomEnabled = false,
                 MajorGridlineStyle = LineStyle.Solid,
-                MinorGridlineStyle = LineStyle.Dot
+                MinorGridlineStyle = LineStyle.Dot,
             });
 
             // Trục Y1 (Pressure)
@@ -325,7 +322,7 @@ namespace TESMEA_TMS.ViewModels
                 IsZoomEnabled = false,
                 MajorGridlineStyle = LineStyle.Solid,
                 MinorGridlineStyle = LineStyle.Dot,
-                Key = "PressureAxis"
+                Key = "PressureAxis",
             });
 
             // Trục Y2 (Efficiency)
@@ -334,13 +331,15 @@ namespace TESMEA_TMS.ViewModels
                 Position = AxisPosition.Right,
                 Title = IsEn ? "Efficiency (%)" : "Hiệu suất (%)",
                 Minimum = 0,
+                Maximum = 100,
+                MajorStep = 10,
                 IsPanEnabled = false,
                 IsZoomEnabled = false,
                 MajorGridlineStyle = LineStyle.None,
                 MinorGridlineStyle = LineStyle.None,
                 TextColor = OxyColors.Blue,
                 TitleColor = OxyColors.Blue,
-                Key = "EfficiencyAxis"
+                Key = "EfficiencyAxis",
             });
 
             // Thêm các series
@@ -351,8 +350,8 @@ namespace TESMEA_TMS.ViewModels
                 MarkerFill = OxyColors.Red,
                 MarkerStroke = OxyColors.Red,
                 MarkerStrokeThickness = 1,
-                MarkerSize = 4,
-                YAxisKey = "PressureAxis"
+                MarkerSize = 2,
+                YAxisKey = "PressureAxis",
             };
 
             var totalPressureSeries = new ScatterSeries
@@ -362,7 +361,7 @@ namespace TESMEA_TMS.ViewModels
                 MarkerFill = OxyColors.Blue,
                 MarkerStroke = OxyColors.Blue,
                 MarkerStrokeThickness = 1,
-                MarkerSize = 4,
+                MarkerSize = 2,
                 YAxisKey = "PressureAxis"
             };
 
@@ -373,7 +372,7 @@ namespace TESMEA_TMS.ViewModels
                 MarkerFill = OxyColors.Black,
                 MarkerStroke = OxyColors.Black,
                 MarkerStrokeThickness = 1,
-                MarkerSize = 4,
+                MarkerSize = 2,
                 YAxisKey = "EfficiencyAxis"
             };
 
@@ -384,7 +383,7 @@ namespace TESMEA_TMS.ViewModels
                 MarkerFill = OxyColors.DarkGreen,
                 MarkerStroke = OxyColors.DarkGreen,
                 MarkerStrokeThickness = 1,
-                MarkerSize = 4,
+                MarkerSize = 2,
                 YAxisKey = "EfficiencyAxis"
             };
 
@@ -619,9 +618,9 @@ namespace TESMEA_TMS.ViewModels
                 measure.F = MeasureStatus.Pending;
             }
             OnPropertyChanged(nameof(MeasureRows));
+            DataProcess.Initialize(MeasureRows.Count);
             MeasureResponses.Clear();
             OnPropertyChanged(nameof(MeasureResponses));
-            ClearPlots();
             ParameterShow = new ParameterShow();
             OnPropertyChanged(nameof(ParameterShow));
             var exchangeFolder = UserSetting.TOMFAN_folder;
@@ -661,37 +660,28 @@ namespace TESMEA_TMS.ViewModels
                     }
                 }
             }
-            //_externalAppService.StopExchangeAsync().Wait();
+            ClearPlots();
+            _isMeasuring = false;
             _isConnectedRow1 = false;
             _isCompleted = false;
             _isConnected = false;
+            OnPropertyChanged(nameof(CanMeasure));
+            OnPropertyChanged(nameof(SimaticStatus));
         }
 
         private void ClearPlots()
         {
-            // Xóa dữ liệu PowerPlotModel
-            if (PowerPlotModel != null && PowerPlotModel.Series.Count > 0)
+            if (PowerPlotModel != null)
             {
-                foreach (var series in PowerPlotModel.Series)
-                {
-                    if (series is ScatterSeries scatterSeries)
-                        scatterSeries.Points.Clear();
-                    if (series is LineSeries lineSeries)
-                        lineSeries.Points.Clear();
-                }
+                PowerPlotModel.Series.Clear();
+                InitializePowerPlotModel();
                 PowerPlotModel.InvalidatePlot(true);
             }
 
-            // Xóa dữ liệu EfficiencyPlotModel
-            if (EfficiencyPlotModel != null && EfficiencyPlotModel.Series.Count > 0)
+            if (EfficiencyPlotModel != null)
             {
-                foreach (var series in EfficiencyPlotModel.Series)
-                {
-                    if (series is ScatterSeries scatterSeries)
-                        scatterSeries.Points.Clear();
-                    if (series is LineSeries lineSeries)
-                        lineSeries.Points.Clear();
-                }
+                EfficiencyPlotModel.Series.Clear();
+                InitializeEfficiencyPlotModel();
                 EfficiencyPlotModel.InvalidatePlot(true);
             }
         }
@@ -707,14 +697,6 @@ namespace TESMEA_TMS.ViewModels
                 TrendLineDialog.Closed += (s, e) => TrendLineDialog = null;
                 TrendLineDialog.Show();
             }
-            //else
-            //{
-            //    TrendLineDialog.LoadTrendDataAndDraw(SelectedMeasure.k);
-            //    TrendLineDialog.Activate();
-            //}
-
-
-            //_appNavigationService.ShowTrendDialog(SelectedMeasure.k);
         }
 
         public void UpdateMeasureStatusFromSimaticResult(Measure result)
@@ -729,438 +711,246 @@ namespace TESMEA_TMS.ViewModels
             }
         }
 
-        private ScatterSeries _powerScatterLiveSeries;
-        private ScatterSeries _psScatterLiveSeries;
-        private ScatterSeries _ptScatterLiveSeries;
-        private ScatterSeries _seScatterLiveSeries;
-        private ScatterSeries _teScatterLiveSeries;
+        //private ScatterSeries _powerScatterLiveSeries;
+        //private ScatterSeries _psScatterLiveSeries;
+        //private ScatterSeries _ptScatterLiveSeries;
+        //private ScatterSeries _seScatterLiveSeries;
+        //private ScatterSeries _teScatterLiveSeries;
+
+
         private void OnMeasurePointCompletedHandler(MeasureResponse response, ParameterShow paramShow)
         {
             Application.Current.Dispatcher.Invoke(() =>
             {
-                // Hiển thị kết quả lên màn hình
                 ParameterShow = paramShow;
                 OnPropertyChanged(nameof(ParameterShow));
 
                 // Thêm vào danh sách kết quả
                 MeasureResponses.Add(response);
 
-                #region Power plot
-                //var powerSeries = PowerPlotModel.Series.OfType<ScatterSeries>().FirstOrDefault();
-                //if (powerSeries == null) return;
-                //powerSeries.Points.Add(new ScatterPoint(response.Airflow, response.Power));
-
-                if (_powerScatterLiveSeries == null)
+               // Power Plot Update
+                var powerSeries = PowerPlotModel.Series.OfType<ScatterSeries>().FirstOrDefault();
+                if (powerSeries != null)
                 {
-                    _powerScatterLiveSeries = PowerPlotModel.Series.OfType<ScatterSeries>().FirstOrDefault();
-                }
-                _powerScatterLiveSeries?.Points.Add(new ScatterPoint(response.Airflow, response.Power));
+                    powerSeries.Points.Add(new ScatterPoint(response.Airflow, response.Power));
 
+                    //var xAxis = PowerPlotModel.Axes.FirstOrDefault(a => a.Position == AxisPosition.Bottom) as LinearAxis;
+                    //var yAxis = PowerPlotModel.Axes.FirstOrDefault(a => a.Position == AxisPosition.Left) as LinearAxis;
 
-                // Cập nhật scale trục
-                var xAxisPw = PowerPlotModel.Axes[0] as LinearAxis;
-                if (xAxisPw != null && response.Airflow > xAxisPw.ActualMaximum - xAxisPw.MajorStep)
-                {
-                    xAxisPw.Maximum = response.Airflow + xAxisPw.MajorStep;
-                }
+                    //// Cập nhật trục X
+                    //if (xAxis != null)
+                    //{
+                    //    var currentMax = xAxis.Maximum;
+                    //    if (response.Airflow > currentMax)
+                    //    {
+                    //        xAxis.Maximum = Common.RoundUpToNearest(response.Airflow * 1.1f);
+                    //        _externalAppService.WriteTomfanLog($"PowerPlot: Cập nhật X axis từ {currentMax} lên {xAxis.Maximum}");
+                    //    }
+                    //}
 
-                var yAxisPw = PowerPlotModel.Axes[1] as LinearAxis;
-                if (yAxisPw != null && response.Power > yAxisPw.ActualMaximum - yAxisPw.MajorStep)
-                {
-                    yAxisPw.Maximum = response.Power + yAxisPw.MajorStep;
-                }
+                    //// Cập nhật trục Y
+                    //if (yAxis != null)
+                    //{
+                    //    var currentMax = yAxis.Maximum;
+                    //    if (response.Power > currentMax)
+                    //    {
+                    //        yAxis.Maximum = Common.RoundUpToNearest(response.Power * 1.1f);
+                    //        _externalAppService.WriteTomfanLog($"PowerPlot: Cập nhật Y axis từ {currentMax} lên {yAxis.Maximum}");
+                    //    }
+                    //}
 
-
-
-                #endregion
-
-                #region Eff Plot
-                //Giả sử 4 series ScatterPoints đầu tiên đã được khởi tạo
-                if (EfficiencyPlotModel?.Series == null || EfficiencyPlotModel.Series.Count < 4)
-                    return;
-
-                //var psPoint = EfficiencyPlotModel.Series[0] as ScatterSeries;
-                //var ptPoint = EfficiencyPlotModel.Series[1] as ScatterSeries;
-                //var sePoint = EfficiencyPlotModel.Series[2] as ScatterSeries;
-                //var tePoint = EfficiencyPlotModel.Series[3] as ScatterSeries;
-
-                //// thêm point cho eff plot
-                //psPoint?.Points.Add(new ScatterPoint(response.Airflow, response.Ps));
-                //ptPoint?.Points.Add(new ScatterPoint(response.Airflow, response.Pt));
-                //sePoint?.Points.Add(new ScatterPoint(response.Airflow, response.SEff));
-                //tePoint?.Points.Add(new ScatterPoint(response.Airflow, response.TEff));
-
-                if (_psScatterLiveSeries == null)
-                    _psScatterLiveSeries = EfficiencyPlotModel.Series[0] as ScatterSeries;
-                if (_ptScatterLiveSeries == null)
-                    _ptScatterLiveSeries = EfficiencyPlotModel.Series[1] as ScatterSeries;
-                if (_seScatterLiveSeries == null)
-                    _seScatterLiveSeries = EfficiencyPlotModel.Series[2] as ScatterSeries;
-                if (_teScatterLiveSeries == null)
-                    _teScatterLiveSeries = EfficiencyPlotModel.Series[3] as ScatterSeries;
-
-                _psScatterLiveSeries?.Points.Add(new ScatterPoint(response.Airflow, response.Ps));
-                _ptScatterLiveSeries?.Points.Add(new ScatterPoint(response.Airflow, response.Pt));
-                _seScatterLiveSeries?.Points.Add(new ScatterPoint(response.Airflow, response.SEff));
-                _teScatterLiveSeries?.Points.Add(new ScatterPoint(response.Airflow, response.TEff));
-
-                // scale trục
-                var xAxisEff = EfficiencyPlotModel.Axes[0] as LinearAxis;
-                if (xAxisEff != null && response.Airflow > xAxisEff.ActualMaximum - xAxisEff.MajorStep)
-                {
-
-                    xAxisEff.Maximum = response.Airflow + xAxisEff.MajorStep;
+                    PowerPlotModel.InvalidatePlot(true);
                 }
 
-                var y1Axis = EfficiencyPlotModel.Axes.FirstOrDefault(a => a.Key == "PressureAxis") as LinearAxis;
-                if (y1Axis != null && Math.Max(response.Ps, response.Pt) > y1Axis.ActualMaximum - y1Axis.MajorStep)
+                // Efficiency Plot Update
+                if (EfficiencyPlotModel.Series.Count >= 4)
                 {
+                    var psPoint = EfficiencyPlotModel.Series[0] as ScatterSeries;
+                    var ptPoint = EfficiencyPlotModel.Series[1] as ScatterSeries;
+                    var sePoint = EfficiencyPlotModel.Series[2] as ScatterSeries;
+                    var tePoint = EfficiencyPlotModel.Series[3] as ScatterSeries;
 
-                    y1Axis.Maximum = Math.Max(response.Ps, response.Pt) + y1Axis.MajorStep;
+                    psPoint?.Points.Add(new ScatterPoint(response.Airflow, response.Ps));
+                    ptPoint?.Points.Add(new ScatterPoint(response.Airflow, response.Pt));
+                    sePoint?.Points.Add(new ScatterPoint(response.Airflow, response.SEff));
+                    tePoint?.Points.Add(new ScatterPoint(response.Airflow, response.TEff));
+
+                    // Cập nhật trục cho Efficiency Plot
+                    //var xAxisEff = EfficiencyPlotModel.Axes.FirstOrDefault(a => a.Position == AxisPosition.Bottom) as LinearAxis;
+                    //var yPressAxis = EfficiencyPlotModel.Axes.FirstOrDefault(a => a.Key == "PressureAxis") as LinearAxis;
+
+                    //// Cập nhật trục X
+                    //if (xAxisEff != null)
+                    //{
+                    //    var currentMax = xAxisEff.Maximum;
+                    //    if (response.Airflow > currentMax)
+                    //    {
+                    //        xAxisEff.Maximum = Common.RoundUpToNearest(response.Airflow * 1.1f);
+                    //    }
+                    //}
+
+                    //// Cập nhật trục Y (Pressure)
+                    //if (yPressAxis != null)
+                    //{
+                    //    float maxPress = Math.Max(response.Ps, response.Pt);
+                    //    var currentMax = yPressAxis.Maximum;
+                    //    if (maxPress > currentMax)
+                    //    {
+                    //        yPressAxis.Maximum = Common.RoundUpToNearest(maxPress * 1.1f);
+                    //    }
+                    //}
+                    EfficiencyPlotModel.InvalidatePlot(true);
                 }
-
-                var y2Axis = EfficiencyPlotModel.Axes.FirstOrDefault(a => a.Key == "EfficiencyAxis") as LinearAxis;
-                if (y2Axis != null && Math.Max(response.SEff, response.TEff) > y2Axis.ActualMaximum - y2Axis.MajorStep)
-                {
-                    y2Axis.Maximum = Math.Max(response.SEff, response.TEff) + y2Axis.MajorStep;
-                }
-
-                #endregion
-
-                PowerPlotModel.InvalidatePlot(true);
-                EfficiencyPlotModel.InvalidatePlot(true);
             });
         }
+
         private void OnMeasureRangeCompletedHandler(MeasureFittingFC fitting, Measure rangeMeasure)
         {
             Application.Current.Dispatcher.Invoke(() =>
             {
-                // Log toàn bộ giá trị fitting
                 _externalAppService.WriteTomfanLog("==== LOG FITTING ====");
-                for (int i = 0; i < fitting.FlowPoint_ft.Length; i++)
-                {
-                    _externalAppService.WriteTomfanLog($"i={i} | FlowPoint_ft={fitting.FlowPoint_ft[i]} | PrPoint_ft={fitting.PrPoint_ft[i]} | PsPoint_ft={fitting.PsPoint_ft[i]} | PtPoint_ft={fitting.PtPoint_ft[i]} | EsPoint_ft={fitting.EsPoint_ft[i]} | EtPoint_ft={fitting.EtPoint_ft[i]} | PrtPoint_ft={fitting.PrtPoint_ft[i]} | EstPoint_ft={fitting.EstPoint_ft[i]} | EttPoint_ft={fitting.EttPoint_ft[i]} | Ope_FlowPoint={fitting.Ope_FlowPoint[i]} | Ope_PsPoint={fitting.Ope_PsPoint[i]} | Ope_PtPoint={fitting.Ope_PtPoint[i]} | Ope_EsPoint={fitting.Ope_EsPoint[i]} | Ope_EtPoint={fitting.Ope_EtPoint[i]} | Ope_PrPoint={fitting.Ope_PrPoint[i]} | Ope_EstPoint={fitting.Ope_EstPoint[i]} | Ope_EttPoint={fitting.Ope_EttPoint[i]} | PrtPoint={fitting.PrtPoint[i]}");
-                }
-                _externalAppService.WriteTomfanLog("==== END LOG FITTING ====");
-                //if (_powerScatterLiveSeries != null) PowerPlotModel.Series.Remove(_powerScatterLiveSeries);
-                //if (_psScatterLiveSeries != null) EfficiencyPlotModel.Series.Remove(_psScatterLiveSeries);
-                //if (_ptScatterLiveSeries != null) EfficiencyPlotModel.Series.Remove(_ptScatterLiveSeries);
-                //if (_seScatterLiveSeries != null) EfficiencyPlotModel.Series.Remove(_seScatterLiveSeries);
-                //if (_teScatterLiveSeries != null) EfficiencyPlotModel.Series.Remove(_teScatterLiveSeries);
-                //_powerScatterLiveSeries = _psScatterLiveSeries = _ptScatterLiveSeries = _seScatterLiveSeries = _teScatterLiveSeries = null;
 
-                #region powerPlot
-                PowerPlotModel.Title = IsEn ? "Air volume - Power curve" : "Đặc tuyến Công suất - Lưu lượng";
-                PowerPlotModel.Background = OxyColors.White;
-                // Cập nhật trục X
-                var xAxisPw = PowerPlotModel.Axes.FirstOrDefault(a => a.Position == AxisPosition.Bottom) as LinearAxis;
-                if (xAxisPw == null)
-                {
-                    xAxisPw = new LinearAxis
-                    {
-                        Position = AxisPosition.Bottom,
-                        Title = IsEn ? "Air volume (m3/h)" : "Lưu lượng (m3/h)",
-                        Minimum = 0,
-                        Maximum = fitting.FlowPoint_ft.Max() + xAxisPw.MajorStep,
-                        MajorGridlineStyle = LineStyle.Solid,
-                        MinorGridlineStyle = LineStyle.Dot
-                    };
-                    PowerPlotModel.Axes.Add(xAxisPw);
-                }
-                else
-                {
-                    xAxisPw.Title = IsEn ? "Air volume (m3/h)" : "Lưu lượng (m3/h)";
-                    xAxisPw.Minimum = 0;
-                    xAxisPw.Maximum = fitting.FlowPoint_ft.Max() + xAxisPw.MajorStep;
-                }
-
-                // Cập nhật trục Y
-                var yAxisPw = PowerPlotModel.Axes.FirstOrDefault(a => a.Position == AxisPosition.Left) as LinearAxis;
-                if (yAxisPw == null)
-                {
-                    yAxisPw = new LinearAxis
-                    {
-                        Position = AxisPosition.Left,
-                        Title = IsEn ? "Power (kW)" : "Công suất (kW)",
-                        Minimum = 0,
-                        Maximum = fitting.PrtPoint_ft.Max() + yAxisPw.MajorStep,
-                        MajorGridlineStyle = LineStyle.Solid,
-                        MinorGridlineStyle = LineStyle.Dot
-                    };
-                    PowerPlotModel.Axes.Add(yAxisPw);
-                }
-                else
-                {
-                    yAxisPw.Title = IsEn ? "Power (kW)" : "Công suất (kW)";
-                    yAxisPw.Minimum = 0;
-                    yAxisPw.Maximum = fitting.PrtPoint_ft.Max() + yAxisPw.MajorStep;
-                }
-
-                ScatterSeries pwSeries = new ScatterSeries
-                {
-                    MarkerType = MarkerType.Circle,
-                    MarkerFill = OxyColors.Red,
-                    MarkerStroke = OxyColors.Red,
-                    MarkerSize = 4,
-                    Title = "",
-                };
-
-                LineSeries pwLine = new LineSeries
+                // Power Plot - Thêm Line mới
+                // Tạo LineSeries cho dải vừa hoàn thành
+                var pwLine = new LineSeries
                 {
                     Color = OxyColors.Red,
                     StrokeThickness = 2,
-                    Title = "",
                     LineLegendPosition = LineLegendPosition.None
                 };
+
+                for (int i = 0; i < fitting.FlowPoint_ft.Length; i++)
+                {
+                    double x = fitting.Ope_FlowPoint[i];
+                    double x2 = fitting.FlowPoint_ft[i];
+                    double y = fitting.Ope_PrPoint[i];
+                    double y2 = fitting.PrPoint_ft[i];
+                    double y3 = fitting.PrtPoint[i];
+                    double y4 = fitting.PrtPoint_ft[i];
+                    // fitting co torque
+                    //pwLine.Points.Add(new DataPoint(x2, y4));
+                    // fitting ps
+                    pwLine.Points.Add(new DataPoint(x2, y2));
+                }
+
+                PowerPlotModel.Series.Add(pwLine);
+
+              
+                var list = new List<DataPoint>();
+                var list2 = new List<DataPoint>();
+                var list3 = new List<DataPoint>();
+                var list4 = new List<DataPoint>();
+                var list5 = new List<DataPoint>();
+                var list6 = new List<DataPoint>();
+                var list7 = new List<DataPoint>();
+                var list8 = new List<DataPoint>();
+                // T
+                var list9 = new List<DataPoint>();
+                var list10 = new List<DataPoint>();
+                var list11 = new List<DataPoint>();
+                var list12 = new List<DataPoint>();
+                for (int i = 0; i < fitting.FlowPoint_ft.Length; i++)
+                {
+                    double x = fitting.Ope_FlowPoint[i];
+                    double x2 = fitting.FlowPoint_ft[i];
+                    double y = fitting.Ope_PsPoint[i];
+                    double y2 = fitting.Ope_PtPoint[i];
+                    double y3 = fitting.Ope_EsPoint[i];
+                    double y4 = fitting.Ope_EtPoint[i];
+                    double y5 = fitting.PsPoint_ft[i];
+                    double y6 = fitting.PtPoint_ft[i];
+                    double y7 = fitting.EsPoint_ft[i];
+                    double y8 = fitting.EtPoint_ft[i];
+
+                    // T
+                    double y9 = fitting.Ope_EstPoint[i];
+                    double y10 = fitting.Ope_EttPoint[i];
+                    double y11 = fitting.EstPoint_ft[i];
+                    double y12 = fitting.EttPoint_ft[i];
+
+                    list.Add(new DataPoint(x, y));
+                    list2.Add(new DataPoint(x, y2));
+                    list3.Add(new DataPoint(x, y3));
+                    list4.Add(new DataPoint(x, y4));
+                    list5.Add(new DataPoint(x2, y5));
+                    list6.Add(new DataPoint(x2, y6));
+                    list7.Add(new DataPoint(x2, y7));
+                    list8.Add(new DataPoint(x2, y8));
+                    // T
+                    list9.Add(new DataPoint(x, y9));
+                    list10.Add(new DataPoint(x, y10));
+                    list11.Add(new DataPoint(x2, y11));
+                    list12.Add(new DataPoint(x2, y12));
+                }
+                List<ScatterPoint> ToScatterPoints(List<DataPoint> dataPoints)
+                {
+                    return dataPoints.Select(dp => new ScatterPoint(dp.X, dp.Y)).ToList();
+                }
+                if (EfficiencyPlotModel.Series.Count >= 4)
+                {
+                    var scatter1 = EfficiencyPlotModel.Series[0] as ScatterSeries;
+                    var scatter2 = EfficiencyPlotModel.Series[1] as ScatterSeries;
+                    var scatter3 = EfficiencyPlotModel.Series[2] as ScatterSeries;
+                    var scatter4 = EfficiencyPlotModel.Series[3] as ScatterSeries;
+
+                    scatter1?.Points.Clear();
+                    scatter2?.Points.Clear();
+                    scatter3?.Points.Clear();
+                    scatter4?.Points.Clear();
+
+                    if (scatter1 != null)
+                    {
+                        scatter1.Points.AddRange(ToScatterPoints(list));
+                    }
+                    if (scatter2 != null)
+                    {
+                        scatter2.Points.AddRange(ToScatterPoints(list2));
+                    }
+                    if (scatter3 != null && scatter4 != null)
+                    {
+                        if (!IsTorque)
+                        {
+                            scatter3.Points.AddRange(ToScatterPoints(list3));
+                            scatter4.Points.AddRange(ToScatterPoints(list4));
+                        }
+                        else
+                        {
+                            scatter3.Points.AddRange(ToScatterPoints(list9));
+                            scatter4.Points.AddRange(ToScatterPoints(list10));
+                        }
+                    }
+                }
+
+
+                var staticPressureLine = new LineSeries { Color = OxyColors.Red, StrokeThickness = 2, YAxisKey = "PressureAxis" };
+                var totalPressureLine = new LineSeries { Color = OxyColors.Blue, StrokeThickness = 2, YAxisKey = "PressureAxis", LineStyle = LineStyle.Dash };
+                var staticEfficiencyLine = new LineSeries { Color = OxyColors.Black, StrokeThickness = 2, YAxisKey = "EfficiencyAxis", LineStyle = LineStyle.DashDot };
+                var totalEfficiencyLine = new LineSeries { Color = OxyColors.DarkGreen, StrokeThickness = 2, YAxisKey = "EfficiencyAxis", LineStyle = LineStyle.Dot };
+
+                staticPressureLine.Points.AddRange(list5);
+                totalPressureLine.Points.AddRange(list6);
+
 
                 if (!IsTorque)
                 {
-                    // Dữ liệu thường: dùng PrPoint_ft
-                    for (int i = 0; i < fitting.FlowPoint_ft.Length; i++)
-                    {
-                        pwSeries.Points.Add(new ScatterPoint(fitting.Ope_FlowPoint[i], fitting.Ope_PrPoint[i]));
-                        pwLine.Points.Add(new DataPoint(fitting.FlowPoint_ft[i], fitting.PrPoint_ft[i]));
-                    }
-
+                    staticEfficiencyLine.Points.AddRange(list7);
+                    totalEfficiencyLine.Points.AddRange(list8);
                 }
                 else
                 {
-                    // Dữ liệu momen xoắn: dùng PrtPoint_ft
-                    for (int i = 0; i < fitting.FlowPoint_ft.Length; i++)
-                    {
-                        pwSeries.Points.Add(new ScatterPoint(fitting.Ope_FlowPoint[i], fitting.PrtPoint[i]));
-                        pwLine.Points.Add(new DataPoint(fitting.FlowPoint_ft[i], fitting.PrtPoint_ft[i]));
-                    }
+                    staticEfficiencyLine.Points.AddRange(list11);
+                    totalEfficiencyLine.Points.AddRange(list12);
                 }
-
-                //PowerPlotModel.Series.Add(pwSeries);
-                PowerPlotModel.Series.Add(pwLine);
-
-                // Lấy giá trị S của dải hiện tại
-                var measure = rangeMeasure != null ? rangeMeasure.S : 0;
-
-                float sValue = _camBien.IsImportPhanHoiTanSo ? _camBien.PhanHoiTanSoValue : (_camBien.PhanHoiTanSoMin + (_camBien.PhanHoiTanSoMax - _camBien.PhanHoiTanSoMin) * measure / 100);
-                // Tính điểm giữa của line
-                int midIndex = fitting.FlowPoint_ft.Length / 2;
-                double midX = fitting.FlowPoint_ft[midIndex];
-                double midY = !IsTorque ? fitting.PrPoint_ft[midIndex] : fitting.PrtPoint_ft[midIndex];
-                double offsetY = (yAxisPw.ActualMaximum - yAxisPw.ActualMinimum) * 0.05;
-                double textY = midY + offsetY;
-                var annotation = new OxyPlot.Annotations.TextAnnotation
-                {
-                    Text = $"Tần số {sValue} Hz",
-                    TextPosition = new OxyPlot.DataPoint(midX, textY),
-                    TextColor = OxyColors.Black,
-                    Stroke = OxyColors.White,
-                    FontSize = 11,
-                    FontWeight = OxyPlot.FontWeights.Bold,
-                    Background = OxyColors.White,
-                    Padding = new OxyThickness(2),
-                    TextHorizontalAlignment = OxyPlot.HorizontalAlignment.Center,
-                    TextVerticalAlignment = OxyPlot.VerticalAlignment.Middle
-                };
-
-                //PowerPlotModel.Annotations.Add(annotation);
-
-
-                #endregion
-
-                #region efficiency Plot
-                // Khởi tạo tiêu đề và nhãn trục
-                EfficiencyPlotModel.Title = IsEn ? "Air volume - Pressure - Efficiency curve" : "Đặc tuyến Áp suất - Hiệu suất - Lưu lượng";
-                EfficiencyPlotModel.Background = OxyColors.White;
-
-                // Trục X
-                var xAxisEff = EfficiencyPlotModel.Axes.FirstOrDefault(a => a.Position == AxisPosition.Bottom) as LinearAxis;
-                if (xAxisEff == null)
-                {
-                    xAxisEff = new LinearAxis
-                    {
-                        Position = AxisPosition.Bottom,
-                        Title = IsEn ? "Air volume (m3/h)" : "Lưu lượng (m3/h)",
-                        Minimum = 0,
-                        Maximum = fitting.FlowPoint_ft.Max() + xAxisEff.MajorStep,
-                        MajorGridlineStyle = LineStyle.Solid,
-                        MinorGridlineStyle = LineStyle.Dot
-                    };
-                    EfficiencyPlotModel.Axes.Add(xAxisEff);
-                }
-                else
-                {
-                    xAxisEff.Title = IsEn ? "Air volume (m3/h)" : "Lưu lượng (m3/h)";
-                    xAxisEff.Minimum = 0;
-                    xAxisEff.Maximum = fitting.FlowPoint_ft.Max() + xAxisEff.MajorStep;
-                }
-
-                // Trục Y1 (Pressure)
-                var yAxisEff = EfficiencyPlotModel.Axes.FirstOrDefault(a => a.Position == AxisPosition.Left) as LinearAxis;
-                if (yAxisEff == null)
-                {
-                    yAxisEff = new LinearAxis
-                    {
-                        Position = AxisPosition.Left,
-                        Title = IsEn ? "Pressure (Pa)" : "Áp suất (Pa)",
-                        //Minimum = 0,
-                        Minimum = Math.Min(fitting.PsPoint_ft.Min(), fitting.PtPoint_ft.Min()),
-                        Maximum = Math.Max(fitting.PsPoint_ft.Max(), fitting.PtPoint_ft.Max()) + yAxisEff.MajorStep,
-                        MajorGridlineStyle = LineStyle.Solid,
-                        MinorGridlineStyle = LineStyle.Dot,
-                        Key = "PressureAxis"
-                    };
-                    EfficiencyPlotModel.Axes.Add(yAxisEff);
-                }
-                else
-                {
-                    yAxisEff.Title = IsEn ? "Pressure (Pa)" : "Áp suất (Pa)";
-                    //yAxisEff.Minimum = 0;
-                    yAxisEff.Minimum = Math.Min(fitting.PsPoint_ft.Min(), fitting.PtPoint_ft.Min());
-                    yAxisEff.Maximum = Math.Max(fitting.PsPoint_ft.Max(), fitting.PtPoint_ft.Max()) + yAxisEff.MajorStep;
-                }
-
-                // Trục Y2 (Efficiency)
-                var y2Axis = EfficiencyPlotModel.Axes.FirstOrDefault(a => a.Position == AxisPosition.Right) as LinearAxis;
-                if (y2Axis == null)
-                {
-                    y2Axis = new LinearAxis
-                    {
-                        Position = AxisPosition.Right,
-                        Title = IsEn ? "Efficiency (%)" : "Hiệu suất (%)",
-                        Minimum = 0,
-                        Maximum = 100,
-                        MajorGridlineStyle = LineStyle.None,
-                        MinorGridlineStyle = LineStyle.None,
-                        TextColor = OxyColors.Blue,
-                        TitleColor = OxyColors.Blue,
-                        Key = "EfficiencyAxis"
-                    };
-                    EfficiencyPlotModel.Axes.Add(y2Axis);
-                }
-                else
-                {
-                    y2Axis.Title = IsEn ? "Efficiency (%)" : "Hiệu suất (%)";
-                    y2Axis.Minimum = 0;
-                    y2Axis.Maximum = 100;
-                }
-
-                var staticPressureScatter = new ScatterSeries
-                {
-                    MarkerType = MarkerType.Circle,
-                    MarkerFill = OxyColors.Red,
-                    MarkerStroke = OxyColors.Red,
-                    MarkerSize = 4,
-                    Title = "",
-                    YAxisKey = "PressureAxis"
-                };
-                var totalPressureScatter = new ScatterSeries
-                {
-                    MarkerType = MarkerType.Diamond,
-                    MarkerFill = OxyColors.Blue,
-                    MarkerStroke = OxyColors.Blue,
-                    MarkerSize = 4,
-                    Title = "",
-                    YAxisKey = "PressureAxis"
-                };
-
-                var staticEfficiencyScatter = new ScatterSeries
-                {
-                    MarkerType = MarkerType.Square,
-                    MarkerFill = OxyColors.Black,
-                    MarkerStroke = OxyColors.Black,
-                    MarkerSize = 4,
-                    Title = "",
-                    YAxisKey = "EfficiencyAxis"
-                };
-                var totalEfficiencyScatter = new ScatterSeries
-                {
-                    MarkerType = MarkerType.Triangle,
-                    MarkerFill = OxyColors.DarkGreen,
-                    MarkerStroke = OxyColors.DarkGreen,
-                    MarkerSize = 4,
-                    Title = "",
-                    YAxisKey = "EfficiencyAxis"
-                };
-
-                var staticPressureLine = new LineSeries
-                {
-                    Color = OxyColors.Red,
-                    StrokeThickness = 2,
-                    Title = "",
-                    YAxisKey = "PressureAxis",
-                    LineLegendPosition = LineLegendPosition.None
-                };
-                var totalPressureLine = new LineSeries
-                {
-                    Color = OxyColors.Blue,
-                    StrokeThickness = 2,
-                    Title = "",
-                    YAxisKey = "PressureAxis",
-                    LineStyle = LineStyle.Dash,
-                    LineLegendPosition = LineLegendPosition.None
-                };
-
-                var staticEfficiencyLine = new LineSeries
-                {
-                    Color = OxyColors.Black,
-                    StrokeThickness = 2,
-                    Title = "",
-                    YAxisKey = "EfficiencyAxis",
-                    LineStyle = LineStyle.DashDot,
-                    LineLegendPosition = LineLegendPosition.None
-                };
-                var totalEfficiencyLine = new LineSeries
-                {
-                    Color = OxyColors.DarkGreen,
-                    StrokeThickness = 2,
-                    Title = "",
-                    YAxisKey = "EfficiencyAxis",
-                    LineStyle = LineStyle.Dot,
-                    LineLegendPosition = LineLegendPosition.None
-                };
-
-
-                for (int i = 0; i < fitting.FlowPoint_ft.Length; i++)
-                {
-                    staticPressureScatter.Points.Add(new ScatterPoint(fitting.Ope_FlowPoint[i], fitting.Ope_PsPoint[i])); // Ps
-                    totalPressureScatter.Points.Add(new ScatterPoint(fitting.Ope_FlowPoint[i], fitting.Ope_PtPoint[i])); // Pt
-
-                    staticPressureLine.Points.Add(new DataPoint(fitting.FlowPoint_ft[i], fitting.PsPoint_ft[i])); // Ps Fitting
-                    totalPressureLine.Points.Add(new DataPoint(fitting.FlowPoint_ft[i], fitting.PtPoint_ft[i])); // Pt Fitting
-
-
-                    if (!IsTorque)
-                    {
-                        staticEfficiencyScatter.Points.Add(new ScatterPoint(fitting.Ope_FlowPoint[i], fitting.Ope_EsPoint[i])); // Es
-                        totalEfficiencyScatter.Points.Add(new ScatterPoint(fitting.Ope_FlowPoint[i], fitting.Ope_EtPoint[i])); // Et
-
-                        staticEfficiencyLine.Points.Add(new DataPoint(fitting.FlowPoint_ft[i], fitting.EsPoint_ft[i])); // Es Fitting
-                        totalEfficiencyLine.Points.Add(new DataPoint(fitting.FlowPoint_ft[i], fitting.EtPoint_ft[i])); // Et Fitting
-                    }
-                    else
-                    {
-                        staticEfficiencyScatter.Points.Add(new ScatterPoint(fitting.Ope_FlowPoint[i], fitting.Ope_EstPoint[i])); // Est
-                        totalEfficiencyScatter.Points.Add(new ScatterPoint(fitting.Ope_FlowPoint[i], fitting.Ope_EttPoint[i])); // Ett
-
-                        staticEfficiencyLine.Points.Add(new DataPoint(fitting.FlowPoint_ft[i], fitting.EstPoint_ft[i])); // Est Fitting
-                        totalEfficiencyLine.Points.Add(new DataPoint(fitting.FlowPoint_ft[i], fitting.EttPoint_ft[i])); // Ett Fitting
-                    }
-                }
-
-                // Thêm series mới vào model
-                //EfficiencyPlotModel.Series.Add(staticPressureScatter);
-                //EfficiencyPlotModel.Series.Add(totalPressureScatter);
-                //EfficiencyPlotModel.Series.Add(staticEfficiencyScatter);
-                //EfficiencyPlotModel.Series.Add(totalEfficiencyScatter);
-
 
                 EfficiencyPlotModel.Series.Add(staticPressureLine);
                 EfficiencyPlotModel.Series.Add(totalPressureLine);
                 EfficiencyPlotModel.Series.Add(staticEfficiencyLine);
                 EfficiencyPlotModel.Series.Add(totalEfficiencyLine);
-                EfficiencyPlotModel.InvalidatePlot(true);
-                #endregion
 
                 PowerPlotModel.InvalidatePlot(true);
                 EfficiencyPlotModel.InvalidatePlot(true);
+
+                _externalAppService.WriteTomfanLog("==== END LOG FITTING ====");
             });
         }
 
@@ -1184,7 +974,6 @@ namespace TESMEA_TMS.ViewModels
             try
             {
                 // convert measure sang thông số đầu vào cho phần tính toán và xuất báo cáo
-                //MeasureRows
                 ThongSoDauVao tsdv = new ThongSoDauVao();
                 ThongSoDuongOngGio tsOngGio = new ThongSoDuongOngGio();
                 ThongSoCoBanCuaQuat tsQuat = new ThongSoCoBanCuaQuat();

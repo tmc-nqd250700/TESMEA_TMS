@@ -317,7 +317,7 @@ namespace TESMEA_TMS.Services
 
                 var m = _measures[0];
                 WriteTomfanLog($"Connect - Thử dòng k={m.k}: Ghi file và chờ WinCC phản hồi...");
-                await WriteDataToFilesAsync(m, maxmin);
+                await WriteDataToFilesAsync(m, timeRange);
 
                 var result = await WaitForResultAsync(m.k, isConnection: true);
                 if (result == null || Math.Abs(result.S - m.S) > 0.01)
@@ -334,7 +334,7 @@ namespace TESMEA_TMS.Services
             }
             catch (Exception ex)
             {
-                WriteTomfanLog($"[CRITICAL] Lỗi trong ConnectExchangeAsync: {ex.Message}");
+                WriteTomfanLog($"Lỗi trong ConnectExchangeAsync: {ex.Message}");
                 throw;
             }
         }
@@ -398,8 +398,6 @@ namespace TESMEA_TMS.Services
                     Directory.CreateDirectory(_trendFolder);
 
                 List<Measure> currentRange = new List<Measure>();
-                //int sIndex = 0;
-                //int cvIndex = 0;
                 double currentS = _measures[_currentIndex].S;
                 int startIndex = 0;
                 int timeoutMs = UserSetting.Instance.TimeoutMilliseconds;
@@ -408,13 +406,32 @@ namespace TESMEA_TMS.Services
                 {
                     _currentIndex = _measures[i].k;
                     var m = _measures[i];
-                    WriteTomfanLog($"Đang xử lý điểm đo k={m.k}/{_measures.Count}");
 
+                    // check chuyển tần số thì fitting
+                    if (_measures[i].S != currentS)
+                    {
+                        var fitting = DataProcess.FittingFC(currentRange.Count, startIndex);
+                        WriteTomfanLog($"Hoàn tất dải đo với tần số {currentRange.First().S} từ CV={currentRange.First().CV}% đến {currentRange.Last().CV}%");
+                        OnMeasureRangeCompleted?.Invoke(fitting, currentRange.LastOrDefault());
+                        currentRange.Clear();
+                        currentS = _measures[i].S;
+                        startIndex = i;
+                        WriteTomfanLog("Chuyển sang dải đo tiếp theo");
+                    }
+
+                    WriteTomfanLog($"Đang xử lý điểm đo k={m.k}/{_measures.Count}");
                     // tạo file trend.csv theo k
                     using (var fs = File.Create(Path.Combine(_trendFolder, $"{m.k}.csv"))) { }
                     await WriteDataToFilesAsync(m);
-
+                    if (_currentIndex > 3)
+                    {
+                        // delay 30s den khi ghi dong tiep theo
+                        WriteTomfanLog("Delay 15s sau đó chờ kết quả dòng tiếp theo");
+                        await Task.Delay(15000);
+                        WriteTomfanLog("Delay xong, tiếp tục lắng nghe dòng tiếp theo");
+                    }
                     // Chờ kết quả xử lý thực tế (isConnection = false để tính toán sensor)
+                    // Luôn lắng nghe dòng 3
                     var result = await WaitForResultAsync(m.k, isConnection: false);
 
                     if (result != null)
@@ -433,22 +450,13 @@ namespace TESMEA_TMS.Services
                             currentRange.Add(_measures[i]);
                         }
 
-                        //OnSimaticResultReceived?.Invoke(_measures[i]);
-                        //var paramShow = DataProcess.ParaShow(result, _inv, _sensor, _duct, _input);
-                        //OnMeasurePointCompleted?.Invoke(measurePoint, paramShow);
-
-
-                        // check nếu chuyển % tần số hoặc là điểm đo cuối cùng thì thực hiện fitting FC và vẽ line cho chart
-                        if (_measures[i].S != currentS || i == _measures.Count - 1)
+                        // check là điểm đo cuối cùng thì thực hiện fitting FC và vẽ line cho chart
+                        if (i == _measures.Count - 1)
                         {
                             var fitting = DataProcess.FittingFC(currentRange.Count, startIndex);
-                            WriteTomfanLog($"Hoàn tất dải đo từ k={currentRange.First().k} đến k={currentRange.Last().k}");
+                            WriteTomfanLog($"Hoàn tất dải đo cuối cùng với tần số {currentRange.First().S} từ CV={currentRange.First().CV}% đến {currentRange.Last().CV}%");
                             OnMeasureRangeCompleted?.Invoke(fitting, currentRange.LastOrDefault());
                             currentRange.Clear();
-                            currentS = _measures[i].S;
-                            startIndex = i;
-                            //sIndex++;
-                            //cvIndex = 0;
                         }
 
                         //string fileName = $"{sIndex}{cvIndex}.csv";
@@ -464,9 +472,12 @@ namespace TESMEA_TMS.Services
                         m.F = MeasureStatus.Error;
                         OnSimaticResultReceived?.Invoke(m);
                     }
+                    // delay 15s den khi ghi dong tiep theo
+                    WriteTomfanLog("Delay 15s trước khi ghi dòng tiếp theo");
+                    await Task.Delay(15000);
+                    WriteTomfanLog("Delay xong, tiếp tục ghi dữ liệu dòng tiếp theo");
                 }
 
-                // HOÀN THÀNH KỊCH BẢN ĐO KIỂM, DỪNG TRAO ĐỔI
                 WriteTomfanLog("========== HOÀN TẤT TOÀN BỘ KỊCH BẢN ĐO KIỂM, DỪNG ĐO KIỂM, GỬI LỆNH 96 TỚI SIMATIC ==========");
                 await StopExchangeAsync();
                 OnSimaticExchangeCompleted?.Invoke(_simaticResults);
@@ -481,17 +492,6 @@ namespace TESMEA_TMS.Services
         // estop
         public async Task StopExchangeAsync()
         {
-            //if (_watcher != null)
-            //{
-            //    _watcher.EnableRaisingEvents = false;
-            //    _watcher.Dispose();
-            //    _watcher = null;
-            //}
-            //_measures.Clear();
-            //_simaticResults.Clear();
-            //_currentIndex = 0;
-            //IsConnectedToSimatic = false;
-
             try
             {
                 WriteTomfanLog("--- LỆNH DỪNG KHẨN CẤP (E-STOP) ---");
@@ -504,8 +504,6 @@ namespace TESMEA_TMS.Services
                     S = 0,
                     CV = 0
                 };
-
-                // Gửi lệnh dừng: tham số eStop = true để ép số 96 vào cột k
                 await WriteDataToFilesAsync(eStopMeasure, 0, true);
 
                 IsConnectedToSimatic = false;
@@ -812,7 +810,7 @@ namespace TESMEA_TMS.Services
                         using (var sr = new StreamReader(fs))
                         {
                             string[] lines = await File.ReadAllLinesAsync(path2);
-                            int targetIndex = expectedK - 1;
+                            int targetIndex = isConnection ? expectedK - 1 : 2;
                             if (lines.Length > targetIndex)
                             {
                                 string targetLine = lines[targetIndex];
@@ -839,7 +837,7 @@ namespace TESMEA_TMS.Services
 
                                     // 15 part gồm 3 parts đầu là hiển thị tín hiệu (100) - %S - %CV
                                     // 12 parts còn lại tương ứng với tín hiệu trả về của 12 cảm biến
-                                    if (!isConnection && parts.Length == 15)
+                                    if (!isConnection && parts.Length > 10)
                                     {
                                         // check nếu parts có giá trị -1 -> lỗi chốt dữ liệu từ simatic thì sẽ truy cập trực tiếp vào file trend lấy dữ liệu và thực hiện chốt ở đây
                                         bool isInvalid = parts.Any(p =>
@@ -850,6 +848,8 @@ namespace TESMEA_TMS.Services
                                         });
                                         if (!isInvalid)
                                         {
+                                            // 6,12, 13, 14 chưa có
+
                                             // tần số tính từ %S
                                             m.TanSo_fb = _sensor.IsImportPhanHoiTanSo
                                                         ? _sensor.PhanHoiTanSoValue
@@ -885,6 +885,9 @@ namespace TESMEA_TMS.Services
                                                 : _sensor.PhanHoiDienApValue;
                                             //CalcSimatic(_sensor.PhanHoiDienApMin, _sensor.PhanHoiDienApMax, float.Parse(parts[6], CultureInfo.InvariantCulture));
                                             // 5. nhiệt độ hồng ngoại
+                                            m.NhietDoGoi = _sensor.IsImportNhietDoGoiTruc
+                                                ? _sensor.NhietDoGoiTrucValue
+                                                : CalcSimatic(_sensor.NhietDoGoiTrucMin, _sensor.NhietDoGoiTrucMax, float.Parse(parts[7], CultureInfo.InvariantCulture));
 
                                             // 6. độ rung
                                             m.DoRung_sen = _sensor.IsImportDoRung
@@ -912,7 +915,6 @@ namespace TESMEA_TMS.Services
                                               : CalcSimatic(_sensor.PhanHoiDongDienMin, _sensor.PhanHoiDongDienMax, float.Parse(parts[12], CultureInfo.InvariantCulture));
                                             //: _sensor.PhanHoiDienApValue;
 
-
                                             // 11. áp suất tĩnh
                                             m.ApSuatTinh_sen = _sensor.IsImportApSuatTinh
                                                 ? _sensor.ApSuatTinhValue
@@ -937,6 +939,7 @@ namespace TESMEA_TMS.Services
                                             WriteTomfanLog($"Công suất phản hồi: {m.CongSuat_fb}");
                                             WriteTomfanLog($"Vị trí van phản hồi: {m.ViTriVan_fb}");
                                             WriteTomfanLog($"Tần số phản hồi: {m.TanSo_fb}");
+                                            WriteTomfanLog($"Nhiệt độ gối trục: {m.NhietDoGoi}");
                                         }
                                         else
                                         {
@@ -954,7 +957,6 @@ namespace TESMEA_TMS.Services
                 catch (IOException)
                 {
                 }
-
                 await Task.Delay(200);
             }
 
