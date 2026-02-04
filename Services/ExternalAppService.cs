@@ -330,7 +330,7 @@ namespace TESMEA_TMS.Services
                 }
 
                 m.F = MeasureStatus.Completed;
-                //_currentIndex = m.k;
+                _currentIndex = m.k;
                 return await ConnectExchangeAsync(maxmin);
             }
             catch (Exception ex)
@@ -367,7 +367,7 @@ namespace TESMEA_TMS.Services
                 DataProcess.Initialize(_measures.Count);
                 IsConnectedToSimatic = true;
                 OnSimaticConnectionChanged?.Invoke(true);
-                //_currentIndex = measure.k;
+                _currentIndex = m.k;
                 _isEStop = false;
                 WriteTomfanLog("Đã thiết lập kết nối với Simatic thành công.");
                 return true;
@@ -398,7 +398,7 @@ namespace TESMEA_TMS.Services
 
                 List<Measure> currentRange = new List<Measure>();
                 double currentS = _measures[_currentIndex].S;
-                int startIndex = 0;
+                int startIndex = 2;
                 int timeoutMs = UserSetting.Instance.TimeoutMilliseconds;
 
                 for (int i = _currentIndex; i < _measures.Count; i++)
@@ -419,12 +419,11 @@ namespace TESMEA_TMS.Services
                     }
 
                     WriteTomfanLog($"Đang xử lý điểm đo k={m.k}/{_measures.Count}");
-                    // tạo file trend.csv theo k
                     using (var fs = File.Create(Path.Combine(_trendFolder, $"{m.k}.csv"))) { }
                     await WriteDataToFilesAsync(m);
                     if (_currentIndex > 3)
                     {
-                        // delay 30s den khi ghi dong tiep theo
+                        // delay 15s den khi ghi dong tiep theo
                         WriteTomfanLog("Delay 15s sau đó chờ kết quả dòng tiếp theo");
                         await Task.Delay(15000);
                         WriteTomfanLog("Delay xong, tiếp tục lắng nghe dòng tiếp theo");
@@ -457,12 +456,13 @@ namespace TESMEA_TMS.Services
                             OnMeasureRangeCompleted?.Invoke(fitting, currentRange.LastOrDefault());
                             currentRange.Clear();
                         }
-
-                        //string fileName = $"{sIndex}{cvIndex}.csv";
-                        //string filePath = Path.Combine(_trendFolder, fileName);
-                        ////using (var fs = File.Create(filePath)) { }
-                        //cvIndex++;
-
+                        else
+                        {
+                            // delay 15s den khi ghi dong tiep theo
+                            WriteTomfanLog("Delay 15s trước khi ghi dòng tiếp theo");
+                            await Task.Delay(15000);
+                            WriteTomfanLog("Delay xong, tiếp tục ghi dữ liệu dòng tiếp theo");
+                        }
                         WriteTomfanLog($"Hoàn tất điểm đo k={m.k}");
                     }
                     else
@@ -471,10 +471,7 @@ namespace TESMEA_TMS.Services
                         m.F = MeasureStatus.Error;
                         OnSimaticResultReceived?.Invoke(m);
                     }
-                    // delay 15s den khi ghi dong tiep theo
-                    WriteTomfanLog("Delay 15s trước khi ghi dòng tiếp theo");
-                    await Task.Delay(15000);
-                    WriteTomfanLog("Delay xong, tiếp tục ghi dữ liệu dòng tiếp theo");
+                    
                 }
 
                 WriteTomfanLog("========== HOÀN TẤT TOÀN BỘ KỊCH BẢN ĐO KIỂM, DỪNG ĐO KIỂM, GỬI LỆNH 96 TỚI SIMATIC ==========");
