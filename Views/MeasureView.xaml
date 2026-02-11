@@ -115,13 +115,15 @@
                 <GroupBox Grid.Row="2" Header="{lex:Loc groupbox_Report}" Margin="5" FontSize="13">
                     <StackPanel Margin="20 0">
                         <TextBlock Text="{lex:Loc lbl_Report_select}"/>
-                        <ComboBox  md:ComboBoxAssist.ShowSelectedItem="True"
-                                   Margin="0 0 0 20"
-                                   Style="{StaticResource MaterialDesignComboBox}"
-                                   ItemsSource="{Binding ReportTemplates}"
-                                   SelectedValue="{Binding SelectedReportTemplate, Mode=TwoWay}"
-                                   SelectedValuePath="Value"
-                                   DisplayMemberPath="Text"/>
+                        <ComboBox Cursor="Hand"
+                                  md:ComboBoxAssist.ShowSelectedItem="True"
+                                  Margin="0 0 0 20"
+                                  Style="{StaticResource MaterialDesignComboBox}"
+                                  ItemsSource="{Binding ReportTemplates}" 
+                                  SelectedValue="{Binding SelectedReportTemplate, Mode=TwoWay}"
+                                  SelectedValuePath="Value"
+                                  DisplayMemberPath="Text"/>
+
                         <Button Content="{lex:Loc btn_Export_result}" Margin="0 5" Command="{Binding ExportResultCommand}"/>
                         <Button Content="{lex:Loc btn_Export_report}" Margin="0 0" Command="{Binding ExportReportCommand}"/>
                     </StackPanel>
@@ -160,31 +162,36 @@
                         </Grid.RowDefinitions>
                         <TextBlock Grid.Row="0" Grid.Column="0" Text="{lex:Loc lbl_Operating_status}" Margin="5 0" VerticalAlignment="Center"/>
                         <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding SimaticStatus, Mode=OneWay}" IsReadOnly="True" Margin="0 0 0 5" TextAlignment="Center" d:Text="STOP"/>
-                    
+
                         <TextBlock Grid.Row="0" Grid.Column="2" 
+                           Text="{Binding Source={lex:Loc col_Scenario_cv}}" VerticalAlignment="Center"
+                           Margin="15 0 5 0"/>
+                        <TextBox Grid.Row="0" Grid.Column="3" IsReadOnly="True" Margin="0 0 0 5" Text="{Binding ParameterShow.CV_show, Mode=OneWay, StringFormat={}{0:N2}}"/>
+
+                        <TextBlock Grid.Row="1" Grid.Column="2" 
                                    Text="{Binding Source={lex:Loc lbl_Sensor_pressure}, StringFormat={}{0} (kPa)}" VerticalAlignment="Center"
                                    Margin="15 0 5 0"/>
-                        <TextBox Grid.Row="0" Grid.Column="3" IsReadOnly="True" Margin="0 0 0 5" Text="{Binding ParameterShow.Pe3, Mode=OneWay}"/>
+                        <TextBox Grid.Row="1" Grid.Column="3" IsReadOnly="True" Margin="0 0 0 5" Text="{Binding ParameterShow.Pe3, Mode=OneWay, StringFormat={}{0:N2}}"/>
 
                         <TextBlock Grid.Row="1" Grid.Column="0"
                                    Text="{Binding Source={lex:Loc lbl_Frequency}, StringFormat={}{0} (Hz)}" VerticalAlignment="Center" 
                                    Margin="5 0"/>
-                        <TextBox Grid.Row="1" Grid.Column="1" IsReadOnly="True" Margin="0 0 0 5" Text="{Binding ParameterShow.Freq_show, Mode=OneWay}"/>
+                        <TextBox Grid.Row="1" Grid.Column="1" IsReadOnly="True" Margin="0 0 0 5" Text="{Binding ParameterShow.Freq_show, Mode=OneWay, StringFormat={}{0:N2}}"/>
                     
-                        <TextBlock Grid.Row="1" Grid.Column="2" 
+                        <TextBlock Grid.Row="2" Grid.Column="2" 
                                    Text="{Binding Source={lex:Loc lbl_Sensor_flow}, StringFormat={}{0} (Pa)}" VerticalAlignment="Center"
                                    Margin="15 0 5 0"/>
-                        <TextBox Grid.Row="1" Grid.Column="3" IsReadOnly="True" Margin="0 0 0 5" Text="{Binding ParameterShow.deltap, Mode=OneWay, StringFormat={}{0:N2}}"/>
+                        <TextBox Grid.Row="2" Grid.Column="3" IsReadOnly="True" Margin="0 0 0 5" Text="{Binding ParameterShow.deltap, Mode=OneWay, StringFormat={}{0:N2}}"/>
 
                         <TextBlock Grid.Row="2" Grid.Column="0" 
                                    Text="{Binding Source={lex:Loc lbl_Current}, StringFormat={}{0} (A)}" VerticalAlignment="Center"
                                    Margin="5 0"/>
                         <TextBox Grid.Row="2" Grid.Column="1" IsReadOnly="True" Margin="0 0 0 5" Text="{Binding ParameterShow.Current_show, Mode=OneWay, StringFormat={}{0:N2}}"/>
                     
-                        <TextBlock Grid.Row="2" Grid.Column="2" 
+                        <!--<TextBlock Grid.Row="2" Grid.Column="2" 
                                    Text="{Binding Source={lex:Loc lbl_Airflow}, StringFormat={}{0} (m³/h)}" VerticalAlignment="Center"
                                    Margin="15 0 5 0"/>
-                        <TextBox Grid.Row="2" Grid.Column="3" IsReadOnly="True" Margin="0 0 0 5" Text="{Binding ParameterShow.Flow_show, Mode=OneWay, StringFormat={}{0:N2}}"/>
+                        <TextBox Grid.Row="2" Grid.Column="3" IsReadOnly="True" Margin="0 0 0 5" Text="{Binding ParameterShow.Flow_show, Mode=OneWay, StringFormat={}{0:N2}}"/>-->
 
                         <TextBlock Grid.Row="3" Grid.Column="0" 
                                    Text="{Binding Source={lex:Loc lbl_Power}, StringFormat={}{0} (kW)}" VerticalAlignment="Center"
@@ -192,12 +199,12 @@
                         <TextBox Grid.Row="3" Grid.Column="1" IsReadOnly="True" Margin="0 0 0 5" Text="{Binding ParameterShow.Pw_show, Mode=OneWay, StringFormat={}{0:N2}}"/>
                     
                         <TextBlock Grid.Row="3" Grid.Column="2" 
-                                   Text="{Binding Source={lex:Loc lbl_Ambient_temp}, StringFormat={}{0} (ºC)}" VerticalAlignment="Center"
+                                   Text="Áp suất khí quyển (Pa)" VerticalAlignment="Center"
                                    Margin="15 0 5 0"/>
-                        <TextBox Grid.Row="3" Grid.Column="3" IsReadOnly="True" Margin="0 0 0 5" Text="{Binding ParameterShow.Ta, Mode=OneWay, StringFormat={}{0:N2}}"/>
+                        <TextBox Grid.Row="3" Grid.Column="3" IsReadOnly="True" Margin="0 0 0 5" Text="{Binding ParameterShow.Pa_Show, Mode=OneWay, StringFormat={}{0:N2}}"/>
 
                         <TextBlock Grid.Row="4" Grid.Column="0" 
-                                   Text="{Binding Source={lex:Loc lbl_Speed}, StringFormat={}{0} (rpm)}" VerticalAlignment="Center"
+                                   Text="{Binding Source={lex:Loc lbl_Speed}, StringFormat={}{0} (RPM)}" VerticalAlignment="Center"
                                    Margin="5 0"/>
                         <TextBox Grid.Row="4" Grid.Column="1" IsReadOnly="True" Margin="0 0 0 5" Text="{Binding ParameterShow.Speed_show, Mode=OneWay, StringFormat={}{0:N2}}"/>
                     
@@ -267,12 +274,12 @@
 
                 <DataGrid.Columns>
                     <DataGridTextColumn Header="{lex:Loc col_No}" Width="50" Binding="{Binding STT}" IsReadOnly="True" CanUserResize="False"/>
-                    <DataGridTextColumn Header="{lex:Loc col_Airflow}" Binding="{Binding Airflow, StringFormat={}{0:N3}}"/>
-                    <DataGridTextColumn Header="{lex:Loc col_Ps}" Binding="{Binding Ps, StringFormat={}{0:N3}}"/>
-                    <DataGridTextColumn Header="{lex:Loc col_Pt}" Binding="{Binding Pt, StringFormat={}{0:N3}}"/>
-                    <DataGridTextColumn Header="{lex:Loc col_SEff}" Binding="{Binding SEff, StringFormat={}{0:N3}}"/>
-                    <DataGridTextColumn Header="{lex:Loc col_TEff}" Binding="{Binding TEff, StringFormat={}{0:N3}}"/>
-                    <DataGridTextColumn Header="{lex:Loc col_Power}" Binding="{Binding Power}"/>
+                    <DataGridTextColumn Header="{lex:Loc col_Airflow}" Binding="{Binding Airflow, StringFormat={}{0:N2}}"/>
+                    <DataGridTextColumn Header="{lex:Loc col_Ps}" Binding="{Binding Ps, StringFormat={}{0:N2}}"/>
+                    <DataGridTextColumn Header="{lex:Loc col_Pt}" Binding="{Binding Pt, StringFormat={}{0:N2}}"/>
+                    <DataGridTextColumn Header="{lex:Loc col_SEff}" Binding="{Binding SEff, StringFormat={}{0:N2}}"/>
+                    <DataGridTextColumn Header="{lex:Loc col_TEff}" Binding="{Binding TEff, StringFormat={}{0:N2}}"/>
+                    <DataGridTextColumn Header="{lex:Loc col_Power}" Binding="{Binding Power, StringFormat={}{0:N2}}"/>
                 </DataGrid.Columns>
             </DataGrid>
         </Grid>
@@ -280,11 +287,12 @@
             <UniformGrid Rows="2">
                 <Border Grid.Column="0" Background="#F8F8F8">
                     <oxy:PlotView x:Name="pvPower" 
+                                   Margin=" 0 0 60 0"
                                    Background="#FFF"
                                    Foreground="#222"
                                    VerticalAlignment="Stretch"
                                    HorizontalAlignment="Stretch"
-                                   BorderBrush="#E0E0E0"
+                                  
                                    BorderThickness="1"
                                    Model="{Binding PowerPlotModel}"/>
 

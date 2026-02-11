@@ -10,7 +10,7 @@
         public float ChenhLechApSuat_sen { get; set; }
         public float ApSuatTinh_sen { get; set; }
         public float DoRung_sen { get; set; }
-        public float DoOn_sen { get; set; }
+        public float NhietDoGoi_sen { get; set; }
         public float SoVongQuay_sen { get; set; } // tốc độ thực của guồn cánh
         public float Momen_sen { get; set; }
         public float DongDien_fb { get; set; }

@@ -49,7 +49,7 @@ namespace TESMEA_TMS.Views
             {
                 Title = $"Trend line k = {k}",
                 Background = OxyColors.White,
-               
+
             };
             TrendPlotModel.Axes.Add(new LinearAxis
             {
@@ -80,7 +80,7 @@ namespace TESMEA_TMS.Views
                 new ComboBoxInfo("ChenhLechApSuat_sen", "Chênh lệch áp suất"),
                 new ComboBoxInfo("ApSuatTinh_sen", "Áp suất tĩnh"),
                 new ComboBoxInfo("DoRung_sen", "Độ rung"),
-                new ComboBoxInfo("DoOn_sen", "Độ ồn"),
+                new ComboBoxInfo("NhietDoGoi_sen", "Nhiệt độ gối trục"),
                 new ComboBoxInfo("SoVongQuay_sen", "Tốc độ quay"),
                 new ComboBoxInfo("Momen_sen", "Mômen"),
                 new ComboBoxInfo("DongDien_fb", "Dòng điện"),
@@ -98,11 +98,10 @@ namespace TESMEA_TMS.Views
         }
         public void LoadTrendDataAndDraw(int k, string pvType)
         {
-            var fileFormat = "csv"; 
             var trendFolder = Path.Combine(UserSetting.TOMFAN_folder, "Trend");
             if (!Directory.Exists(trendFolder)) return;
 
-            var files = Directory.GetFiles(trendFolder, $"{k}.{fileFormat}");
+            var files = Directory.GetFiles(trendFolder, $"{k}.csv");
             if (files.Length == 0) return;
 
             var filePath = files[0];
@@ -122,18 +121,18 @@ namespace TESMEA_TMS.Views
                     {
                         Index = row,
                         Time = float.TryParse(values[0], NumberStyles.Float, CultureInfo.InvariantCulture, out var time) ? time : 0,
-                        NhietDoMoiTruong_sen = CalcSimatic(_sensor.NhietDoMoiTruongMin, _sensor.NhietDoMoiTruongMax, float.TryParse(values[1], NumberStyles.Float, CultureInfo.InvariantCulture, out var pv1) ? pv1 : 0),
-                        DoAm_sen = CalcSimatic(_sensor.DoAmMoiTruongMin, _sensor.DoAmMoiTruongMax, float.TryParse(values[2], NumberStyles.Float, CultureInfo.InvariantCulture, out var pv2) ? pv2 : 0),
-                        ApSuatkhiQuyen_sen = CalcSimatic(_sensor.ApSuatKhiQuyenMin, _sensor.ApSuatKhiQuyenMax, float.TryParse(values[3], NumberStyles.Float, CultureInfo.InvariantCulture, out var pv3) ? pv3 : 0),
-                        ChenhLechApSuat_sen = CalcSimatic(_sensor.ChenhLechApSuatMin, _sensor.ChenhLechApSuatMax, float.TryParse(values[4], NumberStyles.Float, CultureInfo.InvariantCulture, out var pv4) ? pv4 : 0),
-                        ApSuatTinh_sen = CalcSimatic(_sensor.ApSuatTinhMin, _sensor.ApSuatTinhMax, float.TryParse(values[5], NumberStyles.Float, CultureInfo.InvariantCulture, out var pv5) ? pv5 : 0),
-                        DoRung_sen = CalcSimatic(_sensor.DoRungMin, _sensor.DoRungMax, float.TryParse(values[6], NumberStyles.Float, CultureInfo.InvariantCulture, out var pv6) ? pv6 : 0),
-                        DoOn_sen = CalcSimatic(_sensor.DoOnMin, _sensor.DoOnMax, float.TryParse(values[7], NumberStyles.Float, CultureInfo.InvariantCulture, out var pv7) ? pv7 : 0),
-                        SoVongQuay_sen = CalcSimatic(_sensor.SoVongQuayMin, _sensor.SoVongQuayMax, float.TryParse(values[8], NumberStyles.Float, CultureInfo.InvariantCulture, out var pv8) ? pv8 : 0),
-                        Momen_sen = CalcSimatic(_sensor.MomenMin, _sensor.MomenMax, float.TryParse(values[9], NumberStyles.Float, CultureInfo.InvariantCulture, out var pv9) ? pv9 : 0),
-                        DongDien_fb = CalcSimatic(_sensor.PhanHoiDongDienMin, _sensor.PhanHoiDongDienMax, float.TryParse(values[10], NumberStyles.Float, CultureInfo.InvariantCulture, out var fb1) ? fb1 : 0),
-                        CongSuat_fb = CalcSimatic(_sensor.PhanHoiCongSuatMin, _sensor.PhanHoiCongSuatMax, float.TryParse(values[11], NumberStyles.Float, CultureInfo.InvariantCulture, out var fb2) ? fb2 : 0),
-                        ViTriVan_fb = CalcSimatic(_sensor.PhanHoiViTriVanMin, _sensor.PhanHoiViTriVanMax, float.TryParse(values[12], NumberStyles.Float, CultureInfo.InvariantCulture, out var fb3) ? fb3 : 0)
+                        NhietDoMoiTruong_sen = CalcSimatic(_sensor.NhietDoMoiTruongMin, _sensor.NhietDoMoiTruongMax, float.TryParse(values[1], NumberStyles.Float, CultureInfo.InvariantCulture, out var v1) ? v1 : 0),
+                        DoAm_sen = CalcSimatic(_sensor.DoAmMoiTruongMin, _sensor.DoAmMoiTruongMax, float.TryParse(values[2], NumberStyles.Float, CultureInfo.InvariantCulture, out var v2) ? v2 : 0),
+                        ViTriVan_fb = CalcSimatic(_sensor.PhanHoiViTriVanMin, _sensor.PhanHoiViTriVanMax, float.TryParse(values[3], NumberStyles.Float, CultureInfo.InvariantCulture, out var v3) ? v3 : 0),
+                        Momen_sen = CalcSimatic(_sensor.MomenMin, _sensor.MomenMax, float.TryParse(values[4], NumberStyles.Float, CultureInfo.InvariantCulture, out var v4) ? v4 : 0),
+                        NhietDoGoi_sen = CalcSimatic(_sensor.NhietDoGoiTrucMin, _sensor.NhietDoGoiTrucMax, float.TryParse(values[5], NumberStyles.Float, CultureInfo.InvariantCulture, out var v5) ? v5 : 0),
+                        DoRung_sen = CalcSimatic(_sensor.DoRungMin, _sensor.DoRungMax, float.TryParse(values[6], NumberStyles.Float, CultureInfo.InvariantCulture, out var v6) ? v6 : 0),
+                        SoVongQuay_sen = CalcSimatic(_sensor.SoVongQuayMin, _sensor.SoVongQuayMax, float.TryParse(values[7], NumberStyles.Float, CultureInfo.InvariantCulture, out var v7) ? v7 : 0),
+                        DongDien_fb = CalcSimatic(_sensor.PhanHoiDongDienMin, _sensor.PhanHoiDongDienMax, float.TryParse(values[8], NumberStyles.Float, CultureInfo.InvariantCulture, out var v8) ? v8 : 0),
+                        ApSuatTinh_sen = CalcSimatic(_sensor.ApSuatTinhMin, _sensor.ApSuatTinhMax, float.TryParse(values[9], NumberStyles.Float, CultureInfo.InvariantCulture, out var v9) ? v9 : 0),
+                        CongSuat_fb = CalcSimatic(_sensor.PhanHoiCongSuatMin, _sensor.PhanHoiCongSuatMax, float.TryParse(values[10], NumberStyles.Float, CultureInfo.InvariantCulture, out var v10) ? v10 : 0),
+                        ChenhLechApSuat_sen = CalcSimatic(_sensor.ChenhLechApSuatMin, _sensor.ChenhLechApSuatMax, float.TryParse(values[11], NumberStyles.Float, CultureInfo.InvariantCulture, out var v11) ? v11 : 0),
+                        ApSuatkhiQuyen_sen = CalcSimatic(_sensor.ApSuatKhiQuyenMin, _sensor.ApSuatKhiQuyenMax, float.TryParse(values[12], NumberStyles.Float, CultureInfo.InvariantCulture, out var v12) ? v12 : 0),
                     };
                     trendList.Add(trend);
                 }
@@ -152,7 +151,7 @@ namespace TESMEA_TMS.Views
                 "ChenhLechApSuat_sen",
                 "ApSuatTinh_sen",
                 "DoRung_sen",
-                "DoOn_sen",
+                "NhietDoGoi_sen",
                 "SoVongQuay_sen",
                 "Momen_sen",
                 "DongDien_fb",
@@ -191,6 +190,15 @@ namespace TESMEA_TMS.Views
                     yAxis.Title = GetDisplayName(pvType);
                 }
             }
+
+            //// Thêm đường trung bình
+            //var avgSeries = CreateAverageFunctionSeries(trendList, pvType, OxyColors.Blue);
+            //if (avgSeries != null) TrendPlotModel.Series.Add(avgSeries);
+
+            //// Thêm đường xu hướng
+            //var trendSeries = CreateLinearRegressionSeries(trendList, pvType, OxyColors.Green);
+            //if (trendSeries != null) TrendPlotModel.Series.Add(trendSeries);
+
             TrendPlotModel.InvalidatePlot(true);
         }
         private Dictionary<string, (float Max, float Min, float Average)> CalculateTrendStatistics(List<TrendTime> trendList, List<string> parameters)
@@ -212,7 +220,110 @@ namespace TESMEA_TMS.Views
             return result;
         }
 
+        private FunctionSeries CreateFunctionSeries(Func<double, double> function, double startX, double endX, string title, OxyColor color)
+        {
+            var functionSeries = new FunctionSeries(function, startX, endX, 0.1)
+            {
+                Title = title,
+                Color = color,
+                StrokeThickness = 2
+            };
+            return functionSeries;
+        }
 
+        private FunctionSeries CreateAverageFunctionSeries(List<TrendTime> trendList, string parameterName, OxyColor color)
+        {
+            var values = trendList.Select(t => GetPropertyValue(t, parameterName)).ToList();
+            if (values.Count == 0) return null;
+
+            var average = values.Average();
+            var minTime = trendList.Min(t => t.Time);
+            var maxTime = trendList.Max(t => t.Time);
+
+            return CreateFunctionSeries(
+                x => average,
+                minTime,
+                maxTime,
+                $"Trung bình {GetDisplayName(parameterName)}",
+                color
+            );
+        }
+
+        private FunctionSeries CreateLinearRegressionSeries(List<TrendTime> trendList, string parameterName, OxyColor color)
+        {
+            var points = trendList.Select(t => (x: (double)t.Time, y: (double)GetPropertyValue(t, parameterName))).ToList();
+            if (points.Count < 2) return null;
+
+            // Tính toán linear regression: y = mx + b
+            var n = points.Count;
+            var sumX = points.Sum(p => p.x);
+            var sumY = points.Sum(p => p.y);
+            var sumXY = points.Sum(p => p.x * p.y);
+            var sumX2 = points.Sum(p => p.x * p.x);
+
+            var m = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX);
+            var b = (sumY - m * sumX) / n;
+
+            var minTime = trendList.Min(t => t.Time);
+            var maxTime = trendList.Max(t => t.Time);
+
+            return CreateFunctionSeries(
+                x => m * x + b,
+                minTime,
+                maxTime,
+                $"Xu hướng {GetDisplayName(parameterName)}",
+                color
+            );
+        }
+
+        private FunctionSeries CreateThresholdSeries(double threshold, double startX, double endX, string title, OxyColor color)
+        {
+            return CreateFunctionSeries(
+                x => threshold,
+                startX,
+                endX,
+                title,
+                color
+            );
+        }
+
+        private FunctionSeries CreatePolynomialRegressionSeries(List<TrendTime> trendList, string parameterName, int degree, OxyColor color)
+        {
+            var points = trendList.Select(t => (x: (double)t.Time, y: (double)GetPropertyValue(t, parameterName))).ToList();
+            if (points.Count < degree + 1) return null;
+
+            // Simplified polynomial fitting (for degree 2)
+            if (degree == 2)
+            {
+                var n = points.Count;
+                var sumX = points.Sum(p => p.x);
+                var sumY = points.Sum(p => p.y);
+                var sumX2 = points.Sum(p => p.x * p.x);
+                var sumX3 = points.Sum(p => p.x * p.x * p.x);
+                var sumX4 = points.Sum(p => p.x * p.x * p.x * p.x);
+                var sumXY = points.Sum(p => p.x * p.y);
+                var sumX2Y = points.Sum(p => p.x * p.x * p.y);
+
+                // Giải hệ phương trình 3x3 (simplified)
+                var minTime = trendList.Min(t => t.Time);
+                var maxTime = trendList.Max(t => t.Time);
+
+                // Approximate quadratic fit
+                var a = 0.0;
+                var b = (points[^1].y - points[0].y) / (points[^1].x - points[0].x);
+                var c = points[0].y - b * points[0].x;
+
+                return CreateFunctionSeries(
+                    x => a * x * x + b * x + c,
+                    minTime,
+                    maxTime,
+                    $"Xu hướng đa thức {GetDisplayName(parameterName)}",
+                    color
+                );
+            }
+
+            return null;
+        }
 
         private LineSeries CreateLineSeries(List<TrendTime> trendList, string parameterName, OxyColor color)
         {
@@ -266,12 +377,12 @@ namespace TESMEA_TMS.Views
                 "ChenhLechApSuat_sen" => "Chênh lệch áp suất",
                 "ApSuatTinh_sen" => "Áp suất tĩnh (Pa)",
                 "DoRung_sen" => "Độ rung (mm/s)",
-                "DoOn_sen" => "Độ ồn (dB)",
+                "NhietDoGoi_sen" => "Nhiệt độ gối trục (°C)",
                 "SoVongQuay_sen" => "Tốc độ quay (RPM)",
                 "Momen_sen" => "Mômen (Nm)",
                 "DongDien_fb" => "Dòng điện (A)",
                 "CongSuat_fb" => "Công suất (kW)",
-                "ViTriVan_fb" => "Vị trí van",
+                "ViTriVan_fb" => "Vị trí van (%)",
                 _ => propertyName
             };
         }

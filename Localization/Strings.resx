@@ -220,7 +220,7 @@
     <value>Hiệu suất động cơ</value>
   </data>
   <data name="lbl_Rated_current" xml:space="preserve">
-    <value>Dòng điện định mức của động cơ</value>
+    <value>Dòng điện định mức</value>
   </data>
   <data name="lbl_Motor_voltage" xml:space="preserve">
     <value>Điện áp động cơ</value>
@@ -234,8 +234,8 @@
   <data name="lbl_Scenario" xml:space="preserve">
     <value>Kịch bản kiểm thử</value>
   </data>
-  <data name="lbl_Temp_fluid" xml:space="preserve">
-    <value>Nhiệt độ thiết kế làm việc</value>
+  <data name="lbl_Temp" xml:space="preserve">
+    <value>Nhiệt độ</value>
   </data>
   <data name="lbl_Simatic_path" xml:space="preserve">
     <value>Đường dẫn tới Simatic/PLC</value>

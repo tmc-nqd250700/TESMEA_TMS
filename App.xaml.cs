@@ -65,6 +65,7 @@ public partial class App : Application
             if (!Directory.Exists(UserSetting.GetLocalAppPath()))
                 Directory.CreateDirectory(UserSetting.GetLocalAppPath());
 
+            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
 
             // folder TOMFAN lưu các file exchange, trendline
             var exchangeFolder = UserSetting.TOMFAN_folder;
@@ -92,6 +93,14 @@ public partial class App : Application
                 {
                     Directory.CreateDirectory(Path.Combine(exchangeFolder, "Trend"));
                 }
+                if (!Directory.Exists(Path.Combine(exchangeFolder, "History")))
+                {
+                    Directory.CreateDirectory(Path.Combine(exchangeFolder, "History"));
+                }
+                if (!Directory.Exists(Path.Combine(exchangeFolder, "ZERO")))
+                {
+                    Directory.CreateDirectory(Path.Combine(exchangeFolder, "ZERO"));
+                }
                 using (var writer2 = new StreamWriter(Path.Combine(exchangeFolder, "1_T_OUT.csv")))
                 {
                 }
@@ -100,16 +109,15 @@ public partial class App : Application
                 {
                 }
 
-                //string xlsxPath = Path.Combine(exchangeFolder, "1_T_OUT.xlsx");
-                //if (!File.Exists(xlsxPath))
-                //{
-                //    ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
-                //    using (var package = new ExcelPackage(new FileInfo(xlsxPath)))
-                //    {
-                //        package.Workbook.Worksheets.Add("1_T_OUT");
-                //        package.Save();
-                //    }
-                //}
+                string xlsxPath = Path.Combine(exchangeFolder, "MeasurementSummary.xlsx");
+                FileInfo fileInfo = new FileInfo(xlsxPath);
+                using (var package = new ExcelPackage(fileInfo))
+                {
+                    package.Workbook.Worksheets.Add("MeasureData");
+                    package.Workbook.Worksheets.Add("Sensor");
+                    package.Workbook.Worksheets.Add("ZeroSpan");
+                    package.Save();
+                }
             }
             else
             {
@@ -134,26 +142,25 @@ public partial class App : Application
 
                 }
 
-                //string xlsxPath = Path.Combine(exchangeFolder, "1_T_OUT.xlsx");
-                //if (!File.Exists(xlsxPath))
-                //{
-                //    ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
-                //    using (var package = new ExcelPackage(new FileInfo(xlsxPath)))
-                //    {
-                //        package.Workbook.Worksheets.Add("1_T_OUT");
-                //        package.Save();
-                //    }
-                //}
-                //else
-                //{
-                //    ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
-                //    using (var package = new ExcelPackage(new FileInfo(xlsxPath)))
-                //    {
-                //        var ws = package.Workbook.Worksheets.FirstOrDefault();
-                //        if (ws != null) ws.Cells.Clear();
-                //        else package.Workbook.Worksheets.Add("1_T_OUT");
-                //    }
-                //}
+                string xlsxPath = Path.Combine(exchangeFolder, "MeasurementSummary.xlsx");
+                if (File.Exists(xlsxPath))
+                {
+                    try
+                    {
+                        File.Delete(xlsxPath);
+                    }
+                    catch { }
+                }
+
+                // Tạo file Excel mới
+                FileInfo fileInfo = new FileInfo(xlsxPath);
+                using (var package = new ExcelPackage(fileInfo))
+                {
+                    package.Workbook.Worksheets.Add("MeasureData");
+                    package.Workbook.Worksheets.Add("Sensor");
+                    package.Workbook.Worksheets.Add("ZeroSpan");
+                    package.Save();
+                }
 
                 // trend folder
                 if (!Directory.Exists(Path.Combine(exchangeFolder, "Trend")))
@@ -164,6 +171,32 @@ public partial class App : Application
                 {
                     // delete all files in trend folder
                     foreach (var file in Directory.GetFiles(Path.Combine(exchangeFolder, "Trend")))
+                    {
+                        try { File.Delete(file); } catch { }
+                    }
+                }
+
+                if (!Directory.Exists(Path.Combine(exchangeFolder, "History")))
+                {
+                    Directory.CreateDirectory(Path.Combine(exchangeFolder, "History"));
+                }
+                else
+                {
+                    // delete all files in history folder
+                    foreach (var file in Directory.GetFiles(Path.Combine(exchangeFolder, "History")))
+                    {
+                        try { File.Delete(file); } catch { }
+                    }
+                }
+
+                if (!Directory.Exists(Path.Combine(exchangeFolder, "ZERO")))
+                {
+                    Directory.CreateDirectory(Path.Combine(exchangeFolder, "ZERO"));
+                }
+                else
+                {
+                    // delete all files in ZERO folder
+                    foreach (var file in Directory.GetFiles(Path.Combine(exchangeFolder, "ZERO")))
                     {
                         try { File.Delete(file); } catch { }
                     }

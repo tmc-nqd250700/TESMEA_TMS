@@ -86,18 +86,19 @@ namespace TESMEA_TMS.DTOs
         public float Current_show { get; set; }      // Dòng điện
         public float Pw_show { get; set; }           // Công suất
         public float Speed_show { get; set; }        // Tốc độ
-        public float TempB_show { get; set; }        // Nhiệt độ gối
+        public float TempB_show { get; set; }        // Nhiệt độ gối trục
         public float T_Show { get; set; }            // Momen xoắn trên trục quạt
         public float Ps_show { get; set; }           // Áp suất tĩnh
         public float Pt_show { get; set; }           // Áp suất tổng
         public float Flow_show { get; set; }         // Lưu lượng
         public float Ta_show { get; set; }           // Nhiệt độ T3
         public float Td_show { get; set; }           // Nhiệt độ bầu khô
-        public float ViaB_show { get; set; }         // Nhiệt độ bầu khô
+        public float ViaB_show { get; set; }         // Độ rung
         public float Prt_show { get; set; }          // Công suất quạt tính bằng momen xoắn
         public float deltap { get; set; }
         public float Pe3 { get; set; }
-        public float Ta { get; set; }
+        public float Pa_Show { get; set; } // Áp suất khí quyển
+        public float CV_show { get; set; } // góc mở van (%)
     }
     public class MeasureFittingFC
     {

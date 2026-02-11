@@ -36,7 +36,7 @@ namespace TESMEA_TMS.Views
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-            var templatePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Templates", "thongsodokiem_template.xlsx");
+            var templatePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Templates", "thongsodokiem_template1.xlsx");
             if (!System.IO.File.Exists(templatePath))
             {
                 MessageBoxHelper.ShowWarning("Không tìm thấy file template");

@@ -28,6 +28,7 @@
         public double DoNhotKhongKhi { get; set; }
         public double ApSuatKhiQuyen { get; set; }
         public double NhietDoLamViec { get; set; }
+        public double TyTrongKhongKhiLamViec { get; set; }
     }
 
     //public class ThongSoDoKiem

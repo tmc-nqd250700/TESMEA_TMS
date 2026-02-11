@@ -1,7 +1,9 @@
-﻿using System.ComponentModel;
+﻿using OfficeOpenXml;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
+using System.IO.Packaging;
 using System.Text;
 using TESMEA_TMS.Configs;
 using TESMEA_TMS.DTOs;
@@ -18,7 +20,6 @@ namespace TESMEA_TMS.Services
         //Task<bool> ConnectExchangeAsync(float timeRange);
         Task StartExchangeAsync();
         Task StopExchangeAsync();
-        void WriteTomfanLog(string message);
         bool IsAppRunning { get; }
         bool IsConnectedToSimatic { get; }
         event Action<Measure> OnSimaticResultReceived;
@@ -47,6 +48,7 @@ namespace TESMEA_TMS.Services
         private bool _isComma = true;
 
         private bool _isEStop = false;
+        private float[] avgs = new float[13];
         public ExternalAppService()
         {
             _exchangeFolder = UserSetting.TOMFAN_folder;
@@ -296,31 +298,35 @@ namespace TESMEA_TMS.Services
             try
             {
                 WriteTomfanLog("========== BẮT ĐẦU QUY TRÌNH KẾT NỐI (CONNECT) ==========");
+                avgs = new float[13];
                 _measures = measures;
                 _inv = inv;
                 _sensor = sensor;
                 _duct = duct;
                 _input = input;
-
+                _isEStop = false;
+                DataProcess.Initialize(_measures.Count, _inv, _sensor, _duct, _input);
                 if (!Directory.Exists(_exchangeFolder))
                 {
                     WriteTomfanLog($"Thư mục trao đổi không tồn tại: {_exchangeFolder}");
                     throw new BusinessException("Thư mục trao đổi dữ liệu với Simatic không tồn tại");
                 }
 
+                if (!Directory.Exists(Path.Combine(_exchangeFolder, "ZERO")))
+                {
+                    Directory.CreateDirectory(Path.Combine(_exchangeFolder, "ZERO"));
+                }
+
                 _simaticResults.Clear();
-                WriteTomfanLog($"Kiểm tra kết nối qua dòng đầu tiên.");
-                //var m = new Measure
-                //{
-                //    k = 0,
-                //    S = 0,
-                //    CV = 0
-                //};
 
                 var m = _measures[0];
                 WriteTomfanLog($"Connect - Ghi file và chờ WinCC phản hồi...");
-                await WriteDataToFilesAsync(m, maxmin);
+                // tao file 0.csv để zero-span
+                string zeroSpanPath = Path.Combine(_exchangeFolder, "ZERO", "0.csv");
+                using (var fs = File.Create(zeroSpanPath)) { }
+                using (var fs = File.Create(Path.Combine(_exchangeFolder, "History", "History.csv"))) { }
 
+                await WriteDataToFilesAsync(m, maxmin);
                 var result = await WaitForResultAsync(1, isConnection: true);
                 if (result == null || Math.Abs(result.S - m.S) > 0.01)
                 {
@@ -329,6 +335,90 @@ namespace TESMEA_TMS.Services
                     throw new Exception($"Không thể kết nối, lỗi: {errorMsg}");
                 }
 
+                //try
+                //{
+                //    using (var fs = new FileStream(zeroSpanPath, FileMode.Open, FileAccess.Read, FileShare.Read))
+                //    using (var sr = new StreamReader(fs))
+                //    {
+                //        var allLines = await File.ReadAllLinesAsync(zeroSpanPath);
+                //        if (allLines.Length == 0)
+                //            throw new BusinessException("Không có dữ liệu từ file 0.csv");
+
+                //        float[] sums = new float[13];
+                //        int count = 0;
+                //        foreach (var l in allLines)
+                //        {
+                //            var vals = l.Split(' ');
+                //            if (vals.Length < 13)
+                //            {
+                //                WriteTomfanLog($"Dòng {count + 1} không đủ 12 tín hiệu cảm biến");
+                //                continue;
+                //            }
+                //            for (int i = 0; i < 13; i++)
+                //            {
+                //                if (float.TryParse(vals[i], NumberStyles.Float, CultureInfo.InvariantCulture, out var v))
+                //                    sums[i] += v;
+                //            }
+                //            count++;
+                //        }
+
+                //        if (count == 0)
+                //            throw new BusinessException("Không có dữ liệu hợp lệ trong file 0.csv");
+
+
+                //        avgs = sums.Select(x => x / count).ToArray();
+                //        if (avgs.Any(x => float.IsNaN(x) || float.IsInfinity(x)))
+                //            throw new BusinessException("Lỗi hiệu chỉnh cảm biến");
+
+                //        using (var package = new ExcelPackage(new FileInfo(Path.Combine(_exchangeFolder, "MeasurementSummary.xlsx"))))
+                //        {
+                //            var ws2 = package.Workbook.Worksheets.FirstOrDefault(x => x.Name == "ZeroSpan");
+                //            if (ws2 == null)
+                //            {
+                //                ws2 = package.Workbook.Worksheets.Add("ZeroSpan");
+                //            }
+                //            ws2.Cells[1, 1].Value = "T môi trường (%)";
+                //            ws2.Cells[1, 2].Value = "Độ ẩm (%)";
+                //            ws2.Cells[1, 3].Value = "Vị trí van (%)";
+                //            ws2.Cells[1, 4].Value = "Momen (%)";
+                //            ws2.Cells[1, 5].Value = "Hồng ngoại (%)";
+                //            ws2.Cells[1, 6].Value = "Độ rung (%)";
+                //            ws2.Cells[1, 7].Value = "Số vòng quay (%)";
+                //            ws2.Cells[1, 8].Value = "Dòng diện - AM (%)";
+                //            ws2.Cells[1, 9].Value = "Áp suất tĩnh - Chênh áp 2 (%)";
+                //            ws2.Cells[1, 10].Value = "Công suất (%)";
+                //            ws2.Cells[1, 11].Value = "Chênh áp - Chênh áp 1 (%)";
+                //            ws2.Cells[1, 12].Value = "Áp suất khí quyển (%)";
+                //            using (var range = ws2.Cells[1, 1, 1, 12])
+                //            {
+                //                range.Style.Font.Bold = true;
+                //                range.Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
+                //                range.Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.LightGray);
+                //                range.Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
+                //            }
+                //            ws2.Cells[2, 1].Value = avgs[1];
+                //            ws2.Cells[2, 2].Value = avgs[2];
+                //            ws2.Cells[2, 3].Value = avgs[3];
+                //            ws2.Cells[2, 4].Value = avgs[4];
+                //            ws2.Cells[2, 5].Value = avgs[5];
+                //            ws2.Cells[2, 6].Value = avgs[6];
+                //            ws2.Cells[2, 7].Value = avgs[7];
+                //            ws2.Cells[2, 8].Value = avgs[8];
+                //            ws2.Cells[2, 9].Value = avgs[9];
+                //            ws2.Cells[2, 10].Value = avgs[10];
+                //            ws2.Cells[2, 11].Value = avgs[11];
+                //            ws2.Cells[2, 12].Value = avgs[12];
+
+                //            ws2.Cells.AutoFitColumns();
+                //            package.Save();
+                //        }
+                //    }
+                //}
+                //catch (Exception ex)
+                //{
+                //    WriteTomfanLog($"Lỗi khi ZeroSpan từ file 0.csv: {ex.Message}");
+                //    throw;
+                //}
                 m.F = MeasureStatus.Completed;
                 _currentIndex = m.k;
                 return await ConnectExchangeAsync(maxmin);
@@ -364,11 +454,11 @@ namespace TESMEA_TMS.Services
 
                 m.F = MeasureStatus.Completed;
                 WriteTomfanLog($"Connect thành công");
-                DataProcess.Initialize(_measures.Count);
+                
                 IsConnectedToSimatic = true;
                 OnSimaticConnectionChanged?.Invoke(true);
                 _currentIndex = m.k;
-                _isEStop = false;
+                
                 WriteTomfanLog("Đã thiết lập kết nối với Simatic thành công.");
                 return true;
             }
@@ -425,7 +515,7 @@ namespace TESMEA_TMS.Services
                     {
                         // delay 15s den khi ghi dong tiep theo
                         WriteTomfanLog("Delay 15s sau đó chờ kết quả dòng tiếp theo");
-                        await Task.Delay(15000);
+                        await Task.Delay(0);
                         WriteTomfanLog("Delay xong, tiếp tục lắng nghe dòng tiếp theo");
                     }
                     // Chờ kết quả xử lý thực tế (isConnection = false để tính toán sensor)
@@ -435,11 +525,12 @@ namespace TESMEA_TMS.Services
                     if (result != null)
                     {
                         WriteTomfanLog($"Đã nhận kết quả k={m.k}");
+                        m = result;
                         m.F = MeasureStatus.Completed;
                         _simaticResults.Add(result);
 
-                        var measurePoint = DataProcess.OnePointMeasure(result, _inv, _sensor, _duct, _input);
-                        OnMeasurePointCompleted?.Invoke(measurePoint, DataProcess.ParaShow(result, _inv, _sensor, _duct, _input));
+                        var measurePoint = DataProcess.OnePointMeasure(result);
+                        OnMeasurePointCompleted?.Invoke(measurePoint, DataProcess.ParaShow(result));
                         OnSimaticResultReceived?.Invoke(m);
 
                         // thêm kết quả hiện tại vào range
@@ -460,7 +551,7 @@ namespace TESMEA_TMS.Services
                         {
                             // delay 15s den khi ghi dong tiep theo
                             WriteTomfanLog("Delay 15s trước khi ghi dòng tiếp theo");
-                            await Task.Delay(15000);
+                            await Task.Delay(0);
                             WriteTomfanLog("Delay xong, tiếp tục ghi dữ liệu dòng tiếp theo");
                         }
                         WriteTomfanLog($"Hoàn tất điểm đo k={m.k}");
@@ -505,6 +596,30 @@ namespace TESMEA_TMS.Services
                 IsConnectedToSimatic = false;
                 _isEStop = true;
                 WriteTomfanLog($"Đã chèn lệnh E-Stop (96) vào dòng mới k={nextIndex}");
+
+                try
+                {
+                    string timeStamp = DateTime.Now.ToString("yyyyMMdd_HHmmss");
+                    string folderCopy = new DirectoryInfo(_exchangeFolder).Name;
+                    string destFolder = Path.Combine(UserSetting.GetLocalAppPath(), timeStamp, folderCopy);
+
+                    Directory.CreateDirectory(destFolder);
+
+                    foreach(string dirPath in Directory.GetDirectories(_exchangeFolder, "*", SearchOption.AllDirectories))
+                    {
+                        Directory.CreateDirectory(dirPath.Replace(_exchangeFolder, destFolder));
+                    }
+
+                    foreach(string filePath in Directory.GetFiles(_exchangeFolder, "*", SearchOption.AllDirectories))
+                    {
+                        string destFilePath = filePath.Replace(_exchangeFolder, destFolder);
+                        File.Copy(filePath, destFilePath, true);
+                    }
+                }
+                catch(Exception ex)
+                {
+                    throw ex;
+                }
             }
             catch (Exception ex)
             {
@@ -518,7 +633,7 @@ namespace TESMEA_TMS.Services
             return minValue + (maxValue - minValue) * percent / 100f;
         }
 
-        // retry n lần nếu file bị khóa
+        // retry nếu file bị khóa
         private async Task<bool> ExecuteWithRetryAsync(Func<Task> action, int retries = 20, int delay = 200)
         {
             for (int i = 0; i < retries; i++)
@@ -637,16 +752,16 @@ namespace TESMEA_TMS.Services
                             Time = float.TryParse(values[0], NumberStyles.Float, CultureInfo.InvariantCulture, out var time) ? time : 0,
                             NhietDoMoiTruong_sen = float.TryParse(values[1], NumberStyles.Float, CultureInfo.InvariantCulture, out var v1) ? v1 : 0,
                             DoAm_sen = float.TryParse(values[2], NumberStyles.Float, CultureInfo.InvariantCulture, out var v2) ? v2 : 0,
-                            ViTriVan_fb = float.TryParse(values[3], NumberStyles.Float, CultureInfo.InvariantCulture, out var v12) ? v12 : 0,
-                            DoOn_sen = float.TryParse(values[4], NumberStyles.Float, CultureInfo.InvariantCulture, out var v7) ? v7 : 0,
-                            Momen_sen = float.TryParse(values[4], NumberStyles.Float, CultureInfo.InvariantCulture, out var v9) ? v9 : 0,
+                            ViTriVan_fb = float.TryParse(values[3], NumberStyles.Float, CultureInfo.InvariantCulture, out var v3) ? v3 : 0,
+                            Momen_sen = float.TryParse(values[4], NumberStyles.Float, CultureInfo.InvariantCulture, out var v4) ? v4 : 0,
+                            NhietDoGoi_sen = float.TryParse(values[5], NumberStyles.Float, CultureInfo.InvariantCulture, out var v5) ? v5 : 0,
                             DoRung_sen = float.TryParse(values[6], NumberStyles.Float, CultureInfo.InvariantCulture, out var v6) ? v6 : 0,
-                            SoVongQuay_sen = float.TryParse(values[7], NumberStyles.Float, CultureInfo.InvariantCulture, out var v8) ? v8 : 0,
-                            CongSuat_fb = float.TryParse(values[8], NumberStyles.Float, CultureInfo.InvariantCulture, out var v11) ? v11 : 0,
-                            ChenhLechApSuat_sen = float.TryParse(values[9], NumberStyles.Float, CultureInfo.InvariantCulture, out var v4) ? v4 : 0,
-                            DongDien_fb = float.TryParse(values[10], NumberStyles.Float, CultureInfo.InvariantCulture, out var v10) ? v10 : 0,
-                            ApSuatTinh_sen = float.TryParse(values[11], NumberStyles.Float, CultureInfo.InvariantCulture, out var v5) ? v5 : 0,
-                            ApSuatkhiQuyen_sen = float.TryParse(values[12], NumberStyles.Float, CultureInfo.InvariantCulture, out var v3) ? v3 : 0,
+                            SoVongQuay_sen = float.TryParse(values[7], NumberStyles.Float, CultureInfo.InvariantCulture, out var v7) ? v7 : 0,
+                            DongDien_fb = float.TryParse(values[8], NumberStyles.Float, CultureInfo.InvariantCulture, out var v8) ? v8 : 0,
+                            ApSuatTinh_sen = float.TryParse(values[9], NumberStyles.Float, CultureInfo.InvariantCulture, out var v9) ? v9 : 0,
+                            CongSuat_fb = float.TryParse(values[10], NumberStyles.Float, CultureInfo.InvariantCulture, out var v10) ? v10 : 0,
+                            ChenhLechApSuat_sen = float.TryParse(values[11], NumberStyles.Float, CultureInfo.InvariantCulture, out var v11) ? v11 : 0,
+                            ApSuatkhiQuyen_sen = float.TryParse(values[12], NumberStyles.Float, CultureInfo.InvariantCulture, out var v12) ? v12 : 0,
                         };
                         trendTimes.Add(trend);
                     }
@@ -718,22 +833,16 @@ namespace TESMEA_TMS.Services
                     ? _sensor.PhanHoiViTriVanValue
                     : CalcSimatic(_sensor.PhanHoiViTriVanMin, _sensor.PhanHoiViTriVanMax, GetContinuousAverage(x => x.ViTriVan_fb, "Vị trí van"));
 
-                // 4. chưa có
-                m.DoOn_sen = _sensor.IsImportDoOn
-                    ? _sensor.DoOnValue
-                    : CalcSimatic(_sensor.DoOnMin, _sensor.DoOnMax, GetContinuousAverage(x => x.ViTriVan_fb, "Độ ồn"));
-
+                // 4. momen
                 m.Momen_sen = _sensor.IsImportMomen
                     ? _sensor.MomenValue
-                    : CalcSimatic(_sensor.MomenMin, _sensor.MomenMax, GetContinuousAverage(x => x.ViTriVan_fb, "momen"));
-
-                // điện áp luôn lấy theo giá trị nhập vào
-
-                m.DienAp_fb = _sensor.IsImportPhanHoiDienAp
-                    ? _sensor.PhanHoiDienApValue
-                    : _sensor.PhanHoiDienApValue;
-                //CalcSimatic(_sensor.PhanHoiDienApMin, _sensor.PhanHoiDienApMax, float.Parse(parts[6], CultureInfo.InvariantCulture));
+                     : _sensor.MomenValue;
+                    //: CalcSimatic(_sensor.MomenMin, _sensor.MomenMax, GetContinuousAverage(x => x.ViTriVan_fb, "momen"));
+               
                 // 5. nhiệt độ hồng ngoại
+                m.NhietDoGoi = _sensor.IsImportNhietDoGoiTruc
+                    ? _sensor.NhietDoGoiTrucValue
+                    : CalcSimatic(_sensor.NhietDoGoiTrucMin, _sensor.NhietDoGoiTrucMax, GetContinuousAverage(x => x.NhietDoGoi_sen, "Nhiệt độ hồng ngoại"));
 
                 // 6. độ rung
                 m.DoRung_sen = _sensor.IsImportDoRung
@@ -744,33 +853,42 @@ namespace TESMEA_TMS.Services
                 m.SoVongQuay_sen = _sensor.IsImportSoVongQuay
                     ? _sensor.SoVongQuayValue
                     : CalcSimatic(_sensor.SoVongQuayMin, _sensor.SoVongQuayMax, GetContinuousAverage(x => x.SoVongQuay_sen, "Số vòng quay"));
-
-                // 8. phản hồi công suất
-                m.CongSuat_fb = _sensor.IsImportPhanHoiCongSuat
-                  ? _sensor.PhanHoiCongSuatValue
-                  : CalcSimatic(_sensor.PhanHoiCongSuatMin, _sensor.PhanHoiCongSuatMax, GetContinuousAverage(x => x.CongSuat_fb, "Công suất"));
-
-                // 9. chênh lệch áp suất
-                m.ChenhLechApSuat_sen = _sensor.IsImportChenhLechApSuat
-                   ? _sensor.ChenhLechApSuatValue
-                   : CalcSimatic(_sensor.ChenhLechApSuatMin, _sensor.ChenhLechApSuatMax, GetContinuousAverage(x => x.ChenhLechApSuat_sen, "Chênh lệch áp suất"));
-
-                // 10. phản hồi dòng điện
+                // 8. phản hồi dòng điện
                 m.DongDien_fb = _sensor.IsImportPhanHoiDongDien
                   ? _sensor.PhanHoiDongDienValue
                   : CalcSimatic(_sensor.PhanHoiDongDienMin, _sensor.PhanHoiDongDienMax, GetContinuousAverage(x => x.DongDien_fb, "Dòng điện"));
                 //: _sensor.PhanHoiDienApValue;
-
-
-                // 11. áp suất tĩnh
+                
+                // 9. áp suất tĩnh
                 m.ApSuatTinh_sen = _sensor.IsImportApSuatTinh
                     ? _sensor.ApSuatTinhValue
                     : CalcSimatic(_sensor.ApSuatTinhMin, _sensor.ApSuatTinhMax, GetContinuousAverage(x => x.ApSuatTinh_sen, "Áp suất tĩnh"));
+
+                // 10. phản hồi công suất
+                m.CongSuat_fb = _sensor.IsImportPhanHoiCongSuat
+                  ? _sensor.PhanHoiCongSuatValue
+                  : CalcSimatic(_sensor.PhanHoiCongSuatMin, _sensor.PhanHoiCongSuatMax, GetContinuousAverage(x => x.CongSuat_fb, "Công suất"));
+
+
+                // 11. chênh lệch áp suất
+                m.ChenhLechApSuat_sen = _sensor.IsImportChenhLechApSuat
+                   ? _sensor.ChenhLechApSuatValue
+                   : CalcSimatic(_sensor.ChenhLechApSuatMin, _sensor.ChenhLechApSuatMax, GetContinuousAverage(x => x.ChenhLechApSuat_sen, "Chênh lệch áp suất"));
 
                 // 12. áp suất khí quyển
                 m.ApSuatkhiQuyen_sen = _sensor.IsImportApSuatKhiQuyen
                     ? _sensor.ApSuatKhiQuyenValue
                     : CalcSimatic(_sensor.ApSuatKhiQuyenMin, _sensor.ApSuatKhiQuyenMax, GetContinuousAverage(x => x.ApSuatkhiQuyen_sen, "Áp suất khí quyển"));
+
+
+                m.DoOn_sen = _sensor.IsImportDoOn
+                    ? _sensor.DoOnValue
+                    : _sensor.DoOnValue;
+
+                m.DienAp_fb = _sensor.IsImportPhanHoiDienAp
+                   ? _sensor.PhanHoiDienApValue
+                   : _sensor.PhanHoiDienApValue;
+
 
                 WriteTomfanLog("Hoàn thành tính toán kết quả từ trendline");
                 WriteTomfanLog($"Nhiệt độ môi trường: {m.NhietDoMoiTruong_sen}");
@@ -811,7 +929,7 @@ namespace TESMEA_TMS.Services
                         using (var sr = new StreamReader(fs))
                         {
                             string[] lines = await File.ReadAllLinesAsync(path2);
-                            int targetIndex = isConnection ? expectedK - 1 : 2;
+                            int targetIndex = isConnection ? expectedK - 1 : expectedK - 1;
                             if (lines.Length > targetIndex)
                             {
                                 string targetLine = lines[targetIndex];
@@ -847,84 +965,86 @@ namespace TESMEA_TMS.Services
                                                 return val <= 0;
                                             return false;
                                         });
-                                        if (!isInvalid)
+                                        if (true)
                                         {
-                                            // 6,12, 13, 14 chưa có
-
                                             // tần số tính từ %S
                                             m.TanSo_fb = _sensor.IsImportPhanHoiTanSo
                                                         ? _sensor.PhanHoiTanSoValue
                                                         : CalcSimatic(_sensor.PhanHoiTanSoMin, _sensor.PhanHoiTanSoMax, float.Parse(parts[1], CultureInfo.InvariantCulture));
+
                                             // 1. nhiệt độ môi trường
                                             m.NhietDoMoiTruong_sen = _sensor.IsImportNhietDoMoiTruong
                                                 ? _sensor.NhietDoMoiTruongValue
-                                                : CalcSimatic(_sensor.NhietDoMoiTruongMin, _sensor.NhietDoMoiTruongMax, float.Parse(parts[3], CultureInfo.InvariantCulture));
+                                                : CalcSimatic(_sensor.NhietDoMoiTruongMin, _sensor.NhietDoMoiTruongMax, float.Parse(parts[3], CultureInfo.InvariantCulture) - avgs[1]);
 
                                             // 2. độ ẩm
                                             m.DoAm_sen = _sensor.IsImportDoAmMoiTruong
                                                 ? _sensor.DoAmMoiTruongValue
-                                                : CalcSimatic(_sensor.DoAmMoiTruongMin, _sensor.DoAmMoiTruongMax, float.Parse(parts[4], CultureInfo.InvariantCulture));
+                                                : CalcSimatic(_sensor.DoAmMoiTruongMin, _sensor.DoAmMoiTruongMax, float.Parse(parts[4], CultureInfo.InvariantCulture) - avgs[2]);
 
                                             // 3. phản hồi vị trí van
                                             m.ViTriVan_fb = _sensor.IsImportPhanHoiViTriVan
                                                 ? _sensor.PhanHoiViTriVanValue
-                                                : CalcSimatic(_sensor.PhanHoiViTriVanMin, _sensor.PhanHoiViTriVanMax, float.Parse(parts[5], CultureInfo.InvariantCulture));
+                                                : CalcSimatic(_sensor.PhanHoiViTriVanMin, _sensor.PhanHoiViTriVanMax, float.Parse(parts[5], CultureInfo.InvariantCulture) - avgs[3]);
 
-                                            // 4. chưa có
-                                            m.DoOn_sen = _sensor.IsImportDoOn
-                                                ? _sensor.DoOnValue
-                                                : CalcSimatic(_sensor.DoOnMin, _sensor.DoOnMax, float.Parse(parts[6], CultureInfo.InvariantCulture));
-
+                                            // 4. Momen
                                             m.Momen_sen = _sensor.IsImportMomen
                                                 ? _sensor.MomenValue
-                                                : CalcSimatic(_sensor.MomenMin, _sensor.MomenMax, float.Parse(parts[6], CultureInfo.InvariantCulture));
+                                                : CalcSimatic(_sensor.MomenMin, _sensor.MomenMax, float.Parse(parts[6], CultureInfo.InvariantCulture) - avgs[4]);
 
-                                            // điện áp luôn lấy theo giá trị nhập vào
-
-                                            m.DienAp_fb = _sensor.IsImportPhanHoiDienAp
-                                                ? _sensor.PhanHoiDienApValue
-                                                : _sensor.PhanHoiDienApValue;
-                                            //CalcSimatic(_sensor.PhanHoiDienApMin, _sensor.PhanHoiDienApMax, float.Parse(parts[6], CultureInfo.InvariantCulture));
+                                           
                                             // 5. nhiệt độ hồng ngoại
                                             m.NhietDoGoi = _sensor.IsImportNhietDoGoiTruc
                                                 ? _sensor.NhietDoGoiTrucValue
-                                                : CalcSimatic(_sensor.NhietDoGoiTrucMin, _sensor.NhietDoGoiTrucMax, float.Parse(parts[7], CultureInfo.InvariantCulture));
+                                                : CalcSimatic(_sensor.NhietDoGoiTrucMin, _sensor.NhietDoGoiTrucMax, float.Parse(parts[7], CultureInfo.InvariantCulture) - avgs[5]);
 
                                             // 6. độ rung
                                             m.DoRung_sen = _sensor.IsImportDoRung
                                                 ? _sensor.DoRungValue
-                                                : CalcSimatic(_sensor.DoRungMin, _sensor.DoRungMax, float.Parse(parts[8], CultureInfo.InvariantCulture));
+                                                : CalcSimatic(_sensor.DoRungMin, _sensor.DoRungMax, float.Parse(parts[8], CultureInfo.InvariantCulture) - avgs[6]);
 
                                             //7. số vòng quay
                                             m.SoVongQuay_sen = _sensor.IsImportSoVongQuay
                                                 ? _sensor.SoVongQuayValue
-                                                : CalcSimatic(_sensor.SoVongQuayMin, _sensor.SoVongQuayMax, float.Parse(parts[9], CultureInfo.InvariantCulture));
+                                                : CalcSimatic(_sensor.SoVongQuayMin, _sensor.SoVongQuayMax, float.Parse(parts[9], CultureInfo.InvariantCulture) - avgs[7]);
 
-                                            // 8. phản hồi công suất
-                                            m.CongSuat_fb = _sensor.IsImportPhanHoiCongSuat
-                                              ? _sensor.PhanHoiCongSuatValue
-                                              : CalcSimatic(_sensor.PhanHoiCongSuatMin, _sensor.PhanHoiCongSuatMax, float.Parse(parts[10], CultureInfo.InvariantCulture));
-
-                                            // 9. chênh lệch áp suất
-                                            m.ChenhLechApSuat_sen = _sensor.IsImportChenhLechApSuat
-                                               ? _sensor.ChenhLechApSuatValue
-                                               : CalcSimatic(_sensor.ChenhLechApSuatMin, _sensor.ChenhLechApSuatMax, float.Parse(parts[11], CultureInfo.InvariantCulture));
-
-                                            // 10. phản hồi dòng điện
+                                            // 8. phản hồi dòng điện
+                                            // phía plc chỉ trả về 50% nên nhân với hệ số 2
                                             m.DongDien_fb = _sensor.IsImportPhanHoiDongDien
                                               ? _sensor.PhanHoiDongDienValue
-                                              : CalcSimatic(_sensor.PhanHoiDongDienMin, _sensor.PhanHoiDongDienMax, float.Parse(parts[12], CultureInfo.InvariantCulture));
+                                              : CalcSimatic(_sensor.PhanHoiDongDienMin, _sensor.PhanHoiDongDienMax, (float.Parse(parts[10], CultureInfo.InvariantCulture) - avgs[8]) * 2);
                                             //: _sensor.PhanHoiDienApValue;
 
-                                            // 11. áp suất tĩnh
+                                            // 9. áp suất tĩnh
                                             m.ApSuatTinh_sen = _sensor.IsImportApSuatTinh
                                                 ? _sensor.ApSuatTinhValue
-                                                : CalcSimatic(_sensor.ApSuatTinhMin, _sensor.ApSuatTinhMax, float.Parse(parts[13], CultureInfo.InvariantCulture));
+                                                : CalcSimatic(_sensor.ApSuatTinhMin, _sensor.ApSuatTinhMax, float.Parse(parts[11], CultureInfo.InvariantCulture) - avgs[9]);
+                                           
+                                            // 10. phản hồi công suất
+                                            m.CongSuat_fb = _sensor.IsImportPhanHoiCongSuat
+                                              ? _sensor.PhanHoiCongSuatValue
+                                              : CalcSimatic(_sensor.PhanHoiCongSuatMin, _sensor.PhanHoiCongSuatMax, float.Parse(parts[12], CultureInfo.InvariantCulture) - avgs[10]);
+                                            
+                                            // 11. chênh lệch áp suất
+                                            m.ChenhLechApSuat_sen = _sensor.IsImportChenhLechApSuat
+                                               ? _sensor.ChenhLechApSuatValue
+                                               : CalcSimatic(_sensor.ChenhLechApSuatMin, _sensor.ChenhLechApSuatMax, float.Parse(parts[13], CultureInfo.InvariantCulture) - 19.54f);
 
                                             // 12. áp suất khí quyển
                                             m.ApSuatkhiQuyen_sen = _sensor.IsImportApSuatKhiQuyen
                                                 ? _sensor.ApSuatKhiQuyenValue
-                                                : CalcSimatic(_sensor.ApSuatKhiQuyenMin, _sensor.ApSuatKhiQuyenMax, float.Parse(parts[14], CultureInfo.InvariantCulture));
+                                                : CalcSimatic(_sensor.ApSuatKhiQuyenMin, _sensor.ApSuatKhiQuyenMax, float.Parse(parts[14], CultureInfo.InvariantCulture) - avgs[12]);
+
+                                            // điện áp luôn lấy theo giá trị nhập vào
+                                            m.DienAp_fb = _sensor.IsImportPhanHoiDienAp
+                                                ? _sensor.PhanHoiDienApValue
+                                                : _sensor.PhanHoiDienApValue;
+                                            //CalcSimatic(_sensor.PhanHoiDienApMin, _sensor.PhanHoiDienApMax, float.Parse(parts[6], CultureInfo.InvariantCulture));
+
+                                            m.DoOn_sen = _sensor.IsImportDoOn
+                                                ? _sensor.DoOnValue
+                                                : _sensor.DoOnValue;
+
 
                                             WriteTomfanLog("Hoàn thành tính toán từ file 2_S_IN.csv");
                                             WriteTomfanLog($"Nhiệt độ môi trường: {m.NhietDoMoiTruong_sen}");
@@ -946,6 +1066,267 @@ namespace TESMEA_TMS.Services
                                         {
                                             WriteTomfanLog("Dữ liệu không hợp lệ, thực hiện tính thủ công từ trendline");
                                             m = CalculateTrendData(m.S, m.CV, m.k);
+                                        }
+                                    }
+
+                                    if (expectedK >= 2)
+                                    {
+                                        try
+                                        {
+                                            string tempPath = Path.Combine(_exchangeFolder, "MeasurementSummary.xlsx");
+                                            FileInfo fileInfo = new FileInfo(tempPath);
+
+                                            using (var package = new ExcelPackage(fileInfo))
+                                            {
+                                                var ws = package.Workbook.Worksheets.FirstOrDefault();
+                                                if (ws == null)
+                                                {
+                                                    ws = package.Workbook.Worksheets.Add("MeasureData");
+                                                }
+
+                                                if (expectedK == 2)
+                                                {
+                                                    ws.Cells[1, 1].Value = "k";
+                                                    ws.Cells[1, 2].Value = "Tần số (%)";
+                                                    ws.Cells[1, 3].Value = "Góc mở van (%)";
+
+                                                    ws.Cells[1, 4].Value = "Nhiệt độ MT (%)";
+                                                    ws.Cells[1, 5].Value = "Độ ẩm (%)";
+                                                    ws.Cells[1, 6].Value = "Vị trí van (%)";
+                                                    ws.Cells[1, 7].Value = "Momen (%)";
+                                                    ws.Cells[1, 8].Value = "Hồng ngoại (%)";
+                                                    ws.Cells[1, 9].Value = "Độ rung (%)";
+                                                    ws.Cells[1, 10].Value = "Số vòng quay (%)";
+                                                    ws.Cells[1, 11].Value = "Dòng điện (%)";
+                                                    ws.Cells[1, 12].Value = "Áp suất tĩnh (%)";
+                                                    ws.Cells[1, 13].Value = "Công suất (%)";
+                                                    ws.Cells[1, 14].Value = "Chênh áp (%)";
+                                                    ws.Cells[1, 15].Value = "Áp suất khí quyển (%)";
+
+                                                    ws.Cells[1, 16].Value = "Nhiệt độ MT (oC)";
+                                                    ws.Cells[1, 17].Value = "Độ ẩm (%)";
+                                                    ws.Cells[1, 18].Value = "Vị trí van (%)";
+                                                    ws.Cells[1, 19].Value = "Momen";
+                                                    ws.Cells[1, 20].Value = "Nhiệt độ gối (oC)";
+                                                    ws.Cells[1, 21].Value = "Độ rung";
+                                                    ws.Cells[1, 22].Value = "Số vòng quay (RPM)";
+                                                    ws.Cells[1, 23].Value = "Dòng điện (A)";
+                                                    ws.Cells[1, 24].Value = "Áp suất tĩnh (Pa)";
+                                                    ws.Cells[1, 25].Value = "Công suất (kW)";
+                                                    ws.Cells[1, 26].Value = "Chênh lệch áp (Pa)";
+                                                    ws.Cells[1, 27].Value = "Áp suất khí quyển (Pa)";
+                                                   
+                                                    ws.Cells[1, 28].Value = "Tần số (Hz)";
+                                                    ws.Cells[1, 29].Value = "Điện áp (V)";
+                                                    ws.Cells[1, 30].Value = "Độ ồn (dB)";
+                                                    ws.Cells.AutoFitColumns();
+
+                                                    // Style cho header
+                                                    using (var range = ws.Cells[1, 1, 1, 30])
+                                                    {
+                                                        range.Style.Font.Bold = true;
+                                                        range.Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
+                                                        range.Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.LightGray);
+                                                        range.Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
+                                                    }
+
+                                                    var ws1 = package.Workbook.Worksheets.FirstOrDefault(ws => ws.Name == "Sensor");
+                                                    if (ws1 == null)
+                                                    {
+                                                        ws1 = package.Workbook.Worksheets.Add("Sensor");
+                                                    }
+
+                                                    // Header cho worksheet cấu hình
+                                                    ws1.Cells[1, 1].Value = "Tín hiệu";
+                                                    ws1.Cells[1, 2].Value = "Nhập tay (Import)";
+                                                    ws1.Cells[1, 3].Value = "Giá trị (dùng khi import)";
+                                                    ws1.Cells[1, 4].Value = "Min";
+                                                    ws1.Cells[1, 5].Value = "Max";
+
+                                                    // Style header
+                                                    using (var range = ws1.Cells[1, 1, 1, 5])
+                                                    {
+                                                        range.Style.Font.Bold = true;
+                                                        range.Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
+                                                        range.Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.LightGray);
+                                                        range.Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
+                                                    }
+
+                                                    // Danh sách cấu hình cảm biến theo thứ tự
+                                                    int row = 2;
+
+                                                    // 1. Nhiệt độ môi trường
+                                                    ws1.Cells[row, 1].Value = "Nhiệt độ môi trường";
+                                                    ws1.Cells[row, 2].Value = _sensor.IsImportNhietDoMoiTruong ? "TRUE" : "FALSE";
+                                                    ws1.Cells[row, 3].Value = _sensor.NhietDoMoiTruongValue;
+                                                    ws1.Cells[row, 4].Value = _sensor.NhietDoMoiTruongMin;
+                                                    ws1.Cells[row, 5].Value = _sensor.NhietDoMoiTruongMax;
+                                                    row++;
+
+                                                    // 2. Độ ẩm môi trường
+                                                    ws1.Cells[row, 1].Value = "Độ ẩm môi trường";
+                                                    ws1.Cells[row, 2].Value = _sensor.IsImportDoAmMoiTruong ? "TRUE" : "FALSE";
+                                                    ws1.Cells[row, 3].Value = _sensor.DoAmMoiTruongValue;
+                                                    ws1.Cells[row, 4].Value = _sensor.DoAmMoiTruongMin;
+                                                    ws1.Cells[row, 5].Value = _sensor.DoAmMoiTruongMax;
+                                                    row++;
+
+                                                    // 3. Phản hồi vị trí van
+                                                    ws1.Cells[row, 1].Value = "Phản hồi vị trí van";
+                                                    ws1.Cells[row, 2].Value = _sensor.IsImportPhanHoiViTriVan ? "TRUE" : "FALSE";
+                                                    ws1.Cells[row, 3].Value = _sensor.PhanHoiViTriVanValue;
+                                                    ws1.Cells[row, 4].Value = _sensor.PhanHoiViTriVanMin;
+                                                    ws1.Cells[row, 5].Value = _sensor.PhanHoiViTriVanMax;
+                                                    row++;
+
+                                                    // 4. Momen
+                                                    ws1.Cells[row, 1].Value = "Momen";
+                                                    ws1.Cells[row, 2].Value = _sensor.IsImportMomen ? "TRUE" : "FALSE";
+                                                    ws1.Cells[row, 3].Value = _sensor.MomenValue;
+                                                    ws1.Cells[row, 4].Value = _sensor.MomenMin;
+                                                    ws1.Cells[row, 5].Value = _sensor.MomenMax;
+                                                    row++;
+
+                                                    
+
+                                                    // 5. Nhiệt độ gối trục
+                                                    ws1.Cells[row, 1].Value = "Nhiệt độ gối trục";
+                                                    ws1.Cells[row, 2].Value = _sensor.IsImportNhietDoGoiTruc ? "TRUE" : "FALSE";
+                                                    ws1.Cells[row, 3].Value = _sensor.NhietDoGoiTrucValue;
+                                                    ws1.Cells[row, 4].Value = _sensor.NhietDoGoiTrucMin;
+                                                    ws1.Cells[row, 5].Value = _sensor.NhietDoGoiTrucMax;
+                                                    row++;
+
+                                                    // 6. Độ rung
+                                                    ws1.Cells[row, 1].Value = "Độ rung";
+                                                    ws1.Cells[row, 2].Value = _sensor.IsImportDoRung ? "TRUE" : "FALSE";
+                                                    ws1.Cells[row, 3].Value = _sensor.DoRungValue;
+                                                    ws1.Cells[row, 4].Value = _sensor.DoRungMin;
+                                                    ws1.Cells[row, 5].Value = _sensor.DoRungMax;
+                                                    row++;
+
+                                                    // 7. Số vòng quay
+                                                    ws1.Cells[row, 1].Value = "Số vòng quay";
+                                                    ws1.Cells[row, 2].Value = _sensor.IsImportSoVongQuay ? "TRUE" : "FALSE";
+                                                    ws1.Cells[row, 3].Value = _sensor.SoVongQuayValue;
+                                                    ws1.Cells[row, 4].Value = _sensor.SoVongQuayMin;
+                                                    ws1.Cells[row, 5].Value = _sensor.SoVongQuayMax;
+                                                    row++;
+
+                                                    // 8. Phản hồi dòng điện
+                                                    ws1.Cells[row, 1].Value = "Phản hồi dòng điện";
+                                                    ws1.Cells[row, 2].Value = _sensor.IsImportPhanHoiDongDien ? "TRUE" : "FALSE";
+                                                    ws1.Cells[row, 3].Value = _sensor.PhanHoiDongDienValue;
+                                                    ws1.Cells[row, 4].Value = _sensor.PhanHoiDongDienMin;
+                                                    ws1.Cells[row, 5].Value = _sensor.PhanHoiDongDienMax;
+                                                    row++;
+
+                                                    // 9. Chênh lệch áp suất
+                                                    ws1.Cells[row, 1].Value = "Chênh lệch áp suất";
+                                                    ws1.Cells[row, 2].Value = _sensor.IsImportChenhLechApSuat ? "TRUE" : "FALSE";
+                                                    ws1.Cells[row, 3].Value = _sensor.ChenhLechApSuatValue;
+                                                    ws1.Cells[row, 4].Value = _sensor.ChenhLechApSuatMin;
+                                                    ws1.Cells[row, 5].Value = _sensor.ChenhLechApSuatMax;
+                                                    row++;
+
+                                                    // 10. Phản hồi công suất
+                                                    ws1.Cells[row, 1].Value = "Phản hồi công suất";
+                                                    ws1.Cells[row, 2].Value = _sensor.IsImportPhanHoiCongSuat ? "TRUE" : "FALSE";
+                                                    ws1.Cells[row, 3].Value = _sensor.PhanHoiCongSuatValue;
+                                                    ws1.Cells[row, 4].Value = _sensor.PhanHoiCongSuatMin;
+                                                    ws1.Cells[row, 5].Value = _sensor.PhanHoiCongSuatMax;
+                                                    row++;
+
+                                                    // 11. Áp suất tĩnh
+                                                    ws1.Cells[row, 1].Value = "Áp suất tĩnh";
+                                                    ws1.Cells[row, 2].Value = _sensor.IsImportApSuatTinh ? "TRUE" : "FALSE";
+                                                    ws1.Cells[row, 3].Value = _sensor.ApSuatTinhValue;
+                                                    ws1.Cells[row, 4].Value = _sensor.ApSuatTinhMin;
+                                                    ws1.Cells[row, 5].Value = _sensor.ApSuatTinhMax;
+                                                    row++;
+
+                                                    // 12. Áp suất khí quyển
+                                                    ws1.Cells[row, 1].Value = "Áp suất khí quyển";
+                                                    ws1.Cells[row, 2].Value = _sensor.IsImportApSuatKhiQuyen ? "TRUE" : "FALSE";
+                                                    ws1.Cells[row, 3].Value = _sensor.ApSuatKhiQuyenValue;
+                                                    ws1.Cells[row, 4].Value = _sensor.ApSuatKhiQuyenMin;
+                                                    ws1.Cells[row, 5].Value = _sensor.ApSuatKhiQuyenMax;
+
+
+
+
+                                                    // 13. Phản hồi tần số
+                                                    ws1.Cells[row, 1].Value = "Phản hồi tần số";
+                                                    ws1.Cells[row, 2].Value = _sensor.IsImportPhanHoiTanSo ? "TRUE" : "FALSE";
+                                                    ws1.Cells[row, 3].Value = _sensor.PhanHoiTanSoValue;
+                                                    ws1.Cells[row, 4].Value = _sensor.PhanHoiTanSoMin;
+                                                    ws1.Cells[row, 5].Value = _sensor.PhanHoiTanSoMax;
+                                                    row++;
+
+                                                    // 14. Phản hồi điện áp
+                                                    ws1.Cells[row, 1].Value = "Phản hồi điện áp";
+                                                    ws1.Cells[row, 2].Value = _sensor.IsImportPhanHoiDienAp ? "TRUE" : "FALSE";
+                                                    ws1.Cells[row, 3].Value = _sensor.PhanHoiDienApValue;
+                                                    ws1.Cells[row, 4].Value = _sensor.PhanHoiDienApMin;
+                                                    ws1.Cells[row, 5].Value = _sensor.PhanHoiDienApMax;
+                                                    row++;
+
+                                                    // 15. Độ ồn
+                                                    ws1.Cells[row, 1].Value = "Độ ồn";
+                                                    ws1.Cells[row, 2].Value = _sensor.IsImportDoOn ? "TRUE" : "FALSE";
+                                                    ws1.Cells[row, 3].Value = _sensor.DoOnValue;
+                                                    ws1.Cells[row, 4].Value = _sensor.DoOnMin;
+                                                    ws1.Cells[row, 5].Value = _sensor.DoOnMax;
+                                                    row++;
+
+                                                    ws1.Cells.AutoFitColumns();
+
+                                                }
+
+                                                if (!isConnection && parts.Length > 10)
+                                                {
+                                                    int dataRow = expectedK - 1;
+
+                                                    ws.Cells[dataRow, 1].Value = m.k;
+                                                    ws.Cells[dataRow, 2].Value = m.S;
+                                                    ws.Cells[dataRow, 3].Value = m.CV;
+
+                                                    if (parts.Length > 3)
+                                                    {
+                                                        for (int i = 3; i < Math.Min(parts.Length, 15); i++)
+                                                        {
+                                                            if (float.TryParse(parts[i], NumberStyles.Float, CultureInfo.InvariantCulture, out float value))
+                                                            {
+                                                                ws.Cells[dataRow, i + 1].Value = value;
+                                                            }
+                                                        }
+                                                    }
+
+                                                    ws.Cells[dataRow, 16].Value = m.NhietDoMoiTruong_sen;
+                                                    ws.Cells[dataRow, 17].Value = m.DoAm_sen;
+                                                    ws.Cells[dataRow, 18].Value = m.ViTriVan_fb;
+                                                    ws.Cells[dataRow, 19].Value = m.Momen_sen;
+                                                    ws.Cells[dataRow, 20].Value = m.NhietDoGoi;
+                                                    ws.Cells[dataRow, 21].Value = m.DoRung_sen;
+                                                    ws.Cells[dataRow, 22].Value = m.SoVongQuay_sen;
+                                                    ws.Cells[dataRow, 23].Value = m.DongDien_fb;
+                                                    ws.Cells[dataRow, 24].Value = m.ApSuatTinh_sen;
+                                                    ws.Cells[dataRow, 25].Value = m.CongSuat_fb;
+                                                    ws.Cells[dataRow, 26].Value = m.ChenhLechApSuat_sen;
+                                                    ws.Cells[dataRow, 27].Value = m.ApSuatkhiQuyen_sen;
+
+                                                    ws.Cells[dataRow, 28].Value = m.TanSo_fb;
+                                                    ws.Cells[dataRow, 29].Value = m.DienAp_fb;
+                                                    ws.Cells[dataRow, 30].Value = m.DoOn_sen;
+                                                    
+                                                }
+                                                ws.Cells.AutoFitColumns();
+                                                package.Save();
+
+                                            }
+                                        }
+                                        catch (Exception ex)
+                                        {
                                         }
                                     }
 

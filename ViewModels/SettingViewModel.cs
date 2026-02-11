@@ -195,16 +195,6 @@ namespace TESMEA_TMS.ViewModels
                 MessageBox.Show("Mật khẩu mới và mật khẩu xác nhận không khớp", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
-            if (!Validation.IsValidPassword(ChangePassword.NewPassword))
-            {
-                MessageBox.Show("Mật khẩu mới không hợp lệ", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;
-            }
-            if (!Validation.IsValidPassword(ChangePassword.ConfirmNewPassword))
-            {
-                MessageBox.Show("Mật khẩu xác nhận không hợp lệ", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;
-            }
             //if (string.IsNullOrEmpty(SimaticPath))
             //{
             //    MessageBox.Show("Đường dẫn tới Simatic không được để trống", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Warning);
@@ -220,9 +210,9 @@ namespace TESMEA_TMS.ViewModels
                 MessageBox.Show("Nhập timeout lớn hơn 60 giây", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
-            if (Timeout > 1800)
+            if (Timeout > 3500)
             {
-                MessageBox.Show("Nhập timeout nhỏ hơn hoặc bằng 30 phút", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show("Nhập timeout nhỏ hơn hoặc bằng 35 phút", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
 
             // ChangePassword if have values

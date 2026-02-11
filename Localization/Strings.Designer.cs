@@ -286,7 +286,7 @@ namespace TESMEA_TMS.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Hiệu suất trên trục (kW).
+        ///   Looks up a localized string similar to Công suất trên trục (kW).
         /// </summary>
         internal static string col_Power {
             get {
@@ -808,7 +808,7 @@ namespace TESMEA_TMS.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Dòng điện định mức của động cơ.
+        ///   Looks up a localized string similar to Dòng điện định mức.
         /// </summary>
         internal static string lbl_Rated_current {
             get {
@@ -952,11 +952,11 @@ namespace TESMEA_TMS.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Nhiệt độ thiết kế làm việc.
+        ///   Looks up a localized string similar to Nhiệt độ.
         /// </summary>
-        internal static string lbl_Temp_fluid {
+        internal static string lbl_Temp {
             get {
-                return ResourceManager.GetString("lbl_Temp_fluid", resourceCulture);
+                return ResourceManager.GetString("lbl_Temp", resourceCulture);
             }
         }
         

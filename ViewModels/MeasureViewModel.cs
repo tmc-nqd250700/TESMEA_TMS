@@ -1,4 +1,5 @@
 ﻿using MaterialDesignThemes.Wpf;
+using OfficeOpenXml;
 using OxyPlot;
 using OxyPlot.Axes;
 using OxyPlot.Legends;
@@ -59,8 +60,8 @@ namespace TESMEA_TMS.ViewModels
 
 
         public ObservableCollection<ComboBoxInfo> ReportTemplates { get; set; }
-        private ComboBoxInfo _selectedReportTemplate;
-        public ComboBoxInfo SelectedReportTemplate
+        private string _selectedReportTemplate;
+        public string SelectedReportTemplate
         {
             get => _selectedReportTemplate;
             set
@@ -188,8 +189,7 @@ namespace TESMEA_TMS.ViewModels
             ReportTemplates.Add(new ComboBoxInfo("NORMALIZED", IsEn ? "Normalized condition" : "Điều kiện tiêu chuẩn"));
             ReportTemplates.Add(new ComboBoxInfo("OPERATION", IsEn ? "Operation condition" : "Điều kiện hoạt động"));
             ReportTemplates.Add(new ComboBoxInfo("FULL", IsEn ? "Full" : "Tất cả"));
-            SelectedReportTemplate = new ComboBoxInfo();
-            SelectedReportTemplate.Value = ReportTemplates[0].Value;
+            SelectedReportTemplate = ReportTemplates[0].Value;
 
             ConnectCommand = new ViewModelCommand(CanConnect, ExecuteConnectCommand);
             //ConnectCommand2 = new ViewModelCommand(CanConnect2, ExecuteConnectCommand2);
@@ -224,7 +224,7 @@ namespace TESMEA_TMS.ViewModels
         {
             PowerPlotModel = new PlotModel
             {
-                Title = IsEn ? "Air volume - Power curve" : "Đặc tuyến Công suất - Lưu lượng",
+                Title = IsEn ? "Air volume - Power curve" : "Đặc tuyến Lưu lượng - Công suất",
                 Background = OxyColors.White,
                 IsLegendVisible = true,
                 PlotMargins = new OxyThickness(60, 10, 10, 60),
@@ -247,6 +247,7 @@ namespace TESMEA_TMS.ViewModels
                 Title = IsEn ? "Air volume (m3/h)" : "Lưu lượng (m3/h)",
                 Key = "PowerXAxis",
                 Minimum = 0,
+                Maximum = 4000,
                 IsPanEnabled = false,
                 IsZoomEnabled = false,
                 MajorGridlineStyle = LineStyle.Solid,
@@ -260,6 +261,7 @@ namespace TESMEA_TMS.ViewModels
                 Title = IsEn ? "Power (kW)" : "Công suất (kW)",
                 Key = "PowerYAxis",
                 Minimum = 0,
+                Maximum = 5,
                 IsPanEnabled = false,
                 IsZoomEnabled = false,
                 MajorGridlineStyle = LineStyle.Solid,
@@ -274,7 +276,7 @@ namespace TESMEA_TMS.ViewModels
                 MarkerFill = OxyColors.Red,
                 MarkerStroke = OxyColors.Red,
                 MarkerStrokeThickness = 1,
-                MarkerSize = 2
+                MarkerSize = 4
             };
             PowerPlotModel.Series.Add(scatterSeries);
         }
@@ -285,7 +287,7 @@ namespace TESMEA_TMS.ViewModels
             {
                 Title = IsEn ?
                     "Air volume - Pressure - Efficiency curve" :
-                    "Đặc tuyến Áp suất - Hiệu suất - Lưu lượng",
+                    "Đặc tuyến Lưu lượng - Áp suất - Hiệu suất",
                 Background = OxyColors.White,
                 PlotMargins = new OxyThickness(60, 10, 60, 60),
                 Legends =
@@ -306,6 +308,7 @@ namespace TESMEA_TMS.ViewModels
                 Position = AxisPosition.Bottom,
                 Title = IsEn ? "Air volume (m3/h)" : "Lưu lượng (m3/h)",
                 Minimum = 0,
+                Maximum = 4000,
                 IsPanEnabled = false,
                 IsZoomEnabled = false,
                 MajorGridlineStyle = LineStyle.Solid,
@@ -318,6 +321,7 @@ namespace TESMEA_TMS.ViewModels
                 Position = AxisPosition.Left,
                 Title = IsEn ? "Pressure (Pa)" : "Áp suất (Pa)",
                 Minimum = 0,
+                Maximum = 1000,
                 IsPanEnabled = false,
                 IsZoomEnabled = false,
                 MajorGridlineStyle = LineStyle.Solid,
@@ -346,23 +350,24 @@ namespace TESMEA_TMS.ViewModels
             var staticPressureSeries = new ScatterSeries
             {
                 Title = IsEn ? "Static Pressure" : "Áp suất tĩnh",
-                MarkerType = MarkerType.Circle,
-                MarkerFill = OxyColors.Red,
-                MarkerStroke = OxyColors.Red,
+                MarkerType = MarkerType.Diamond,
+                MarkerFill = OxyColors.Orange,
+                MarkerStroke = OxyColors.Orange,
                 MarkerStrokeThickness = 1,
-                MarkerSize = 2,
+                MarkerSize = 4,
                 YAxisKey = "PressureAxis",
             };
 
             var totalPressureSeries = new ScatterSeries
             {
-                Title = IsEn ? "Total Pressure" : "Áp suất tổng",
+                //Title = IsEn ? "Total Pressure" : "Áp suất tổng",
+                Title = null,
                 MarkerType = MarkerType.Diamond,
                 MarkerFill = OxyColors.Blue,
                 MarkerStroke = OxyColors.Blue,
                 MarkerStrokeThickness = 1,
-                MarkerSize = 2,
-                YAxisKey = "PressureAxis"
+                MarkerSize = 4,
+                YAxisKey = "PressureAxis",
             };
 
             var staticEfficiencySeries = new ScatterSeries
@@ -372,19 +377,20 @@ namespace TESMEA_TMS.ViewModels
                 MarkerFill = OxyColors.Black,
                 MarkerStroke = OxyColors.Black,
                 MarkerStrokeThickness = 1,
-                MarkerSize = 2,
+                MarkerSize = 4,
                 YAxisKey = "EfficiencyAxis"
             };
 
             var totalEfficiencySeries = new ScatterSeries
             {
-                Title = IsEn ? "Total Efficiency" : "Hiệu suất tổng",
+                //Title = IsEn ? "Total Efficiency" : "Hiệu suất tổng",
+                Title = null,
                 MarkerType = MarkerType.Triangle,
                 MarkerFill = OxyColors.DarkGreen,
                 MarkerStroke = OxyColors.DarkGreen,
                 MarkerStrokeThickness = 1,
-                MarkerSize = 2,
-                YAxisKey = "EfficiencyAxis"
+                MarkerSize = 4,
+                YAxisKey = "EfficiencyAxis",
             };
 
             EfficiencyPlotModel.Series.Add(staticPressureSeries);
@@ -431,6 +437,26 @@ namespace TESMEA_TMS.ViewModels
 
                     }
 
+                    string xlsxPath = Path.Combine(exchangeFolder, "MeasurementSummary.xlsx");
+                    if (File.Exists(xlsxPath))
+                    {
+                        try
+                        {
+                            File.Delete(xlsxPath);
+                        }
+                        catch { }
+                    }
+
+                    // Tạo file Excel mới
+                    FileInfo fileInfo = new FileInfo(xlsxPath);
+                    using (var package = new ExcelPackage(fileInfo))
+                    {
+                        package.Workbook.Worksheets.Add("MeasureData");
+                        package.Workbook.Worksheets.Add("Sensor");
+                        package.Workbook.Worksheets.Add("ZeroSpan");
+                        package.Save();
+                    }
+
                     // trend folder
                     if (!Directory.Exists(Path.Combine(exchangeFolder, "Trend")))
                     {
@@ -440,6 +466,31 @@ namespace TESMEA_TMS.ViewModels
                     {
                         // delete all files in trend folder
                         foreach (var file in Directory.GetFiles(Path.Combine(exchangeFolder, "Trend")))
+                        {
+                            try { File.Delete(file); } catch { }
+                        }
+                    }
+
+                    if (!Directory.Exists(Path.Combine(exchangeFolder, "History")))
+                    {
+                        Directory.CreateDirectory(Path.Combine(exchangeFolder, "History"));
+                    }
+                    else
+                    {
+                        // delete all files in hisstory folder
+                        foreach (var file in Directory.GetFiles(Path.Combine(exchangeFolder, "History")))
+                        {
+                            try { File.Delete(file); } catch { }
+                        }
+                    }
+                    if (!Directory.Exists(Path.Combine(exchangeFolder, "ZERO")))
+                    {
+                        Directory.CreateDirectory(Path.Combine(exchangeFolder, "ZERO"));
+                    }
+                    else
+                    {
+                        // delete all files in hisstory folder
+                        foreach (var file in Directory.GetFiles(Path.Combine(exchangeFolder, "ZERO")))
                         {
                             try { File.Delete(file); } catch { }
                         }
@@ -612,14 +663,13 @@ namespace TESMEA_TMS.ViewModels
 
         }
 
-        private void ExecuteResetCommand(object obj)
+        private async void ExecuteResetCommand(object obj)
         {
             foreach (var measure in MeasureRows)
             {
                 measure.F = MeasureStatus.Pending;
             }
             OnPropertyChanged(nameof(MeasureRows));
-            DataProcess.Initialize(MeasureRows.Count);
             MeasureResponses.Clear();
             OnPropertyChanged(nameof(MeasureResponses));
             ParameterShow = new ParameterShow();
@@ -647,6 +697,26 @@ namespace TESMEA_TMS.ViewModels
 
                 }
 
+                string xlsxPath = Path.Combine(exchangeFolder, "MeasurementSummary.xlsx");
+                if (File.Exists(xlsxPath))
+                {
+                    try
+                    {
+                        File.Delete(xlsxPath);
+                    }
+                    catch { }
+                }
+
+                // Tạo file Excel mới
+                FileInfo fileInfo = new FileInfo(xlsxPath);
+                using (var package = new ExcelPackage(fileInfo))
+                {
+                    package.Workbook.Worksheets.Add("MeasureData");
+                    package.Workbook.Worksheets.Add("Sensor");
+                    package.Workbook.Worksheets.Add("ZeroSpan");
+                    package.Save();
+                }
+
                 // trend folder
                 if (!Directory.Exists(Path.Combine(exchangeFolder, "Trend")))
                 {
@@ -656,6 +726,32 @@ namespace TESMEA_TMS.ViewModels
                 {
                     // delete all files in trend folder
                     foreach (var file in Directory.GetFiles(Path.Combine(exchangeFolder, "Trend")))
+                    {
+                        try { File.Delete(file); } catch { }
+                    }
+                }
+
+                if (!Directory.Exists(Path.Combine(exchangeFolder, "History")))
+                {
+                    Directory.CreateDirectory(Path.Combine(exchangeFolder, "History"));
+                }
+                else
+                {
+                    // delete all files in history folder
+                    foreach (var file in Directory.GetFiles(Path.Combine(exchangeFolder, "History")))
+                    {
+                        try { File.Delete(file); } catch { }
+                    }
+                }
+
+                if (!Directory.Exists(Path.Combine(exchangeFolder, "ZERO")))
+                {
+                    Directory.CreateDirectory(Path.Combine(exchangeFolder, "ZERO"));
+                }
+                else
+                {
+                    // delete all files in ZERO folder
+                    foreach (var file in Directory.GetFiles(Path.Combine(exchangeFolder, "ZERO")))
                     {
                         try { File.Delete(file); } catch { }
                     }
@@ -708,6 +804,21 @@ namespace TESMEA_TMS.ViewModels
             if (measure != null)
             {
                 measure.F = result.F;
+                measure.NhietDoMoiTruong_sen = result.NhietDoMoiTruong_sen;
+                measure.DoAm_sen = result.DoAm_sen;
+                measure.ApSuatkhiQuyen_sen = result.ApSuatkhiQuyen_sen;
+                measure.ChenhLechApSuat_sen = result.ChenhLechApSuat_sen;
+                measure.ApSuatTinh_sen = result.ApSuatTinh_sen;
+                measure.DoRung_sen = result.DoRung_sen;
+                measure.DoOn_sen = result.DoOn_sen;
+                measure.SoVongQuay_sen = result.SoVongQuay_sen;
+                measure.Momen_sen = result.Momen_sen;
+                measure.DongDien_fb = result.DongDien_fb;
+                measure.DienAp_fb = result.DienAp_fb;
+                measure.CongSuat_fb = result.CongSuat_fb;
+                measure.ViTriVan_fb = result.ViTriVan_fb;
+                measure.TanSo_fb = result.TanSo_fb;
+                measure.NhietDoGoi = result.NhietDoGoi;
                 OnPropertyChanged(nameof(MeasureRows));
             }
         }
@@ -735,30 +846,27 @@ namespace TESMEA_TMS.ViewModels
                 {
                     powerSeries.Points.Add(new ScatterPoint(response.Airflow, response.Power));
 
-                    //var xAxis = PowerPlotModel.Axes.FirstOrDefault(a => a.Position == AxisPosition.Bottom) as LinearAxis;
-                    //var yAxis = PowerPlotModel.Axes.FirstOrDefault(a => a.Position == AxisPosition.Left) as LinearAxis;
+                    var xAxis = PowerPlotModel.Axes.FirstOrDefault(a => a.Position == AxisPosition.Bottom) as LinearAxis;
+                    var yAxis = PowerPlotModel.Axes.FirstOrDefault(a => a.Position == AxisPosition.Left) as LinearAxis;
 
-                    //// Cập nhật trục X
-                    //if (xAxis != null)
-                    //{
-                    //    var currentMax = xAxis.Maximum;
-                    //    if (response.Airflow > currentMax)
-                    //    {
-                    //        xAxis.Maximum = Common.RoundUpToNearest(response.Airflow * 1.1f);
-                    //        _externalAppService.WriteTomfanLog($"PowerPlot: Cập nhật X axis từ {currentMax} lên {xAxis.Maximum}");
-                    //    }
-                    //}
+                    // Cập nhật trục X
+                    if (xAxis != null)
+                    {
+                        if (response.Airflow > xAxis.Maximum)
+                        {
+                            xAxis.Maximum = Common.RoundUpToNearest(response.Airflow * 1.1f, 1000);
+                        }
+                    }
 
-                    //// Cập nhật trục Y
-                    //if (yAxis != null)
-                    //{
-                    //    var currentMax = yAxis.Maximum;
-                    //    if (response.Power > currentMax)
-                    //    {
-                    //        yAxis.Maximum = Common.RoundUpToNearest(response.Power * 1.1f);
-                    //        _externalAppService.WriteTomfanLog($"PowerPlot: Cập nhật Y axis từ {currentMax} lên {yAxis.Maximum}");
-                    //    }
-                    //}
+                    // Cập nhật trục Y
+                    if (yAxis != null)
+                    {
+                        var currentMax = yAxis.Maximum;
+                        if (response.Power > yAxis.Maximum)
+                        {
+                            yAxis.Maximum = Common.RoundUpToNearest(response.Power * 1.1f);
+                        }
+                    }
 
                     PowerPlotModel.InvalidatePlot(true);
                 }
@@ -772,34 +880,34 @@ namespace TESMEA_TMS.ViewModels
                     var tePoint = EfficiencyPlotModel.Series[3] as ScatterSeries;
 
                     psPoint?.Points.Add(new ScatterPoint(response.Airflow, response.Ps));
-                    ptPoint?.Points.Add(new ScatterPoint(response.Airflow, response.Pt));
+                    //ptPoint?.Points.Add(new ScatterPoint(response.Airflow, response.Pt));
                     sePoint?.Points.Add(new ScatterPoint(response.Airflow, response.SEff));
-                    tePoint?.Points.Add(new ScatterPoint(response.Airflow, response.TEff));
+                    //tePoint?.Points.Add(new ScatterPoint(response.Airflow, response.TEff));
 
                     // Cập nhật trục cho Efficiency Plot
-                    //var xAxisEff = EfficiencyPlotModel.Axes.FirstOrDefault(a => a.Position == AxisPosition.Bottom) as LinearAxis;
-                    //var yPressAxis = EfficiencyPlotModel.Axes.FirstOrDefault(a => a.Key == "PressureAxis") as LinearAxis;
+                    var xAxisEff = EfficiencyPlotModel.Axes.FirstOrDefault(a => a.Position == AxisPosition.Bottom) as LinearAxis;
+                    var yPressAxis = EfficiencyPlotModel.Axes.FirstOrDefault(a => a.Key == "PressureAxis") as LinearAxis;
 
-                    //// Cập nhật trục X
-                    //if (xAxisEff != null)
-                    //{
-                    //    var currentMax = xAxisEff.Maximum;
-                    //    if (response.Airflow > currentMax)
-                    //    {
-                    //        xAxisEff.Maximum = Common.RoundUpToNearest(response.Airflow * 1.1f);
-                    //    }
-                    //}
+                    // Cập nhật trục X
+                    if (xAxisEff != null)
+                    {
+                        var currentMax = xAxisEff.Maximum;
+                        if (response.Airflow > currentMax)
+                        {
+                            xAxisEff.Maximum = Common.RoundUpToNearest(response.Airflow * 1.1f, 1000);
+                        }
+                    }
 
-                    //// Cập nhật trục Y (Pressure)
-                    //if (yPressAxis != null)
-                    //{
-                    //    float maxPress = Math.Max(response.Ps, response.Pt);
-                    //    var currentMax = yPressAxis.Maximum;
-                    //    if (maxPress > currentMax)
-                    //    {
-                    //        yPressAxis.Maximum = Common.RoundUpToNearest(maxPress * 1.1f);
-                    //    }
-                    //}
+                    // Cập nhật trục Y (Pressure)
+                    if (yPressAxis != null)
+                    {
+                        float maxPress = Math.Max(response.Ps, response.Pt);
+                        var currentMax = yPressAxis.Maximum;
+                        if (maxPress > currentMax)
+                        {
+                            yPressAxis.Maximum = Common.RoundUpToNearest(maxPress * 1.1f, 1000);
+                        }
+                    }
                     EfficiencyPlotModel.InvalidatePlot(true);
                 }
             });
@@ -807,10 +915,9 @@ namespace TESMEA_TMS.ViewModels
 
         private void OnMeasureRangeCompletedHandler(MeasureFittingFC fitting, Measure rangeMeasure)
         {
+
             Application.Current.Dispatcher.Invoke(() =>
             {
-                _externalAppService.WriteTomfanLog("==== LOG FITTING ====");
-
                 // Power Plot - Thêm Line mới
                 // Tạo LineSeries cho dải vừa hoàn thành
                 var pwLine = new LineSeries
@@ -834,52 +941,63 @@ namespace TESMEA_TMS.ViewModels
                     pwLine.Points.Add(new DataPoint(x2, y2));
                 }
 
-                PowerPlotModel.Series.Add(pwLine);
+                // Power Plot - Thêm smooth LineSeries thay vì FunctionSeries
+                var pwSmoothLine = CreateSmoothLineSeries(
+                    fitting.FlowPoint_ft,
+                    fitting.PrPoint_ft,
+                    OxyColors.Red,
+                    2,
+                    LineStyle.Solid
+                );
+                pwSmoothLine.Title = null;
 
-              
-                var list = new List<DataPoint>();
-                var list2 = new List<DataPoint>();
-                var list3 = new List<DataPoint>();
-                var list4 = new List<DataPoint>();
+                PowerPlotModel.Series.Add(pwSmoothLine);
+                //PowerPlotModel.Series.Add(pwLine);
+
+
+                //var list = new List<DataPoint>();
+                //var list2 = new List<DataPoint>();
+                //var list3 = new List<DataPoint>();
+                //var list4 = new List<DataPoint>();
                 var list5 = new List<DataPoint>();
                 var list6 = new List<DataPoint>();
                 var list7 = new List<DataPoint>();
                 var list8 = new List<DataPoint>();
                 // T
-                var list9 = new List<DataPoint>();
-                var list10 = new List<DataPoint>();
+                //var list9 = new List<DataPoint>();
+                //var list10 = new List<DataPoint>();
                 var list11 = new List<DataPoint>();
                 var list12 = new List<DataPoint>();
                 for (int i = 0; i < fitting.FlowPoint_ft.Length; i++)
                 {
-                    double x = fitting.Ope_FlowPoint[i];
+                    //double x = fitting.Ope_FlowPoint[i];
                     double x2 = fitting.FlowPoint_ft[i];
-                    double y = fitting.Ope_PsPoint[i];
-                    double y2 = fitting.Ope_PtPoint[i];
-                    double y3 = fitting.Ope_EsPoint[i];
-                    double y4 = fitting.Ope_EtPoint[i];
+                    //double y = fitting.Ope_PsPoint[i];
+                    //double y2 = fitting.Ope_PtPoint[i];
+                    //double y3 = fitting.Ope_EsPoint[i];
+                    //double y4 = fitting.Ope_EtPoint[i];
                     double y5 = fitting.PsPoint_ft[i];
                     double y6 = fitting.PtPoint_ft[i];
                     double y7 = fitting.EsPoint_ft[i];
                     double y8 = fitting.EtPoint_ft[i];
 
                     // T
-                    double y9 = fitting.Ope_EstPoint[i];
-                    double y10 = fitting.Ope_EttPoint[i];
+                    //double y9 = fitting.Ope_EstPoint[i];
+                    //double y10 = fitting.Ope_EttPoint[i];
                     double y11 = fitting.EstPoint_ft[i];
                     double y12 = fitting.EttPoint_ft[i];
 
-                    list.Add(new DataPoint(x, y));
-                    list2.Add(new DataPoint(x, y2));
-                    list3.Add(new DataPoint(x, y3));
-                    list4.Add(new DataPoint(x, y4));
+                    //list.Add(new DataPoint(x, y));
+                    //list2.Add(new DataPoint(x, y2));
+                    //list3.Add(new DataPoint(x, y3));
+                    //list4.Add(new DataPoint(x, y4));
                     list5.Add(new DataPoint(x2, y5));
                     list6.Add(new DataPoint(x2, y6));
                     list7.Add(new DataPoint(x2, y7));
                     list8.Add(new DataPoint(x2, y8));
                     // T
-                    list9.Add(new DataPoint(x, y9));
-                    list10.Add(new DataPoint(x, y10));
+                    //list9.Add(new DataPoint(x, y9));
+                    //list10.Add(new DataPoint(x, y10));
                     list11.Add(new DataPoint(x2, y11));
                     list12.Add(new DataPoint(x2, y12));
                 }
@@ -887,75 +1005,216 @@ namespace TESMEA_TMS.ViewModels
                 {
                     return dataPoints.Select(dp => new ScatterPoint(dp.X, dp.Y)).ToList();
                 }
-                if (EfficiencyPlotModel.Series.Count >= 4)
-                {
-                    var scatter1 = EfficiencyPlotModel.Series[0] as ScatterSeries;
-                    var scatter2 = EfficiencyPlotModel.Series[1] as ScatterSeries;
-                    var scatter3 = EfficiencyPlotModel.Series[2] as ScatterSeries;
-                    var scatter4 = EfficiencyPlotModel.Series[3] as ScatterSeries;
+                //if (EfficiencyPlotModel.Series.Count >= 4)
+                //{
+                //    var scatter1 = EfficiencyPlotModel.Series[0] as ScatterSeries;
+                //    var scatter2 = EfficiencyPlotModel.Series[1] as ScatterSeries;
+                //    var scatter3 = EfficiencyPlotModel.Series[2] as ScatterSeries;
+                //    var scatter4 = EfficiencyPlotModel.Series[3] as ScatterSeries;
 
-                    scatter1?.Points.Clear();
-                    scatter2?.Points.Clear();
-                    scatter3?.Points.Clear();
-                    scatter4?.Points.Clear();
+                //    scatter1?.Points.Clear();
+                //    scatter2?.Points.Clear();
+                //    scatter3?.Points.Clear();
+                //    scatter4?.Points.Clear();
 
-                    if (scatter1 != null)
-                    {
-                        scatter1.Points.AddRange(ToScatterPoints(list));
-                    }
-                    if (scatter2 != null)
-                    {
-                        scatter2.Points.AddRange(ToScatterPoints(list2));
-                    }
-                    if (scatter3 != null && scatter4 != null)
-                    {
-                        if (!IsTorque)
-                        {
-                            scatter3.Points.AddRange(ToScatterPoints(list3));
-                            scatter4.Points.AddRange(ToScatterPoints(list4));
-                        }
-                        else
-                        {
-                            scatter3.Points.AddRange(ToScatterPoints(list9));
-                            scatter4.Points.AddRange(ToScatterPoints(list10));
-                        }
-                    }
-                }
+                //    if (scatter1 != null)
+                //    {
+                //        scatter1.Points.AddRange(ToScatterPoints(list));
+                //    }
+                //    if (scatter2 != null)
+                //    {
+                //        scatter2.Points.AddRange(ToScatterPoints(list2));
+                //    }
+                //    if (scatter3 != null && scatter4 != null)
+                //    {
+                //        if (!IsTorque)
+                //        {
+                //            scatter3.Points.AddRange(ToScatterPoints(list3));
+                //            scatter4.Points.AddRange(ToScatterPoints(list4));
+                //        }
+                //        else
+                //        {
+                //            scatter3.Points.AddRange(ToScatterPoints(list9));
+                //            scatter4.Points.AddRange(ToScatterPoints(list10));
+                //        }
+                //    }
+                //}
 
 
                 var staticPressureLine = new LineSeries { Color = OxyColors.Red, StrokeThickness = 2, YAxisKey = "PressureAxis" };
-                var totalPressureLine = new LineSeries { Color = OxyColors.Blue, StrokeThickness = 2, YAxisKey = "PressureAxis", LineStyle = LineStyle.Dash };
+                //var totalPressureLine = new LineSeries { Color = OxyColors.Blue, StrokeThickness = 2, YAxisKey = "PressureAxis", LineStyle = LineStyle.Dash };
                 var staticEfficiencyLine = new LineSeries { Color = OxyColors.Black, StrokeThickness = 2, YAxisKey = "EfficiencyAxis", LineStyle = LineStyle.DashDot };
-                var totalEfficiencyLine = new LineSeries { Color = OxyColors.DarkGreen, StrokeThickness = 2, YAxisKey = "EfficiencyAxis", LineStyle = LineStyle.Dot };
+                // var totalEfficiencyLine = new LineSeries { Color = OxyColors.DarkGreen, StrokeThickness = 2, YAxisKey = "EfficiencyAxis", LineStyle = LineStyle.Dot };
 
                 staticPressureLine.Points.AddRange(list5);
-                totalPressureLine.Points.AddRange(list6);
+                //totalPressureLine.Points.AddRange(list6);
 
 
                 if (!IsTorque)
                 {
                     staticEfficiencyLine.Points.AddRange(list7);
-                    totalEfficiencyLine.Points.AddRange(list8);
+                    //totalEfficiencyLine.Points.AddRange(list8);
                 }
                 else
                 {
-                    staticEfficiencyLine.Points.AddRange(list11);
-                    totalEfficiencyLine.Points.AddRange(list12);
+                    staticEfficiencyLine.Points.AddRange(list7);
+                    //totalEfficiencyLine.Points.AddRange(list12);
                 }
 
-                EfficiencyPlotModel.Series.Add(staticPressureLine);
-                EfficiencyPlotModel.Series.Add(totalPressureLine);
-                EfficiencyPlotModel.Series.Add(staticEfficiencyLine);
-                EfficiencyPlotModel.Series.Add(totalEfficiencyLine);
+                // Efficiency Plot - Thêm smooth LineSeries cho Static Pressure
+                var pressureSmoothLine = CreateSmoothLineSeries(
+                    fitting.FlowPoint_ft,
+                    fitting.PsPoint_ft,
+                    OxyColors.Orange,
+                    2,
+                    LineStyle.Solid
+                );
+                pressureSmoothLine.YAxisKey = "PressureAxis";
+                pressureSmoothLine.Title = null;
+
+                EfficiencyPlotModel.Series.Add(pressureSmoothLine);
+                //EfficiencyPlotModel.Series.Add(totalPressureLine);
+
+                // Efficiency Plot - Thêm smooth LineSeries cho Static Efficiency
+                var efficiencySmoothLine = CreateSmoothLineSeries(
+                    fitting.FlowPoint_ft,
+                    fitting.EsPoint_ft,
+                    OxyColors.Black,
+                    2,
+                    LineStyle.Solid
+                );
+                efficiencySmoothLine.YAxisKey = "EfficiencyAxis";
+                efficiencySmoothLine.Title = null;
+
+                EfficiencyPlotModel.Series.Add(efficiencySmoothLine);
+                //EfficiencyPlotModel.Series.Add(totalEfficiencyLine);
 
                 PowerPlotModel.InvalidatePlot(true);
                 EfficiencyPlotModel.InvalidatePlot(true);
 
-                _externalAppService.WriteTomfanLog("==== END LOG FITTING ====");
             });
         }
 
+        // Thêm method mới để tạo smooth line giống Excel
+        // Thay thế method CreateSmoothLineSeries bằng phiên bản này
+        private LineSeries CreateSmoothLineSeries(
+            double[] xValues,
+            double[] yValues,
+            OxyColor color,
+            double thickness,
+            LineStyle lineStyle)
+        {
+            var line = new LineSeries
+            {
+                Color = color,
+                StrokeThickness = thickness,
+                LineStyle = lineStyle
+            };
 
+            if (xValues == null || yValues == null || xValues.Length != yValues.Length || xValues.Length == 0)
+                return line;
+
+            // Nếu chỉ có 1 hoặc 2 điểm, thêm trực tiếp
+            if (xValues.Length <= 2)
+            {
+                for (int i = 0; i < xValues.Length; i++)
+                {
+                    line.Points.Add(new DataPoint(xValues[i], yValues[i]));
+                }
+                return line;
+            }
+
+            // Tạo cubic spline interpolation giống Excel
+            var splinePoints = CreateCubicSplinePoints(xValues, yValues, 50); // 50 điểm interpolation giữa mỗi segment
+
+            foreach (var point in splinePoints)
+            {
+                line.Points.Add(point);
+            }
+
+            return line;
+        }
+
+        // Method mới để tạo cubic spline points
+        private List<DataPoint> CreateCubicSplinePoints(double[] xValues, double[] yValues, int pointsPerSegment)
+        {
+            var result = new List<DataPoint>();
+            int n = xValues.Length;
+
+            // Tính các hệ số cho cubic spline
+            double[] a = new double[n];
+            double[] b = new double[n];
+            double[] c = new double[n];
+            double[] d = new double[n];
+
+            for (int i = 0; i < n; i++)
+            {
+                a[i] = yValues[i];
+            }
+
+            double[] h = new double[n - 1];
+            for (int i = 0; i < n - 1; i++)
+            {
+                h[i] = xValues[i + 1] - xValues[i];
+            }
+
+            double[] alpha = new double[n - 1];
+            for (int i = 1; i < n - 1; i++)
+            {
+                alpha[i] = (3.0 / h[i]) * (a[i + 1] - a[i]) - (3.0 / h[i - 1]) * (a[i] - a[i - 1]);
+            }
+
+            double[] l = new double[n];
+            double[] mu = new double[n];
+            double[] z = new double[n];
+
+            l[0] = 1;
+            mu[0] = 0;
+            z[0] = 0;
+
+            for (int i = 1; i < n - 1; i++)
+            {
+                l[i] = 2 * (xValues[i + 1] - xValues[i - 1]) - h[i - 1] * mu[i - 1];
+                mu[i] = h[i] / l[i];
+                z[i] = (alpha[i] - h[i - 1] * z[i - 1]) / l[i];
+            }
+
+            l[n - 1] = 1;
+            z[n - 1] = 0;
+            c[n - 1] = 0;
+
+            for (int j = n - 2; j >= 0; j--)
+            {
+                c[j] = z[j] - mu[j] * c[j + 1];
+                b[j] = (a[j + 1] - a[j]) / h[j] - h[j] * (c[j + 1] + 2 * c[j]) / 3;
+                d[j] = (c[j + 1] - c[j]) / (3 * h[j]);
+            }
+
+            // Tạo các điểm interpolation
+            for (int i = 0; i < n - 1; i++)
+            {
+                double x0 = xValues[i];
+                double x1 = xValues[i + 1];
+                double step = (x1 - x0) / pointsPerSegment;
+
+                for (int j = 0; j <= pointsPerSegment; j++)
+                {
+                    double x = x0 + j * step;
+                    double dx = x - x0;
+                    double y = a[i] + b[i] * dx + c[i] * dx * dx + d[i] * dx * dx * dx;
+
+                    result.Add(new DataPoint(x, y));
+                }
+            }
+
+            // Thêm điểm cuối cùng
+            if (result.Count == 0 || Math.Abs(result[result.Count - 1].X - xValues[n - 1]) > 0.001)
+            {
+                result.Add(new DataPoint(xValues[n - 1], yValues[n - 1]));
+            }
+
+            return result;
+        }
 
         private void OnExchangeCompletedHandler(List<Measure> measures)
         {
@@ -1001,31 +1260,17 @@ namespace TESMEA_TMS.ViewModels
                 tsQuat.HeSoDongCo = mauThuNghiem.HeSoCongSuatDongCo;
                 tsQuat.Tanso = mauThuNghiem.TanSoDongCoTheoThietKe;
                 tsQuat.HieuSuatDongCo = mauThuNghiem.HieuSuatDongCo;
-                tsQuat.DoNhotKhongKhi = 0; // chuwa cos
+                tsQuat.DoNhotKhongKhi = mauThuNghiem.DoNhotKhongKhi; // chuwa cos
                 tsQuat.ApSuatKhiQuyen = 110110; // chuw cos
                 tsQuat.NhietDoLamViec = mauThuNghiem.NhietDoThietKeLamViec;
+                tsQuat.TyTrongKhongKhiLamViec = mauThuNghiem.TyTrongKhongKhiLamViec;
                 if (!MeasureRows.Any())
                 {
                     throw new BusinessException("Chưa có kết quả đo kiểm");
                 }
-                //int stt = 1;
-                //foreach (var item in MeasureRows)
-                //{
-                //    Measure tsDokiem = new Measure();
-                //    tsDokiem.KiemTraSo = stt;
-                //    tsDokiem.NhietDoBauKho = item.NhietDoMoiTruong_sen;
-                //    tsDokiem.DoAmTuongDoi = item.DoAm_sen;
-                //    tsDokiem.SoVongQuayNTT = item.SoVongQuay_sen;
-                //    tsDokiem.ChenhLechApSuat = item.ChenhLechApSuat_sen;
-                //    tsDokiem.ApSuatTinh = item.ApSuatTinh_sen;
-                //    tsDokiem.DongLamViec = item.DongDien_fb;
-                //    tsDokiem.DienAp = item.DienAp_fb;
-                //    tsDokiem.TanSo = item.TanSo_fb;
-                //    dstsDoKiem.Add(tsDokiem);
-                //}
                 tsdv.ThongSoDuongOngGio = tsOngGio;
                 tsdv.ThongSoCoBanCuaQuat = tsQuat;
-                tsdv.DanhSachThongSoDoKiem = MeasureRows.ToList();
+                tsdv.DanhSachThongSoDoKiem = MeasureRows.Skip(2).ToList();
                 return tsdv;
             }
             catch(BusinessException ex)
@@ -1046,7 +1291,7 @@ namespace TESMEA_TMS.ViewModels
             {
                 Filter = "Word Files|*.docx",
                 Title = IsEn ? "Select where to save measurement reports" : "Chọn nơi lưu báo cáo",
-                FileName = $"Report_{timestamp}.docx",
+                FileName = $"Báo cáo đo kiểm_{timestamp}.docx",
                 InitialDirectory = ThongTinDuAn.ThamSo.DuongDanLuuDuAn
             };
             if (sfd.ShowDialog() == System.Windows.Forms.DialogResult.OK)
@@ -1062,9 +1307,10 @@ namespace TESMEA_TMS.ViewModels
                 {
                     await _fileService.ExportReportTestResult(
                        outputPath: sfd.FileName,
-                       option: SelectedReportTemplate?.Value ?? "DESIGN",
-                       tsdv: await ConvertData(),
-                       project: ThongTinDuAn
+                       option: SelectedReportTemplate ?? "DESIGN",
+                       project: ThongTinDuAn,
+                       input: await ConvertData(),
+                       res: DataProcess.kqdk
                    );
                     if (DialogHost.IsDialogOpen("MainDialogHost"))
                         DialogHost.Close("MainDialogHost");
@@ -1087,7 +1333,7 @@ namespace TESMEA_TMS.ViewModels
             {
                 Filter = "Excel Files|*.xlsx;*.xls",
                 Title = IsEn ? "Select where to save measurement calculation results" : "Chọn nơi lưu kết quả tính toán",
-                FileName = $"Result_{timestamp}.xlsx",
+                FileName = $"Kết quả đo kiểm_{timestamp}.xlsx",
                 InitialDirectory = ThongTinDuAn.ThamSo.DuongDanLuuDuAn
             };
             if (sfd.ShowDialog() == System.Windows.Forms.DialogResult.OK)
@@ -1103,9 +1349,10 @@ namespace TESMEA_TMS.ViewModels
                 {
                     await _fileService.ExportExcelTestResult(
                         outputPath: sfd.FileName,
-                        option: SelectedReportTemplate?.Value ?? "DESIGN",
-                        tsdv: await ConvertData(),
-                        project: ThongTinDuAn
+                        option: SelectedReportTemplate ?? "DESIGN",
+                        project: ThongTinDuAn,
+                        input: await ConvertData(),
+                        res: DataProcess.kqdk
                     );
 
                     if (DialogHost.IsDialogOpen("MainDialogHost"))

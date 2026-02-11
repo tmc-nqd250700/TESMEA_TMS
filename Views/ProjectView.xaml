@@ -29,6 +29,7 @@
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
 
                     <GroupBox Grid.Row="0" Header="{lex:Loc groupbox_Parameter}" FontSize="13" Margin="0 0 0 10">
@@ -139,6 +140,7 @@
                                 <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
                             </Grid.RowDefinitions>
                             <TextBlock Grid.Row="0" Grid.Column="0" 
                                        Text="{Binding Source={lex:Loc lbl_Airflow_design}, StringFormat={}1. {0} (m³/h)}" VerticalAlignment="Center"
@@ -150,60 +152,82 @@
                                        Margin="10 0 5 0" />
                             <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding ThongTinMauThuNghiem.ApSuatThietKe, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="100" HorizontalAlignment="Left"/>
 
-                            <TextBlock Grid.Row="2" Grid.Column="0" 
-                                       Text="{Binding Source={lex:Loc lbl_Temp_fluid}, StringFormat={}3. {0} (ºC)}" VerticalAlignment="Center"
-                                       Margin="10 0 5 0" />
-                            <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding ThongTinMauThuNghiem.NhietDoThietKeLamViec, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="100" HorizontalAlignment="Left"/>
-
-                            <TextBlock Grid.Row="3" Grid.Column="0" Text="{Binding Source={lex:Loc lbl_Motor_power}, StringFormat={}4. {0} (kW)}" TextWrapping="Wrap" VerticalAlignment="Center" Margin="10 0 5 0"/>
-                            <StackPanel Grid.Row="3" Grid.Column="1" Orientation="Horizontal">
+                            
+                            <TextBlock Grid.Row="2" Grid.Column="0" Text="{Binding Source={lex:Loc lbl_Motor_power}, StringFormat={}3. {0} (kW)}" TextWrapping="Wrap" VerticalAlignment="Center" Margin="10 0 5 0"/>
+                            <StackPanel Grid.Row="2" Grid.Column="1" Orientation="Horizontal">
                                 <TextBox Text="{Binding ThongTinMauThuNghiem.CongSuatDongCo, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="100" HorizontalAlignment="Left"/>
                                 <Button x:Name="btnPw_i" Margin="20 0 0 0" Width="48" Height="Auto"  Style="{StaticResource SolidButtonStyle}" Content="?" Padding="0" FontSize="15" Click="btnPw_i_Click"/>
                             </StackPanel>
 
-                            <TextBlock Grid.Row="4" Grid.Column="0" Margin="10 0 5 0" Text="{Binding Source={lex:Loc lbl_Fan_speed}, StringFormat={}5. {0} (rpm)}" TextWrapping="Wrap" VerticalAlignment="Center" />
-                            <StackPanel Grid.Row="4" Grid.Column="1" Orientation="Horizontal">
+                            <TextBlock Grid.Row="3" Grid.Column="0" Margin="10 0 5 0" Text="{Binding Source={lex:Loc lbl_Fan_speed}, StringFormat={}4. {0} (RPM)}" TextWrapping="Wrap" VerticalAlignment="Center" />
+                            <StackPanel Grid.Row="3" Grid.Column="1" Orientation="Horizontal">
                             <TextBox Text="{Binding ThongTinMauThuNghiem.TocDoThietKeCuaQuat, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="100" HorizontalAlignment="Left"/>
                                 <Button x:Name="btnSpeed_i" Margin="20 0 0 0" Width="48" Height="Auto"  Style="{StaticResource SolidButtonStyle}" Content="?" Padding="0" FontSize="15" Click="btnSpeed_i_Click"/>
                             </StackPanel>
 
-                            <TextBlock Grid.Row="5" Grid.Column="0" 
-                                       Text="{Binding Source={lex:Loc lbl_Frequency_design}, StringFormat={}6. {0} (Hz)}" VerticalAlignment="Center"
+                            <TextBlock Grid.Row="4" Grid.Column="0" 
+                                       Text="{Binding Source={lex:Loc lbl_Frequency_design}, StringFormat={}5. {0} (Hz)}" VerticalAlignment="Center"
                                        Margin="10 0 5 0" />
-                            <TextBox Grid.Row="5" Grid.Column="1" Text="{Binding ThongTinMauThuNghiem.TanSoDongCoTheoThietKe, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="100" HorizontalAlignment="Left"/>
-                                <TextBlock Grid.Row="6" Grid.Column="0" Margin="10 0 5 0" Text="{Binding Source={lex:Loc lbl_Motor_cosphi}, StringFormat={}7. {0}}" TextWrapping="Wrap" VerticalAlignment="Center"/>
-
-                            <StackPanel Grid.Row="6" Grid.Column="1" Orientation="Horizontal">
+                            <TextBox Grid.Row="4" Grid.Column="1" Text="{Binding ThongTinMauThuNghiem.TanSoDongCoTheoThietKe, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="100" HorizontalAlignment="Left"/>
+                                
+                            <TextBlock Grid.Row="5" Grid.Column="0" Margin="10 0 5 0" Text="{Binding Source={lex:Loc lbl_Motor_cosphi}, StringFormat={}6. {0}}" TextWrapping="Wrap" VerticalAlignment="Center"/>
+                            <StackPanel Grid.Row="5" Grid.Column="1" Orientation="Horizontal">
                                 <TextBox Text="{Binding ThongTinMauThuNghiem.HeSoCongSuatDongCo, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="100" HorizontalAlignment="Left"/>
                                 <Button Margin="20 0 0 0" x:Name="btnCosphi_i" Width="48" Height="Auto"  Style="{StaticResource SolidButtonStyle}" Content="?" Padding="0" FontSize="15" Click="btnCosphi_i_Click"/>
                             </StackPanel>
 
                                 
-                            <TextBlock Grid.Row="7" Grid.Column="0" Margin="10 0 5 0" Text="{Binding Source={lex:Loc lbl_Motor_eff}, StringFormat={}8. {0} (%)}" TextWrapping="Wrap" VerticalAlignment="Center"/>
-                            <StackPanel  Grid.Row="7" Grid.Column="1" Orientation="Horizontal" >
+                            <TextBlock Grid.Row="6" Grid.Column="0" Margin="10 0 5 0" Text="{Binding Source={lex:Loc lbl_Motor_eff}, StringFormat={}7. {0} (%)}" TextWrapping="Wrap" VerticalAlignment="Center"/>
+                            <StackPanel  Grid.Row="6" Grid.Column="1" Orientation="Horizontal" >
                                 <TextBox Text="{Binding ThongTinMauThuNghiem.HieuSuatDongCo, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="100" HorizontalAlignment="Left"/>
                                 <Button Margin="20 0 0 0" x:Name="btnEff_i" Width="48" Height="Auto"  Style="{StaticResource SolidButtonStyle}" Content="?" Padding="0" FontSize="15" Click="btnEff_i_Click"/>
                             </StackPanel>
 
-                            <TextBlock Grid.Row="8" Grid.Column="0" Margin="10 0 5 0" Text="{Binding Source={lex:Loc lbl_Rated_current}, StringFormat={}9. {0} (A)}" TextWrapping="Wrap" VerticalAlignment="Center"/>
-                            <StackPanel Grid.Row="8" Grid.Column="1" Orientation="Horizontal">
+                            <TextBlock Grid.Row="7" Grid.Column="0" Margin="10 0 5 0" Text="{Binding Source={lex:Loc lbl_Rated_current}, StringFormat={}8. {0} (A)}" TextWrapping="Wrap" VerticalAlignment="Center"/>
+                            <StackPanel Grid.Row="7" Grid.Column="1" Orientation="Horizontal">
                                 <TextBox  Text="{Binding ThongTinMauThuNghiem.DongDienDinhMucCuaDongCo, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="100" HorizontalAlignment="Left"/>
                                 <Button Margin="20 0 0 0" x:Name="btnIdm_i" Width="48" Height="Auto"  Style="{StaticResource SolidButtonStyle}" Content="?" Padding="0" FontSize="15" Click="btnIdm_i_Click"/>
                             </StackPanel>
 
-                            <TextBlock Grid.Row="9" Grid.Column="0" Margin="10 0 5 0" Text="{Binding Source={lex:Loc lbl_Motor_voltage}, StringFormat={}10. {0} (V)}" TextWrapping="Wrap" VerticalAlignment="Center"/>
-                            <StackPanel  Grid.Row="9" Grid.Column="1" Orientation="Horizontal">
+                            <TextBlock Grid.Row="8" Grid.Column="0" Margin="10 0 5 0" Text="{Binding Source={lex:Loc lbl_Motor_voltage}, StringFormat={}9. {0} (V)}" TextWrapping="Wrap" VerticalAlignment="Center"/>
+                            <StackPanel  Grid.Row="8" Grid.Column="1" Orientation="Horizontal">
                             <TextBox  Text="{Binding ThongTinMauThuNghiem.DienApDongCo, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="100" HorizontalAlignment="Left"/>
                                 <Button Margin="20 0 0 0" x:Name="btnUdm_i" Width="48" Height="Auto"  Style="{StaticResource SolidButtonStyle}" Content="?" Padding="0" FontSize="15" Click="btnUdm_i_Click"/>
                             </StackPanel>
 
-                            <TextBlock Grid.Row="10" Grid.Column="0" 
-                                       Text="11. Độ nhớt không khí" VerticalAlignment="Center"
+                            <TextBlock Grid.Row="9" Grid.Column="0" 
+                                       Text="10. Độ nhớt không khí" VerticalAlignment="Center"
                                        Margin="10 0 5 0" />
-                            <TextBox Grid.Row="10" Grid.Column="1" 
+                            <TextBox Grid.Row="9" Grid.Column="1" 
                                      IsEnabled="False"
                                      Text="{Binding ThongTinMauThuNghiem.DoNhotKhongKhi, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat={}{0:N7}}" Width="100" HorizontalAlignment="Left"/>
+
+
+                            
                         </Grid>
+                    </GroupBox>
+
+                    <GroupBox Grid.Row="3" Header="Thông tin điều kiện làm việc" Margin="0 0 0 10" FontSize="13">
+
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Row="0" Grid.Column="0" Text="{Binding Source={lex:Loc lbl_Temp}, StringFormat={}1. {0} (ºC)}" VerticalAlignment="Center"
+            Margin="10 0 5 0" />
+                            <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding ThongTinMauThuNghiem.NhietDoThietKeLamViec, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="100" HorizontalAlignment="Left"/>
+
+                            <TextBlock Grid.Row="1" Grid.Column="0" Text="2. Tỷ trọng không khí (kg/m³)" VerticalAlignment="Center"
+            Margin="10 0 5 0" />
+                            <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding ThongTinMauThuNghiem.TyTrongKhongKhiLamViec, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="100" HorizontalAlignment="Left"/>
+                        </Grid>
+                        
                     </GroupBox>
                 </Grid>
             </ScrollViewer>

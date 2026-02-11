@@ -24,8 +24,8 @@ namespace TESMEA_TMS.Services
     public interface IFileService
     {
         ThongSoDauVao ImportCalculation(string filePath);
-        Task ExportExcelTestResult(string outputPath, string option, ThongSoDauVao tsdv, ThongTinDuAn project);
-        Task ExportReportTestResult(string outputPath, string option, ThongSoDauVao tsdv, ThongTinDuAn project);
+        Task ExportExcelTestResult(string outputPath, string option, ThongTinDuAn project, ThongSoDauVao input, KetQuaDoKiem res);
+        Task ExportReportTestResult(string outputPath, string option,ThongTinDuAn project, ThongSoDauVao input, KetQuaDoKiem res);
 
         // Report từ phần mềm cũ - scada
         //void ExportDatabase(string filePath);
@@ -56,7 +56,7 @@ namespace TESMEA_TMS.Services
         }
 
         #region Xuất kết quả
-        public async Task ExportExcelTestResult(string outputPath, string option, ThongSoDauVao tsdv, ThongTinDuAn project)
+        public async Task ExportExcelTestResult(string outputPath, string option, ThongTinDuAn project, ThongSoDauVao tsdv, KetQuaDoKiem ketQuaDoKiem)
         {
             try
             {
@@ -65,22 +65,12 @@ namespace TESMEA_TMS.Services
                     MessageBoxHelper.ShowWarning("File đang được mở bởi ứng dụng khác. Vui lòng tắt file trước khi xuất báo cáo!");
                     return;
                 }
-
-                if (tsdv == null)
-                {
-                    MessageBoxHelper.ShowWarning("Dữ liệu đầu vào không hợp lệ");
-                    return;
-                }
-                string templatePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Templates", "ketquadokiem_template.xlsx");
+                string templatePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Templates", "ketquadokiem_template1.xlsx");
                 if (!File.Exists(templatePath))
                 {
                     MessageBoxHelper.ShowWarning("File mẫu kết quả không tồn tại");
                     return;
                 }
-
-
-                var ketQuaDoKiem = new KetQuaDoKiem();
-                ketQuaDoKiem = await _calculationService.CalcutationTestResultAsync(tsdv);
 
 
                 ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
@@ -117,10 +107,10 @@ namespace TESMEA_TMS.Services
                     {
                         if (option == "FULL")
                         {
-                            await ExportDesignCondition(package, item.DieuKienDoKiem, project, $"{item.TanSo}Hz - Design Condition");
-                            await ExportNormalizedCondition(package, item.DieuKienDoKiem, item.HieuChuanTieuChuan, project, $"{item.TanSo}Hz - Normalized Condition");
-                            await ExportOperatingCondition(package, item.DieuKienDoKiem, item.HieuChuanLamViec, project, $"{item.TanSo}Hz - Operating Condition");
-                            await ExportFullCondition(package, item.DieuKienDoKiem, item.HieuChuanTieuChuan, item.HieuChuanLamViec, project, $"{item.TanSo}Hz - Full");
+                            await ExportDesignCondition(package, item.DieuKienDoKiem, project, $"{Math.Round(item.TanSo, 0)}Hz - Design Condition");
+                            await ExportNormalizedCondition(package, item.DieuKienDoKiem, item.HieuChuanTieuChuan, project, $"{Math.Round(item.TanSo, 0)}Hz - Normalized Condition");
+                            await ExportOperatingCondition(package, item.DieuKienDoKiem, item.HieuChuanLamViec, project, $"{Math.Round(item.TanSo, 0)}Hz - Operating Condition");
+                            await ExportFullCondition(package, item.DieuKienDoKiem, item.HieuChuanTieuChuan, item.HieuChuanLamViec, project, $"{Math.Round(item.TanSo, 0)}Hz - Full");
                         }
                         else
                         {
@@ -140,11 +130,11 @@ namespace TESMEA_TMS.Services
 
                             // Fill dữ liệu cho sheet option
                             if (option == "DESIGN")
-                                await ExportDesignCondition(package, item.DieuKienDoKiem, project, $"{item.TanSo}Hz - Design Condition");
+                                await ExportDesignCondition(package, item.DieuKienDoKiem, project, $"{Math.Round(item.TanSo, 0)}Hz - Design Condition");
                             else if (option == "NORMALIZED")
-                                await ExportNormalizedCondition(package, item.DieuKienDoKiem, item.HieuChuanTieuChuan, project, $"{item.TanSo}Hz - Normalized Condition");
+                                await ExportNormalizedCondition(package, item.DieuKienDoKiem, item.HieuChuanTieuChuan, project, $"{Math.Round(item.TanSo, 0)}Hz - Normalized Condition");
                             else if (option == "OPERATION")
-                                await ExportOperatingCondition(package, item.DieuKienDoKiem, item.HieuChuanLamViec, project, $"{item.TanSo}Hz - Operating Condition");
+                                await ExportOperatingCondition(package, item.DieuKienDoKiem, item.HieuChuanLamViec, project, $"{Math.Round(item.TanSo, 0)}Hz - Operating Condition");
                         }
                         foreach (var ws in package.Workbook.Worksheets)
                         {
@@ -155,8 +145,23 @@ namespace TESMEA_TMS.Services
                             }
                         }
                     }
-                   
 
+                    if(option == "FULL")
+                    {
+                        package.Workbook.Worksheets.Delete("Design Condition");
+                        package.Workbook.Worksheets.Delete("Normalized Condition");
+                        package.Workbook.Worksheets.Delete("Operating Condition");
+                        package.Workbook.Worksheets.Delete("Full");
+                    }
+                    else
+                    {
+                        if(option == "DESIGN")
+                            package.Workbook.Worksheets.Delete("Design Condition");
+                        else if (option == "NORMALIZED")
+                            package.Workbook.Worksheets.Delete("Normalized Condition");
+                        else if (option == "OPERATION")
+                            package.Workbook.Worksheets.Delete("Operating Condition");
+                    }
                     package.SaveAs(new FileInfo(outputPath));
                 }
             }
@@ -293,7 +298,7 @@ namespace TESMEA_TMS.Services
                     var item = tsdv.DanhSachThongSoDoKiem[i];
                     //int row = 29 + i;
                     int col = 3 + i;
-                    ws.Cells[29, col].Value = item.k;
+                    ws.Cells[29, col].Value = i + 1;
                     ws.Cells[30, col].Value = item.NhietDoMoiTruong_sen;
                     ws.Cells[31, col].Value = item.DoAm_sen;
                     ws.Cells[32, col].Value = item.ApSuatkhiQuyen_sen;
@@ -406,22 +411,23 @@ namespace TESMEA_TMS.Services
             {
                 double xMaxValue_powerchart = 0, yMaxValue_powerchart = 0, xMaxValue_effchart = 0, yMaxValue_effchart = 0, xMaxValue_pressurechart = 0, yMaxValue_pressurechart = 0;
 
-                var ws = package.Workbook.Worksheets["Design Condition"];
-                if (ws == null)
+                var templateSheet = package.Workbook.Worksheets["Design Condition"];
+                if (templateSheet == null)
                 {
-                    throw new Exception("Không tìm thấy worksheet 'Design Condition'.");
+                    throw new Exception("Không tìm thấy worksheet template 'Design Condition'");
                 }
+                var ws = package.Workbook.Worksheets.Add(sheetName, templateSheet);
 
                 await FillThongTinChung(ws, project.ThongTinChung);
 
                 for (int i = 0; i < data.Count; i++)
                 {
                     var item = data.ElementAtOrDefault(i);
-                    ws.Cells[19, 4 + i].Value = item?.STT;
+                    ws.Cells[19, 4 + i].Value = i + 1;
                     ws.Cells[20, 4 + i].Value = item?.HieuChinhLuuLuongTheTichTheoRPM;
                     ws.Cells[21, 4 + i].Value = item?.ApSuatTinh;
                     ws.Cells[22, 4 + i].Value = item?.ApSuatTong;
-                    ws.Cells[23, 4 + i].Value = item?.CongSuatDongCoThucTe;
+                    ws.Cells[23, 4 + i].Value = item?.CongSuatDongCoTaiDieuKienDoKiem;
                     ws.Cells[24, 4 + i].Value = item?.HieuSuatTinh;
                     ws.Cells[25, 4 + i].Value = item?.HieuSuatTong;
 
@@ -430,7 +436,7 @@ namespace TESMEA_TMS.Services
                     {
                         // Power Chart
                         xMaxValue_powerchart = Math.Max(xMaxValue_powerchart, (double)item.HieuChinhLuuLuongTheTichTheoRPM);
-                        yMaxValue_powerchart = Math.Max(yMaxValue_powerchart, (double)item.CongSuatDongCoThucTe);
+                        yMaxValue_powerchart = Math.Max(yMaxValue_powerchart, (double)item.CongSuatDongCoTaiDieuKienDoKiem);
 
                         // Efficiency Chart
                         xMaxValue_effchart = Math.Max(xMaxValue_effchart, (double)item.HieuChinhLuuLuongTheTichTheoRPM);
@@ -457,11 +463,13 @@ namespace TESMEA_TMS.Services
             try
             {
                 double xMaxValue_powerchart = 0, yMaxValue_powerchart = 0, xMaxValue_effchart = 0, yMaxValue_effchart = 0, xMaxValue_pressurechart = 0, yMaxValue_pressurechart = 0;
-                var ws = package.Workbook.Worksheets["Normalized Condition"];
-                if (ws == null)
+                var templateSheet = package.Workbook.Worksheets["Normalized Condition"];
+                if (templateSheet == null)
                 {
-                    throw new Exception("Không tìm thấy worksheet 'Normalized Condition'.");
+                    throw new Exception("Không tìm thấy worksheet template 'Normalized Condition'");
                 }
+                var ws = package.Workbook.Worksheets.Add(sheetName, templateSheet);
+
                 await FillThongTinChung(ws, project.ThongTinChung);
 
                 for (int i = 0; i < doKiem.Count; i++)
@@ -469,7 +477,7 @@ namespace TESMEA_TMS.Services
                     var item = tieuChuan.ElementAtOrDefault(i);
                     var item1 = doKiem.ElementAtOrDefault(i);
 
-                    ws.Cells[19, 4 + i].Value = item1?.STT;
+                    ws.Cells[19, 4 + i].Value = i + 1;
                     ws.Cells[20, 4 + i].Value = item1?.HieuChinhLuuLuongTheTichTheoRPM;
                     ws.Cells[21, 4 + i].Value = item?.ApSuatTinhTieuChuan;
                     ws.Cells[22, 4 + i].Value = item?.ApSuatTongTieuChuan;
@@ -509,19 +517,19 @@ namespace TESMEA_TMS.Services
             try
             {
                 double xMaxValue_powerchart = 0, yMaxValue_powerchart = 0, xMaxValue_effchart = 0, yMaxValue_effchart = 0, xMaxValue_pressurechart = 0, yMaxValue_pressurechart = 0;
-                var ws = package.Workbook.Worksheets["Operating Condition"];
-                if (ws == null)
+                var templateSheet = package.Workbook.Worksheets["Operating Condition"];
+                if (templateSheet == null)
                 {
-                    throw new Exception("Không tìm thấy worksheet 'Operating Condition'.");
+                    throw new Exception("Không tìm thấy worksheet template 'Operating Condition'.");
                 }
-
+                var ws = package.Workbook.Worksheets.Add(sheetName, templateSheet);
                 await FillThongTinChung(ws, project.ThongTinChung);
 
                 for (int i = 0; i < doKiem.Count; i++)
                 {
                     var item = lamViec.ElementAtOrDefault(i);
                     var item1 = doKiem.ElementAtOrDefault(i);
-                    ws.Cells[19, 4 + i].Value = item?.STT;
+                    ws.Cells[19, 4 + i].Value = i + 1;
                     ws.Cells[20, 4 + i].Value = item?.LuuLuongLamViec_m3h;
                     ws.Cells[21, 4 + i].Value = item?.ApSuatTinhLamViec;
                     ws.Cells[22, 4 + i].Value = item?.ApSuatTongLamViec;
@@ -864,7 +872,7 @@ namespace TESMEA_TMS.Services
         #endregion
 
         #region Xuất báo cáo
-        public async Task ExportReportTestResult(string outputPath, string option, ThongSoDauVao tsdv, ThongTinDuAn project)
+        public async Task ExportReportTestResult(string outputPath, string option, ThongTinDuAn project, ThongSoDauVao tsdv, KetQuaDoKiem kqdk)
         {
             try
             {
@@ -872,12 +880,6 @@ namespace TESMEA_TMS.Services
                 if (Common.IsFileLocked(outputPath))
                 {
                     MessageBoxHelper.ShowWarning("File đang được mở bởi ứng dụng khác. Vui lòng tắt file trước khi xuất báo cáo!");
-                    return;
-                }
-
-                if (tsdv == null)
-                {
-                    MessageBoxHelper.ShowWarning("Dữ liệu đầu vào không hợp lệ");
                     return;
                 }
 
@@ -890,7 +892,6 @@ namespace TESMEA_TMS.Services
                     return;
                 }
 
-                var kqdk = await _calculationService.CalcutationTestResultAsync(tsdv);
                 BaoCao input = new BaoCao();
                 input.ThongTinDuAn = project;
                 switch (option)
@@ -949,7 +950,11 @@ namespace TESMEA_TMS.Services
                 var data = new Dictionary<string, string>();
                 if (input.ThongTinDuAn != null)
                 {
-                    foreach (var prop in typeof(ThongTinDuAn).GetProperties())
+                    foreach (var prop in typeof(ThamSo).GetProperties())
+                    {
+                        data[prop.Name] = prop.GetValue(input.ThongTinDuAn.ThamSo).ToString() ?? "";
+                    }
+                    foreach (var prop in typeof(ThongTinChung).GetProperties())
                     {
                         data[prop.Name] = prop.GetValue(input.ThongTinDuAn.ThongTinChung).ToString() ?? "";
                     }

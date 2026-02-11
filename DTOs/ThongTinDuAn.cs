@@ -20,7 +20,7 @@ namespace TESMEA_TMS.DTOs
 
     public class ThamSo
     {
-        public string TenDuAn { get; set; }
+        public string TenDuAn { get; set; } = "";
         //public string DuLieuKiemThu { get; set; }
         public string KichBan { get; set; }
         public string ThongSo { get; set; }
@@ -31,9 +31,9 @@ namespace TESMEA_TMS.DTOs
     // Thông tin của khách hàng
     public class ThongTinChung
     {
-        public string TenMauThu { get; set; }
-        public string CoSoSanXuat { get; set; }
-        public string KyHieu { get; set; }
+        public string TenMauThu { get; set; } = "";
+        public string CoSoSanXuat { get; set; } = "";
+        public string KyHieu { get; set; } = "";
         public int SoLuongMau { get; set; } = 1;
         public string TinhTrangMau { get; set; } = UserSetting.Instance.Language == "en" ? "New" : "Mới";
         public DateTime NgayNhanYeuCau { get; set; } = DateTime.Now;
@@ -50,15 +50,16 @@ namespace TESMEA_TMS.DTOs
         public float ApSuatThietKe { get; set; }
         public float NhietDoThietKeLamViec { get; set; } = 20;
         public float CongSuatDongCo { get; set; } = 11;
-        public float TocDoThietKeCuaQuat { get; set; } = 2950;
+        public float TocDoThietKeCuaQuat { get; set; } = 2919;
         public float TanSoDongCoTheoThietKe { get; set; }
         public float HeSoCongSuatDongCo { get; set; } = 0.88f; // cosphi
         public float HieuSuatDongCo { get; set; } = 100;
         public float DongDienDinhMucCuaDongCo { get; set; } = 21.5f;
-        public float DienApDongCo { get; set; } = 390;
+        public float DienApDongCo { get; set; } = 380;
         public float DoNhotKhongKhi { get; set; } = 1.83e-5f; // độ nhớt không khí
         // add
         public string HangDongCo { get; set; } = "HEM"; // hãng động cơ
+        public float TyTrongKhongKhiLamViec { get; set; } = 1.204f;
     }
 
     //public class DieuKienLamViecThucTe

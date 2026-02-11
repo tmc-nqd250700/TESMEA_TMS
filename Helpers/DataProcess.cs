@@ -178,9 +178,26 @@ namespace TESMEA_TMS.Helpers
         public static float[] rho3;
         public static float[] Pr;            // Công suất trên trục của guồng cánh 
 
+        private static BienTan inv = new BienTan();
+        private static CamBien sen = new CamBien();
+        private static OngGio duct = new OngGio();
+        private static ThongTinMauThuNghiem input = new ThongTinMauThuNghiem();
 
-        public static void Initialize(int range)
+        public static KetQuaDoKiem kqdk = new KetQuaDoKiem();
+
+        public static void Initialize(int range, BienTan _inv, CamBien _sen, OngGio _duct, ThongTinMauThuNghiem _input)
         {
+            inv = _inv;
+            sen = _sen;
+            duct = _duct;
+            input = _input;
+            kqdk = new KetQuaDoKiem
+            {
+                DanhSachketQuaTaiDieuKienDoKiem = new List<KetQuaTaiDieuKienDoKiem>(),
+                DanhSachhieuChuanVeDieuKienTieuChuan = new List<HieuChuanVeDieuKienTieuChuan>(),
+                DanhSachhieuChuanVeDieuKienLamviec = new List<HieuChuanVeDieuKienLamviec>()
+            };
+
             if (TaPoint == null || TaPoint.Length != range)
             {
                 TaPoint = new float[range];
@@ -227,8 +244,7 @@ namespace TESMEA_TMS.Helpers
                 Pr = new float[range];
             }
         }
-
-        public static MeasureResponse OnePointMeasure(Measure measure, BienTan inv, CamBien sen, OngGio duct, ThongTinMauThuNghiem input)
+        public static MeasureResponse OnePointMeasure(Measure measure)
         {
             void LogCalculation(string message)
             {
@@ -240,12 +256,8 @@ namespace TESMEA_TMS.Helpers
             }
             try
             {
-                // Phân cách mỗi lần tính toán
                 LogCalculation("========================================");
                 LogCalculation($"Bắt đầu tính toán cho điểm đo k = {measure.k}");
-
-
-                // Auxiliary variable  
                 float deltap = 0;      // Chênh lệch áp suất điểm đo lưu lượng
                 float pe3 = 0;         // Chênh lệch áp suất điểm đo áp suất
                 float Ta = 0;          // Nhiệt độ môi trường
@@ -285,7 +297,7 @@ namespace TESMEA_TMS.Helpers
                 float L1_3 = 0;           // Chiều dài tổn thất
                 float D3 = 0;             // Đường kính ống tại điểm đo áp suất tĩnh
 
-                #region phần code mới thêm, lấy từ cảm biến và dữ liệu biến tần lấy từ csdl
+                // phần lấy từ cảm biến và dữ liệu biến tần lấy từ csdl
 
                 float Power_fb = 0; // công suất phản hồi
                 float Voltage_fb = 0; // điện áp phản hồi
@@ -307,13 +319,13 @@ namespace TESMEA_TMS.Helpers
                 float L34 = duct.ChieuDaiConQuat;
 
                 // điều kiện làm việc
-                float rhow = 1.204f;
+                float rhow = input.TyTrongKhongKhiLamViec;
+                Ta = input.NhietDoThietKeLamViec;
                 MeasureResponse measurePoint = new MeasureResponse();
-                #endregion
 
                 deltap = measure.ChenhLechApSuat_sen;
                 pe3 = measure.ApSuatTinh_sen;
-                Ta = measure.NhietDoMoiTruong_sen;
+               
                 Pa = measure.ApSuatkhiQuyen_sen;
                 hu = measure.DoAm_sen;
                 Td = measure.NhietDoMoiTruong_sen; // nhiệt độ bầu khô = nhiệt độ môi trường
@@ -485,7 +497,7 @@ namespace TESMEA_TMS.Helpers
                     LogCalculation($"Hệ số hỗn hợp tính toán aett: {aett}");
 
                     // Lưu lượng chuyển sang m3/h
-                    FlowPoint[j] = qV * 3600;
+                    FlowPoint[j] = q * 3600;
                     LogCalculation($"Lưu lượng FlowPoint[{j}]: {FlowPoint[j]}");
                     Std_FlowPoint[j] = FlowPoint[j];
                     LogCalculation($"Lưu lượng Std_FlowPoint[{j}]: {Std_FlowPoint[j]}");
@@ -504,7 +516,7 @@ namespace TESMEA_TMS.Helpers
                     LogCalculation($"Tổn thất áp suất pf3: {pf3}");
                     // Tổn thất áp suất cục bộ
                     phi = (float)(Math.Atan((D3 / 2 - d / 2) / L34) * (180 / Math.PI));
-                    LogCalculation("Tổn thất áp suất cục bộ phi: {phi}");
+                    LogCalculation($"Tổn thất áp suất cục bộ phi: {phi}");
 
                     if (phi < 30 && phi > 0) pcb = 0.05f * pv3;
                     else pcb = 0;
@@ -531,13 +543,13 @@ namespace TESMEA_TMS.Helpers
                     LogCalculation($"Áp suất tổng điều kiện làm việc Ope_PtPoint[{j}]: {Ope_PtPoint[j]}");
 
                     // Công suất tĩnh của dòng khí
-                    Psu = Std_PsPoint[j] * qV / 1000;
+                    Psu = PsPoint[j] * q / 1000;
                     LogCalculation($"Công suất tĩnh của dòng khí tc: {Psu}");
                     Psulv = Ope_PsPoint[j] * qV / 1000;
                     LogCalculation($"Công suất tĩnh của dòng khí lv: {Psulv}");
 
                     // Tổng công suất của dòng khí
-                    Pu = Std_PtPoint[j] * qV / 1000;
+                    Pu = PtPoint[j] * q / 1000;
                     LogCalculation($"Tổng công suất của dòng khí tc: {Pu}");
                     Pulv = Ope_PtPoint[j] * qV / 1000;
                     LogCalculation($"Tổng công suất của dòng khí lv: {Pulv}");
@@ -552,7 +564,7 @@ namespace TESMEA_TMS.Helpers
                     LogCalculation($"Công suất trên trục điều kiện làm việc Ope_PrPoint[{j}]: {Ope_PrPoint[j]}");
 
                     // Hiệu suất tĩnh
-                    EsPoint[j] = Psu / Std_PrPoint[j] * 100;          // Đk tiêu chuẩn
+                    EsPoint[j] = Psu / Pr[j] * 100;          // Đk tiêu chuẩn
                     LogCalculation($"Hiệu suất tĩnh điều kiện tiêu chuẩn EsPoint[{j}]: {EsPoint[j]}");
                     Std_EsPoint[j] = EsPoint[j];
                     LogCalculation($"Hiệu suất tĩnh điều kiện tiêu chuẩn Std_EsPoint[{j}]: {Std_EsPoint[j]}");
@@ -560,7 +572,7 @@ namespace TESMEA_TMS.Helpers
                     LogCalculation($"Hiệu suất tĩnh điều kiện làm việc Ope_EsPoint[{j}]: {Ope_EsPoint[j]}");
 
                     // Hiệu suất tổng
-                    EtPoint[j] = Pu / Std_PrPoint[j] * 100;          // Đk tiêu chuẩn
+                    EtPoint[j] = Pu / Pr[j] * 100;          // Đk tiêu chuẩn
                     LogCalculation($"Hiệu suất tổng điều kiện tiêu chuẩn EtPoint[{j}]: {EtPoint[j]}");
                     Std_EtPoint[j] = EtPoint[j];
                     LogCalculation($"Hiệu suất tổng điều kiện tiêu chuẩn Std_EtPoint[{j}]: {Std_EtPoint[j]}");
@@ -590,15 +602,70 @@ namespace TESMEA_TMS.Helpers
                         LogCalculation($"Hiệu suất tổng tính theo momen xoắn Ope_EttPoint[{j}]: {Ope_EttPoint[j]}");
                     }
 
+
+                    KetQuaTaiDieuKienDoKiem res = new KetQuaTaiDieuKienDoKiem();
+                    res.STT = j - 1;
+                    res.NhietDoBauUot = Tw;
+                    res.ApSuatBaoHoaPsat = psat;
+                    res.ApSuatRiengPhanPv = pv;
+                    res.KLRMoiTruong = rhoaPoint[j];
+                    res.XacDinhRW = Rw;
+                    res.ApSuatTaiDiemDoChenhLechApSuatP5 = Pa * 1000 - deltap;
+                    res.KLRTaiDiemDoLuuLuongPL5 = rho3[j];
+                    res.DoNhotKhongKhi = M;
+                    res.HeSoLuuLuong = ae;
+                    res.LuuLuongKhoiLuong = qm;
+                    res.LuuLuongTheTich = q;
+                    res.KLRTaiDiemDoApSuatPL3 = pkk;
+                    res.LuuLuongTheTichTaiPL3 = qV;
+                    res.LuuLuongTheTichTheoRPM = Ope_FlowPoint[j] / 3600;
+                    res.HieuChinhLuuLuongTheTichTheoRPM = Ope_FlowPoint[j];
+                    res.VanTocDongKhi = v3;
+                    res.ApSuatDong = pv3;
+                    res.TonThatDuongOng = pf3;
+                    res.ApSuatTinh = PsPoint[j];
+                    res.ApSuatTong = PtPoint[j];
+                    res.CongSuatDongCoTaiDieuKienDoKiem = Pr[j];
+                    res.CongSuatDongCoThucTe = Ope_PrPoint[j];
+                    res.HieuSuatTinh = EsPoint[j];
+                    res.HieuSuatTong = EtPoint[j];
+
+                    HieuChuanVeDieuKienTieuChuan std = new HieuChuanVeDieuKienTieuChuan();
+                    std.STT = j - 1;
+                    std.LuuLuongTieuChuan_m3s = Std_FlowPoint[j] / 3600;
+                    std.LuuLuongTieuChuan_m3h = Std_FlowPoint[j];
+                    std.ApSuatTinhTieuChuan= Std_PsPoint[j];
+                    std.ApSuatTongTieuChuan = Std_PtPoint[j];
+                    std.ApSuatDongTieuChuan = pv3;
+                    std.CongSuatHapThuTieuChuan = Std_PrPoint[j];
+                    std.HieuSuatTinh = Std_EsPoint[j];
+                    std.HieuSuatTong = Std_EtPoint[j];
+
+                    HieuChuanVeDieuKienLamviec ope = new HieuChuanVeDieuKienLamviec();
+                    ope.STT = j - 1;
+                    ope.KLRTaiDieuKienLamViec = pkk * (273 + Td) / (273 + Ta); // nhiệt độ cảm biến / nhiệt độ thực tế
+                    ope.LuuLuongLamViec_m3s = Ope_FlowPoint[j] / 3600;
+                    ope.LuuLuongLamViec_m3h = Ope_FlowPoint[j];
+                    ope.ApSuatTinhLamViec = Ope_PsPoint[j];
+                    ope.ApSuatTongLamViec = Ope_PtPoint[j];
+                    ope.ApSuatDongLamViec = pv3;
+                    ope.CongSuatHapThuLamViec = Ope_PrPoint[j];
+                    ope.HieuSuatTinh = Ope_EsPoint[j];
+                    ope.HieuSuatTong = Ope_EtPoint[j];
+
+                    kqdk.DanhSachketQuaTaiDieuKienDoKiem.Add(res);
+                    kqdk.DanhSachhieuChuanVeDieuKienTieuChuan.Add(std);
+                    kqdk.DanhSachhieuChuanVeDieuKienLamviec.Add(ope);
+
                     measurePoint = new MeasureResponse
                     {
                         STT = measure.k,
-                        Airflow = Ope_FlowPoint[j],
-                        Ps = Ope_PsPoint[j],
-                        Pt = Ope_PtPoint[j],
-                        SEff = Ope_EsPoint[j],
-                        TEff = Ope_EtPoint[j],
-                        Power = Ope_PrPoint[j],
+                        Airflow = FlowPoint[j],
+                        Ps = PsPoint[j],
+                        Pt = PtPoint[j],
+                        SEff = EsPoint[j],
+                        TEff = EtPoint[j],
+                        Power = Pr[j],
                         Prt = PrtPoint[j],
                         Est = Ope_EstPoint[j],
                         Ett = Ope_EttPoint[j]
@@ -673,12 +740,12 @@ namespace TESMEA_TMS.Helpers
 
             for (int i = 0; i < range; i++)
             {
-                x[i] = Ope_FlowPoint[index + i];
-                yPs[i] = Ope_PsPoint[index + i];
-                yPt[i] = Ope_PtPoint[index + i];
-                yEs[i] = Ope_EsPoint[index + i];
-                yEt[i] = Ope_EtPoint[index + i];
-                yPw[i] = Ope_PrPoint[index + i];
+                x[i] = FlowPoint[index + i];
+                yPs[i] = PsPoint[index + i];
+                yPt[i] = PtPoint[index + i];
+                yEs[i] = EsPoint[index + i];
+                yEt[i] = EtPoint[index + i];
+                yPw[i] = Pr[index + i];
                 yPrt[i] = PrtPoint[index + i];
                 yEst[i] = Ope_EstPoint[index + i];
                 yEtt[i] = Ope_EttPoint[index + i];
@@ -732,7 +799,7 @@ namespace TESMEA_TMS.Helpers
         }
 
         // Hàm thông số hiển thị
-        public static ParameterShow ParaShow(Measure measure, BienTan inv, CamBien sen, OngGio duct, ThongTinMauThuNghiem input)
+        public static ParameterShow ParaShow(Measure measure)
         {
             float pv = 0;             // Áp suất hơi riêng phần
             float Tw = 0;             // Nhiệt độ bầu ướt
@@ -774,15 +841,12 @@ namespace TESMEA_TMS.Helpers
             float d = duct.DuongKinhMiengQuat;
             float L34 = duct.ChieuDaiConQuat;
 
-            float Ta = measure.NhietDoMoiTruong_sen;
+            float Ta = input.NhietDoThietKeLamViec;
             // thông số phản hồi
             float Power_fb = measure.CongSuat_fb;
             float Current_fb = measure.DongDien_fb;
             float Voltage_fb = measure.DienAp_fb;
 
-
-            //// note
-            ///
             float deltap = measure.ChenhLechApSuat_sen; // chênh lệch áp suất điểm đo lưu lượng
             float Pe3 = measure.ApSuatTinh_sen; // chênh lệch áp suất điểm đo áp suất tĩnh
             // nhiệt độ môi trường
@@ -894,8 +958,6 @@ namespace TESMEA_TMS.Helpers
 
             } // end else
 
-            
-
             // Tính toán áp suất tĩnh
             // Áp suất động của dòng khí
             pv3 = 0.5f * rho3 * v3 * v3;
@@ -907,7 +969,6 @@ namespace TESMEA_TMS.Helpers
             phi = (float)(Math.Atan((D3 / 2 - d / 2) / L34) * (180 / Math.PI));
 
             if (phi < 30 && phi > 0) pcb = 0.05f * pv3;
-
             else pcb = 0;
 
             //// Lưu lượng chuyển sang m3/h
@@ -949,19 +1010,20 @@ namespace TESMEA_TMS.Helpers
                 Freq_show = (float)Math.Round(Freq_fb, 2),
                 Current_show = (float)Math.Round(Current_fb / 100, 2),
                 Pw_show = (float)Math.Round(Power_fb, 2),
-                Speed_show = (float)Math.Round((float)Math.Round(Freq_fb, 2) * n1 / 50, 2),
+                Speed_show = (float)Math.Round(n2, 2),
                 TempB_show = (float)Math.Round(BearingTemp, 2),
                 T_Show = (float)Math.Round(T, 2),
-                Ps_show = (float)Math.Round(Pe3, 2),
+                Ps_show = (float)Math.Round(Pe3 - pv3 + pf3 + pcb, 2),
                 Pt_show = (float)Math.Round((Pe3 - pv3 + pf3 + pcb) + pv3 + pf3, 2), 
-                Flow_show = (float)Math.Round(qV * 3600, 2),
+                Flow_show = (float)Math.Round(q * 3600, 2),
                 Ta_show = (float)Math.Round(Ta, 2),
                 Td_show = (float)Math.Round(Td, 2),
                 ViaB_show = (float)Math.Round(BearingVia, 2),
                 Prt_show = (float)Math.Round(T * n2 / 9550, 2),
                 deltap = deltap,
                 Pe3 = Pe3,
-                Ta = Ta
+                Pa_Show = Pa,
+                CV_show = measure.CV
             };
         }
 

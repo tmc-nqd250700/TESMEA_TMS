@@ -234,8 +234,8 @@
   <data name="lbl_Scenario" xml:space="preserve">
     <value>Scenario</value>
   </data>
-  <data name="lbl_Temp_fluid" xml:space="preserve">
-    <value>Fluid temperature</value>
+  <data name="lbl_Temp" xml:space="preserve">
+    <value>Temperature</value>
   </data>
   <data name="lbl_Simatic_path" xml:space="preserve">
     <value>Path to Simatic/PLC</value>

@@ -46,8 +46,8 @@ namespace TESMEA_TMS.ViewModels
 
 
         public ObservableCollection<ComboBoxInfo> ReportTemplates { get; set; }
-        private ComboBoxInfo _selectedReportTemplate;
-        public ComboBoxInfo SelectedReportTemplate
+        private string _selectedReportTemplate;
+        public string SelectedReportTemplate
         {
             get => _selectedReportTemplate;
             set
@@ -79,8 +79,7 @@ namespace TESMEA_TMS.ViewModels
             ReportTemplates.Add(new ComboBoxInfo("NORMALIZED", IsEn ? "Normalized condition" : "Điều kiện tiêu chuẩn"));
             ReportTemplates.Add(new ComboBoxInfo("OPERATION", IsEn ? "Operation condition" : "Điều kiện hoạt động"));
             ReportTemplates.Add(new ComboBoxInfo("FULL", IsEn ? "Full" : "Tất cả"));
-            SelectedReportTemplate = new ComboBoxInfo();
-            SelectedReportTemplate.Value = ReportTemplates[0].Value;
+            SelectedReportTemplate = ReportTemplates[0].Value;
 
             BrowseCommand = new ViewModelCommand(_ => ExecuteBrowseCommand());
 
@@ -164,12 +163,12 @@ namespace TESMEA_TMS.ViewModels
                     ThongSoCoBanCuaQuat = Quat,
                     DanhSachThongSoDoKiem = DanhSachThongSoDoKiem.ToList()
                 };
-                await _fileService.ExportExcelTestResult(
-                         outputPath: sfd.FileName,
-                         option: SelectedReportTemplate?.Value ?? "DESIGN",
-                         tsdv: tsdv,
-                         project: ThongTinDuAn
-                     );
+                //await _fileService.ExportExcelTestResult(
+                //         outputPath: sfd.FileName,
+                //         option: SelectedReportTemplate ?? "DESIGN",
+                //         input: tsdv,
+                //         project: ThongTinDuAn
+                //     );
                 MessageBoxHelper.ShowSuccess(IsEn ? "Export result successfully" : "Kết quả tính toán đã được xuất thành công");
             }
         }
@@ -192,12 +191,12 @@ namespace TESMEA_TMS.ViewModels
                     ThongSoCoBanCuaQuat = Quat,
                     DanhSachThongSoDoKiem = DanhSachThongSoDoKiem.ToList()
                 };
-                await _fileService.ExportReportTestResult(
-                         outputPath: sfd.FileName,
-                         option: SelectedReportTemplate?.Value ?? "DESIGN",
-                         tsdv: tsdv,
-                         project: ThongTinDuAn
-                     );
+                //await _fileService.ExportReportTestResult(
+                //         outputPath: sfd.FileName,
+                //         option: SelectedReportTemplate ?? "DESIGN",
+                //         input: tsdv,
+                //         project: ThongTinDuAn
+                //     );
                 MessageBoxHelper.ShowSuccess(IsEn ? "Export report successfully" : "Báo cáo đã được xuất thành công");
             }
         }
