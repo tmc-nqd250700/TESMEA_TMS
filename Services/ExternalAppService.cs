@@ -515,7 +515,7 @@ namespace TESMEA_TMS.Services
                     {
                         // delay 15s den khi ghi dong tiep theo
                         WriteTomfanLog("Delay 15s sau đó chờ kết quả dòng tiếp theo");
-                        await Task.Delay(0);
+                        await Task.Delay(15000);
                         WriteTomfanLog("Delay xong, tiếp tục lắng nghe dòng tiếp theo");
                     }
                     // Chờ kết quả xử lý thực tế (isConnection = false để tính toán sensor)
@@ -551,7 +551,7 @@ namespace TESMEA_TMS.Services
                         {
                             // delay 15s den khi ghi dong tiep theo
                             WriteTomfanLog("Delay 15s trước khi ghi dòng tiếp theo");
-                            await Task.Delay(0);
+                            await Task.Delay(15000);
                             WriteTomfanLog("Delay xong, tiếp tục ghi dữ liệu dòng tiếp theo");
                         }
                         WriteTomfanLog($"Hoàn tất điểm đo k={m.k}");
@@ -929,7 +929,7 @@ namespace TESMEA_TMS.Services
                         using (var sr = new StreamReader(fs))
                         {
                             string[] lines = await File.ReadAllLinesAsync(path2);
-                            int targetIndex = isConnection ? expectedK - 1 : expectedK - 1;
+                            int targetIndex = isConnection ? expectedK - 1 : 2;
                             if (lines.Length > targetIndex)
                             {
                                 string targetLine = lines[targetIndex];
