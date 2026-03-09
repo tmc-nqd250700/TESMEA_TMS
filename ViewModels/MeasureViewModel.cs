@@ -581,7 +581,7 @@ namespace TESMEA_TMS.ViewModels
                     throw new BusinessException("Không tìm thấy kịch bản đo kiểm");
                 }
 
-                await _externalAppService.ConnectExchangeAsync(MeasureRows.ToList(), bienTan, _camBien, ongGio, ThongTinDuAn.ThongTinMauThuNghiem, scenario.StandardDeviation, scenario.TimeRange);
+                await _externalAppService.ConnectExchangeAsync(MeasureRows.ToList(), bienTan, _camBien, ongGio, ThongTinDuAn.ThongTinMauThuNghiem, ThongTinDuAn.ThamSo.KieuKiemThu, scenario.StandardDeviation, scenario.TimeRange);
                 _isConnectedRow1 = true;
                 _isConnected = true;
                 _isCompleted = false;

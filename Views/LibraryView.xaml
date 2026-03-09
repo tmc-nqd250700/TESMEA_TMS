@@ -99,13 +99,13 @@
                             <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
 
-                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Đường kính ống D5" VerticalAlignment="Center" Margin="10 0 5 0"/>
+                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Đường kính miệng hút D5 (mm)" VerticalAlignment="Center" Margin="10 0 5 0"/>
                         <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding OngGio.DuongKinhOngD5, Mode=TwoWay}" />
 
                         <TextBlock Grid.Row="0" Grid.Column="2" Text="Chiều dài côn quạt" VerticalAlignment="Center" Margin="10 0 5 0"/>
                         <TextBox Grid.Row="0" Grid.Column="3" Text="{Binding OngGio.ChieuDaiConQuat, Mode=TwoWay}" />
 
-                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Đường kính ống D3" VerticalAlignment="Center" Margin="10 0 5 0"/>
+                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Đường kính ống đo Ps D3 (mm)" VerticalAlignment="Center" Margin="10 0 5 0"/>
                         <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding OngGio.DuongKinhOngD3, Mode=TwoWay}" />
 
                         <TextBlock Grid.Row="1" Grid.Column="2" Text="Đường kính lỗ phụt" VerticalAlignment="Center" Margin="10 0 5 0"/>

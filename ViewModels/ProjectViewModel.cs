@@ -206,11 +206,11 @@ namespace TESMEA_TMS.ViewModels
         public async void LoadParam()
         {
             TestTypes = new List<ComboBoxInfo>();
-            TestTypes.Add(new ComboBoxInfo("A", "Kiểu A: Đầu vào tự do, đầu ra tự do"));
+            //TestTypes.Add(new ComboBoxInfo("A", "Kiểu A: Đầu vào tự do, đầu ra tự do"));
             TestTypes.Add(new ComboBoxInfo("B", "Kiểu B: Đầu vào tự do, đầu ra lắp ống dẫn"));
             TestTypes.Add(new ComboBoxInfo("C", "Kiểu C: Đầu vào lắp ống dẫn, đầu ra tự do"));
-            TestTypes.Add(new ComboBoxInfo("D", "Kiểu D: Đầu vào lắp ống dẫn, đầu ra lắp ống dẫn"));
-            this.ThamSo.KieuKiemThu = TestTypes.FirstOrDefault(x=>x.Value == "C").Value;
+            //TestTypes.Add(new ComboBoxInfo("D", "Kiểu D: Đầu vào lắp ống dẫn, đầu ra lắp ống dẫn"));
+            this.ThamSo.KieuKiemThu = TestTypes.FirstOrDefault(x=>x.Value == "C")  == null ? TestTypes.FirstOrDefault().Value : "C";
 
             var libraries = await _parameterService.GetLibrariesAsync();
             LibTypes = libraries

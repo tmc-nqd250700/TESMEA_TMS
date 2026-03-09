@@ -3,7 +3,6 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
-using System.IO.Packaging;
 using System.Text;
 using TESMEA_TMS.Configs;
 using TESMEA_TMS.DTOs;
@@ -16,7 +15,7 @@ namespace TESMEA_TMS.Services
     {
         Task StartAppAsync();
         Task StopAppAsync();
-        Task<bool> ConnectExchangeAsync(List<Measure> measures, BienTan inv, CamBien sensor, OngGio duct, ThongTinMauThuNghiem input, float maxmin, float timeRange);
+        Task<bool> ConnectExchangeAsync(List<Measure> measures, BienTan inv, CamBien sensor, OngGio duct, ThongTinMauThuNghiem input, string kieuKiemThu, float maxmin, float timeRange);
         //Task<bool> ConnectExchangeAsync(float timeRange);
         Task StartExchangeAsync();
         Task StopExchangeAsync();
@@ -293,7 +292,7 @@ namespace TESMEA_TMS.Services
         private TaskCompletionSource<bool>? _connectCompletionSource;
 
         // kết nối dòng 1
-        public async Task<bool> ConnectExchangeAsync(List<Measure> measures, BienTan inv, CamBien sensor, OngGio duct, ThongTinMauThuNghiem input, float maxmin, float timeRange)
+        public async Task<bool> ConnectExchangeAsync(List<Measure> measures, BienTan inv, CamBien sensor, OngGio duct, ThongTinMauThuNghiem input, string kieuKiemThu, float maxmin, float timeRange)
         {
             try
             {
@@ -305,7 +304,7 @@ namespace TESMEA_TMS.Services
                 _duct = duct;
                 _input = input;
                 _isEStop = false;
-                DataProcess.Initialize(_measures.Count, _inv, _sensor, _duct, _input);
+                DataProcess.Initialize(_measures.Count, _inv, _sensor, _duct, _input, kieuKiemThu);
                 if (!Directory.Exists(_exchangeFolder))
                 {
                     WriteTomfanLog($"Thư mục trao đổi không tồn tại: {_exchangeFolder}");
@@ -335,90 +334,90 @@ namespace TESMEA_TMS.Services
                     throw new Exception($"Không thể kết nối, lỗi: {errorMsg}");
                 }
 
-                //try
-                //{
-                //    using (var fs = new FileStream(zeroSpanPath, FileMode.Open, FileAccess.Read, FileShare.Read))
-                //    using (var sr = new StreamReader(fs))
-                //    {
-                //        var allLines = await File.ReadAllLinesAsync(zeroSpanPath);
-                //        if (allLines.Length == 0)
-                //            throw new BusinessException("Không có dữ liệu từ file 0.csv");
+                try
+                {
+                    using (var fs = new FileStream(zeroSpanPath, FileMode.Open, FileAccess.Read, FileShare.Read))
+                    using (var sr = new StreamReader(fs))
+                    {
+                        var allLines = await File.ReadAllLinesAsync(zeroSpanPath);
+                        if (allLines.Length == 0)
+                            throw new BusinessException("Không có dữ liệu từ file 0.csv");
 
-                //        float[] sums = new float[13];
-                //        int count = 0;
-                //        foreach (var l in allLines)
-                //        {
-                //            var vals = l.Split(' ');
-                //            if (vals.Length < 13)
-                //            {
-                //                WriteTomfanLog($"Dòng {count + 1} không đủ 12 tín hiệu cảm biến");
-                //                continue;
-                //            }
-                //            for (int i = 0; i < 13; i++)
-                //            {
-                //                if (float.TryParse(vals[i], NumberStyles.Float, CultureInfo.InvariantCulture, out var v))
-                //                    sums[i] += v;
-                //            }
-                //            count++;
-                //        }
+                        float[] sums = new float[13];
+                        int count = 0;
+                        foreach (var l in allLines)
+                        {
+                            var vals = l.Split(' ');
+                            if (vals.Length < 13)
+                            {
+                                WriteTomfanLog($"Dòng {count + 1} không đủ 12 tín hiệu cảm biến");
+                                continue;
+                            }
+                            for (int i = 0; i < 13; i++)
+                            {
+                                if (float.TryParse(vals[i], NumberStyles.Float, CultureInfo.InvariantCulture, out var v))
+                                    sums[i] += v;
+                            }
+                            count++;
+                        }
 
-                //        if (count == 0)
-                //            throw new BusinessException("Không có dữ liệu hợp lệ trong file 0.csv");
+                        if (count == 0)
+                            throw new BusinessException("Không có dữ liệu hợp lệ trong file 0.csv");
 
 
-                //        avgs = sums.Select(x => x / count).ToArray();
-                //        if (avgs.Any(x => float.IsNaN(x) || float.IsInfinity(x)))
-                //            throw new BusinessException("Lỗi hiệu chỉnh cảm biến");
+                        avgs = sums.Select(x => x / count).ToArray();
+                        if (avgs.Any(x => float.IsNaN(x) || float.IsInfinity(x)))
+                            throw new BusinessException("Lỗi hiệu chỉnh cảm biến");
 
-                //        using (var package = new ExcelPackage(new FileInfo(Path.Combine(_exchangeFolder, "MeasurementSummary.xlsx"))))
-                //        {
-                //            var ws2 = package.Workbook.Worksheets.FirstOrDefault(x => x.Name == "ZeroSpan");
-                //            if (ws2 == null)
-                //            {
-                //                ws2 = package.Workbook.Worksheets.Add("ZeroSpan");
-                //            }
-                //            ws2.Cells[1, 1].Value = "T môi trường (%)";
-                //            ws2.Cells[1, 2].Value = "Độ ẩm (%)";
-                //            ws2.Cells[1, 3].Value = "Vị trí van (%)";
-                //            ws2.Cells[1, 4].Value = "Momen (%)";
-                //            ws2.Cells[1, 5].Value = "Hồng ngoại (%)";
-                //            ws2.Cells[1, 6].Value = "Độ rung (%)";
-                //            ws2.Cells[1, 7].Value = "Số vòng quay (%)";
-                //            ws2.Cells[1, 8].Value = "Dòng diện - AM (%)";
-                //            ws2.Cells[1, 9].Value = "Áp suất tĩnh - Chênh áp 2 (%)";
-                //            ws2.Cells[1, 10].Value = "Công suất (%)";
-                //            ws2.Cells[1, 11].Value = "Chênh áp - Chênh áp 1 (%)";
-                //            ws2.Cells[1, 12].Value = "Áp suất khí quyển (%)";
-                //            using (var range = ws2.Cells[1, 1, 1, 12])
-                //            {
-                //                range.Style.Font.Bold = true;
-                //                range.Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
-                //                range.Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.LightGray);
-                //                range.Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
-                //            }
-                //            ws2.Cells[2, 1].Value = avgs[1];
-                //            ws2.Cells[2, 2].Value = avgs[2];
-                //            ws2.Cells[2, 3].Value = avgs[3];
-                //            ws2.Cells[2, 4].Value = avgs[4];
-                //            ws2.Cells[2, 5].Value = avgs[5];
-                //            ws2.Cells[2, 6].Value = avgs[6];
-                //            ws2.Cells[2, 7].Value = avgs[7];
-                //            ws2.Cells[2, 8].Value = avgs[8];
-                //            ws2.Cells[2, 9].Value = avgs[9];
-                //            ws2.Cells[2, 10].Value = avgs[10];
-                //            ws2.Cells[2, 11].Value = avgs[11];
-                //            ws2.Cells[2, 12].Value = avgs[12];
+                        using (var package = new ExcelPackage(new FileInfo(Path.Combine(_exchangeFolder, "MeasurementSummary.xlsx"))))
+                        {
+                            var ws2 = package.Workbook.Worksheets.FirstOrDefault(x => x.Name == "ZeroSpan");
+                            if (ws2 == null)
+                            {
+                                ws2 = package.Workbook.Worksheets.Add("ZeroSpan");
+                            }
+                            ws2.Cells[1, 1].Value = "T môi trường (%)";
+                            ws2.Cells[1, 2].Value = "Độ ẩm (%)";
+                            ws2.Cells[1, 3].Value = "Vị trí van (%)";
+                            ws2.Cells[1, 4].Value = "Momen (%)";
+                            ws2.Cells[1, 5].Value = "Hồng ngoại (%)";
+                            ws2.Cells[1, 6].Value = "Độ rung (%)";
+                            ws2.Cells[1, 7].Value = "Số vòng quay (%)";
+                            ws2.Cells[1, 8].Value = "Dòng diện - AM (%)";
+                            ws2.Cells[1, 9].Value = "Áp suất tĩnh - Chênh áp 2 (%)";
+                            ws2.Cells[1, 10].Value = "Công suất (%)";
+                            ws2.Cells[1, 11].Value = "Chênh áp - Chênh áp 1 (%)";
+                            ws2.Cells[1, 12].Value = "Áp suất khí quyển (%)";
+                            using (var range = ws2.Cells[1, 1, 1, 12])
+                            {
+                                range.Style.Font.Bold = true;
+                                range.Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
+                                range.Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.LightGray);
+                                range.Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
+                            }
+                            ws2.Cells[2, 1].Value = avgs[1];
+                            ws2.Cells[2, 2].Value = avgs[2];
+                            ws2.Cells[2, 3].Value = avgs[3];
+                            ws2.Cells[2, 4].Value = avgs[4];
+                            ws2.Cells[2, 5].Value = avgs[5];
+                            ws2.Cells[2, 6].Value = avgs[6];
+                            ws2.Cells[2, 7].Value = avgs[7];
+                            ws2.Cells[2, 8].Value = avgs[8];
+                            ws2.Cells[2, 9].Value = avgs[9];
+                            ws2.Cells[2, 10].Value = avgs[10];
+                            ws2.Cells[2, 11].Value = avgs[11];
+                            ws2.Cells[2, 12].Value = avgs[12];
 
-                //            ws2.Cells.AutoFitColumns();
-                //            package.Save();
-                //        }
-                //    }
-                //}
-                //catch (Exception ex)
-                //{
-                //    WriteTomfanLog($"Lỗi khi ZeroSpan từ file 0.csv: {ex.Message}");
-                //    throw;
-                //}
+                            ws2.Cells.AutoFitColumns();
+                            package.Save();
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    WriteTomfanLog($"Lỗi khi ZeroSpan từ file 0.csv: {ex.Message}");
+                    throw;
+                }
                 m.F = MeasureStatus.Completed;
                 _currentIndex = m.k;
                 return await ConnectExchangeAsync(maxmin);
@@ -631,6 +630,12 @@ namespace TESMEA_TMS.Services
         private float CalcSimatic(float minValue, float maxValue, float percent)
         {
             return minValue + (maxValue - minValue) * percent / 100f;
+        }
+
+        private float CalcSimatic(float minValue, float maxValue, float percent, float zeroSpan)
+        {
+            var newMax = maxValue * (100 - zeroSpan) / 100;
+            return minValue + (newMax - minValue) * percent / 100f;
         }
 
         // retry nếu file bị khóa
@@ -1024,11 +1029,11 @@ namespace TESMEA_TMS.Services
                                             m.CongSuat_fb = _sensor.IsImportPhanHoiCongSuat
                                               ? _sensor.PhanHoiCongSuatValue
                                               : CalcSimatic(_sensor.PhanHoiCongSuatMin, _sensor.PhanHoiCongSuatMax, float.Parse(parts[12], CultureInfo.InvariantCulture) - avgs[10]);
-                                            
+
                                             // 11. chênh lệch áp suất
                                             m.ChenhLechApSuat_sen = _sensor.IsImportChenhLechApSuat
                                                ? _sensor.ChenhLechApSuatValue
-                                               : CalcSimatic(_sensor.ChenhLechApSuatMin, _sensor.ChenhLechApSuatMax, float.Parse(parts[13], CultureInfo.InvariantCulture) - 19.54f);
+                                               : CalcSimatic(_sensor.ChenhLechApSuatMin, _sensor.ChenhLechApSuatMax, float.Parse(parts[13], CultureInfo.InvariantCulture), 19.54f);
 
                                             // 12. áp suất khí quyển
                                             m.ApSuatkhiQuyen_sen = _sensor.IsImportApSuatKhiQuyen

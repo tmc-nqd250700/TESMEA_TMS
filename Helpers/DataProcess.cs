@@ -177,20 +177,21 @@ namespace TESMEA_TMS.Helpers
         // Biến tính toán nội suy
         public static float[] rho3;
         public static float[] Pr;            // Công suất trên trục của guồng cánh 
-
-        private static BienTan inv = new BienTan();
-        private static CamBien sen = new CamBien();
-        private static OngGio duct = new OngGio();
-        private static ThongTinMauThuNghiem input = new ThongTinMauThuNghiem();
+        private static BienTan _inv = new BienTan();
+        private static CamBien _sen = new CamBien();
+        private static OngGio _duct = new OngGio();
+        private static ThongTinMauThuNghiem _input = new ThongTinMauThuNghiem();
+        private static string _mType;
 
         public static KetQuaDoKiem kqdk = new KetQuaDoKiem();
 
-        public static void Initialize(int range, BienTan _inv, CamBien _sen, OngGio _duct, ThongTinMauThuNghiem _input)
+        public static void Initialize(int range, BienTan inv, CamBien sen, OngGio duct, ThongTinMauThuNghiem input, string mType = "C")
         {
-            inv = _inv;
-            sen = _sen;
-            duct = _duct;
-            input = _input;
+            _inv = inv;
+            _sen = sen;
+            _duct = duct;
+            _input = input;
+            _mType = mType;
             kqdk = new KetQuaDoKiem
             {
                 DanhSachketQuaTaiDieuKienDoKiem = new List<KetQuaTaiDieuKienDoKiem>(),
@@ -304,23 +305,31 @@ namespace TESMEA_TMS.Helpers
                 float Current_fb = 0; // dòng điện phản hồi
 
                 // thông số động cơ và truyền động
-                float e_motor = input.HieuSuatDongCo;
-                float n1 = input.TocDoThietKeCuaQuat;
-                float CosPhi = input.HeSoCongSuatDongCo;
+                float e_motor = _input.HieuSuatDongCo;
+                float n1 = _input.TocDoThietKeCuaQuat;
+                float CosPhi = _input.HeSoCongSuatDongCo;
 
                 // biến tần
-                float e_noitruc = inv.HieuSuatNoiTruc;
-                float e_goitruc = inv.HieuSuatGoiTruc;
-                float e_botruyen = inv.HieuSuatBoTruyen;
+                float e_noitruc = _inv.HieuSuatNoiTruc;
+                float e_goitruc = _inv.HieuSuatGoiTruc;
+                float e_botruyen = _inv.HieuSuatBoTruyen;
 
                 // thông số ống gió và van điều khiển
-                float D5 = duct.DuongKinhOngD5;
-                float d = duct.DuongKinhMiengQuat;
-                float L34 = duct.ChieuDaiConQuat;
+                float D5 = _duct.DuongKinhOngD5;
+                LogCalculation($"Đường kính miệng hút D5; {D5}");
+                //D3 = D5;
+                D3 = _duct.DuongKinhOngD3;
+                LogCalculation($"Đường kính ống tại điểm đo áp suất tĩnh D3: {D3}");
+                float d = _duct.DuongKinhMiengQuat;
+                LogCalculation($"Đường kính miệng quạt d: {d}");
+                float L34 = _duct.ChieuDaiConQuat;
+                LogCalculation($"Chiều dài côn quạt L34; {D5}");
+                L1_3 = 3 * D5 + L34;
+                LogCalculation($"Chiều dài tổn thất L1_3 (mm): {L1_3}");
 
                 // điều kiện làm việc
-                float rhow = input.TyTrongKhongKhiLamViec;
-                Ta = input.NhietDoThietKeLamViec;
+                float rhow = _input.TyTrongKhongKhiLamViec;
+                Ta = _input.NhietDoThietKeLamViec;
                 MeasureResponse measurePoint = new MeasureResponse();
 
                 deltap = measure.ChenhLechApSuat_sen;
@@ -351,16 +360,12 @@ namespace TESMEA_TMS.Helpers
                 LogCalculation($"Giá trị công suất phản hồi Power_fb: {Power_fb}");
 
                 int j = measure.k - 1;
-                LogCalculation($"Chỉ số điểm đo j: {j}");
+                LogCalculation($"Chỉ số điểm đo {j}");
 
                 // hiệu suất tổng
                 float e_Total = (e_motor / 100) * (e_goitruc / 100) * (e_noitruc / 100) * (e_botruyen / 100);
                 LogCalculation($"Hiệu suất tổng e_Total: {e_Total}");
-                L1_3 = 3 * D5 + L34;
-                LogCalculation($"Chiều dài tổn thất L1_3: {L1_3}");
-                //D3 = D5;
-                D3 = duct.DuongKinhOngD3;
-                LogCalculation($"Đường kính ống tại điểm đo áp suất tĩnh D3: {D3}");
+               
                 //// Công suất tiêu thụ
                 ////Delta inv
                 //if (InvType == 0) Pw = (float)(Math.Sqrt(3) * (Voltage_fb / 10) * ((Current_fb * 0.86) / 100) * CosPhi / 1000);
@@ -382,7 +387,7 @@ namespace TESMEA_TMS.Helpers
                 // Tính toán giá trị tại 1 điểm đo   
                 while (1 > 0)
                 {
-                    // Bước 1: Tính toán khối lượng riêng không khí tại khu vực đo kiểm 'rhoa'
+                    // Bước 1: Tính toán khối lượng riêng không khí tại khu vực đo kiểm rhoa
                     // Nhiệt độ bầu ướt
                     Tw = (float)(Td * Math.Atan(0.151977 * Math.Pow((hu + 8.313659), 0.5)) + Math.Atan(Td + hu) - Math.Atan(hu - 1.676331) + 0.00391838 * Math.Pow(hu, 1.5) * Math.Atan(0.023101 * hu) - 4.686035);
                     LogCalculation($"Nhiệt độ bầu ướt Tw: {Tw}");
@@ -397,92 +402,119 @@ namespace TESMEA_TMS.Helpers
                     // Khối lượng riêng không khí tại khu vực đo kiểm
                     rhoaPoint[j] = (Pa - 0.378f * pv) / (287 * (Ta + 273.15f));
                     LogCalculation($"Khối lượng riêng không khí tại khu vực đo kiểm  rhoaPoint[{j}] : {rhoaPoint[j]}");
-                    // Bước 2: Tính toán khối lượng riêng không khí tại điểm đo lưu lượng 'pkk'
+                    // Bước 2: Tính toán khối lượng riêng không khí tại điểm đo lưu lượng pkk
                     // Hằng số lí tưởng
                     Rw = Pa / (rhoaPoint[j] * (Ta + 273.15f));
                     LogCalculation($"Hằng số lí tưởng Rw: {Rw}");
                     // Khối lượng riêng không khí tại điểm đo lưu lượng
                     pkk = (Pa - deltap) / (Rw * (Td + 273.15f));
                     LogCalculation($"Khối lượng riêng không khí tại điểm đo lưu lượng pkk: {pkk}");
-                    // Bước 3-5: Tính toán lưu lượng thể tích hiệu chỉnh về điều kiện thiết kế 'qV'
-                    if (D5 > 500 && D5 < 2000)
+
+                    // Bước 3-5: Tính toán lưu lượng thể tích hiệu chỉnh về điều kiện thiết kế qV
+                    if (_mType == "B")
                     {
-                        emax = (float)((0.9131 + 0.0623 * (D5 / 1000) - 0.01567 * Math.Pow(D5 / 1000, 2)) * 10000 + 1);
-                        LogCalculation($"Hệ số hỗn hợp emax: {emax}");
-                        m = emax - 9300;
-                        LogCalculation($"Giá trị m: {m}");
-                        mm = (float)(Math.Round(m));
-                        LogCalculation($"Giá trị mm: {mm}");
-                        for (int i = 1; i <= mm; i++)
-                        {
-                            e = emax - i;
-                            ae = e / 10000;
-                            // Lưu lượng khối lượng của dòng khí
-                            qm = (float)(ae * Math.PI * Math.Pow(D5 / 1000, 2) / 4 * Math.Pow(2 * pkk * deltap, 0.5));
+                        // tính beta
+                        float beta = d / D5;
+                        // tính hệ số A,B,C
+                        float a = (float)(0.5993 + 0.1599 * Math.Pow(beta, 2) - 0.9156 * Math.Pow(beta, 4) + 6.5675 * Math.Pow(beta, 6) - 9.142 * Math.Pow(beta, 8));
+                        float b = (float)(0.249 + 0.0701 * Math.Pow(beta, 2) + 0.243 * Math.Pow(beta, 4) + 0.113 * Math.Pow(beta, 6));
+                        float c = (float)(0.0757 + 0.058 * Math.Pow(beta, 2) + 0.22 * Math.Pow(beta, 4) + 0.25 * Math.Pow(beta, 6));
+                        
+                        float r = deltap / Pa;
+                        // tính hệ số lưu lượng
+                        ae = a * (1 - r * (b - c * r));
+                        // Lưu lượng khối lượng của dòng khí
+                        qm = (float)(ae * Math.PI * Math.Pow(D5 / 1000, 2) / 4 * Math.Pow(2 * pkk * deltap, 0.5));
+                        // Khối lượng riêng của không khí tại vị trí đo áp suất tĩnh
+                        rho3[j] = (Pa - pe3) / (Rw * (Ta + 273.15f));
+                        // Tính toán lưu lượng thể tích
+                        q = qm / rho3[j];
+                        // Tính toán lưu lượng thể tích không khí vận chuyển trong đường ống
+                        // Sau khi hiệu chỉnh về điều kiện thiết kế qV
+                        qV = q * n2 / n1;
+                        //Vận tốc dòng khí
+                        As3 = (float)(Math.PI * Math.Pow(D5 / 1000, 2) / 4);
+                        v3 = q / As3;
+                        // Độ nhớt 
+                        M = (float)((17.1 + 0.048 * Ta) * Math.Pow(10, -6));
+                        // Hằng số Reynolds
+                        Re = v3 * (D5 / 1000) * pkk / M;
 
-                            // Khối lượng riêng của không khí tại vị trí đo áp suất tĩnh
-                            rho3[j] = (Pa - pe3) / (Rw * (Ta + 273.15f));
-                            // Tính toán lưu lượng thể tích
-                            q = qm / rho3[j];
-                            // Tính toán lưu lượng thể tích không khí vận chuyển trong đường ống
-                            // Sau khi hiệu chỉnh về điều kiện thiết kế 'qV'
-                            qV = q * n2 / n1;
-                            //Vận tốc dòng khí
-                            As3 = (float)(Math.PI * Math.Pow(D5 / 1000, 2) / 4);
-                            v3 = q / As3;
-                            // Độ nhớt 
-                            M = (float)((17.1 + 0.048 * Ta) * Math.Pow(10, -6));
-                            // Hằng số Reynolds
-                            Re = v3 * (D5 / 1000) * pkk / M;
-                            // Hệ số hỗn hợp tính toán
-                            aett = (float)((-0.00963 + 0.04783 * (D5 / 1000) - 0.01286 * Math.Pow(D5 / 1000, 2  )) * Math.Log10(Re) + 0.9715 - 0.205 * (D5 / 1000) + 0.05533 * Math.Pow(D5 / 1000, 2));
-                            if (aett >= emax || ae - aett <= 0.0000009) break;
-
-                            else i++;
-
-                        } // end for
-
-                    } // end if
-
+                        // gán hệ số hỗn hợp tính toán = hệ số lưu lượng
+                        aett = ae;
+                    }
                     else
                     {
-                        // Hệ số hỗn hợp
-                        for (int i = 1; i <= 1000; i++)
+                        if (D5 > 500 && D5 < 2000)
                         {
-                            e = 9401 - i;
-                            ae = e / 10000;
-                           
-                            // Lưu lượng khối lượng của dòng khí
-                            qm = (float)(ae * Math.PI * Math.Pow(D5 / 1000, 2) / 4 * Math.Pow((2 * pkk * deltap), 0.5));
-                            // Khối lượng riêng của không khí tại vị trí đo áp suất tĩnh
-                            rho3[j] = (Pa - pe3) / (Rw * (Ta + 273.15f));
-                          
-                            // Tính toán lưu lượng thể tích
-                            q = qm / rho3[j];
-                           
-                            // Tính toán lưu lượng thể tích không khí vận chuyển trong đường ống
-                            // Sau khi hiệu chỉnh về điều kiện thiết kế 'qV'
-                            qV = q * n2 / n1;
-                           
-                            //Vận tốc dòng khí
-                            As3 = (float)(Math.PI * Math.Pow(D5 / 1000, 2) / 4);
-                         
-                            v3 = q / As3;
-                           
-                            // Độ nhớt 
-                            M = (float)((17.1 + 0.048 * Ta) * Math.Pow(10, -6));
-                           
-                            // Hằng số Reynolds
-                            Re = v3 * (D5 / 1000) * pkk / M;
-                            
-                            // Hệ số hỗn hợp tính toán
-                            aett = (float)(0.01 * Math.Log10(Re) + 0.887);
-                         
-                            if (aett >= 0.94 || ae - aett <= 0.0000009) break;
+                            emax = (float)((0.9131 + 0.0623 * (D5 / 1000) - 0.01567 * Math.Pow(D5 / 1000, 2)) * 10000 + 1);
+                            LogCalculation($"Hệ số hỗn hợp emax: {emax}");
+                            m = emax - 9300;
+                            LogCalculation($"Giá trị m: {m}");
+                            mm = (float)(Math.Round(m));
+                            LogCalculation($"Giá trị mm: {mm}");
+                            for (int i = 1; i <= mm; i++)
+                            {
+                                e = emax - i;
+                                ae = e / 10000;
+                                // Lưu lượng khối lượng của dòng khí
+                                qm = (float)(ae * Math.PI * Math.Pow(D5 / 1000, 2) / 4 * Math.Pow(2 * pkk * deltap, 0.5));
 
-                            else i++;
+                                // Khối lượng riêng của không khí tại vị trí đo áp suất tĩnh
+                                rho3[j] = (Pa - pe3) / (Rw * (Ta + 273.15f));
+                                // Tính toán lưu lượng thể tích
+                                q = qm / rho3[j];
+                                // Tính toán lưu lượng thể tích không khí vận chuyển trong đường ống
+                                // Sau khi hiệu chỉnh về điều kiện thiết kế qV
+                                qV = q * n2 / n1;
+                                //Vận tốc dòng khí
+                                As3 = (float)(Math.PI * Math.Pow(D5 / 1000, 2) / 4);
+                                v3 = q / As3;
+                                // Độ nhớt 
+                                M = (float)((17.1 + 0.048 * Ta) * Math.Pow(10, -6));
+                                // Hằng số Reynolds
+                                Re = v3 * (D5 / 1000) * pkk / M;
+                                // Hệ số hỗn hợp tính toán
+                                aett = (float)((-0.00963 + 0.04783 * (D5 / 1000) - 0.01286 * Math.Pow(D5 / 1000, 2)) * Math.Log10(Re) + 0.9715 - 0.205 * (D5 / 1000) + 0.05533 * Math.Pow(D5 / 1000, 2));
+                                if (aett >= emax || ae - aett <= 0.0000009) break;
+
+                                else i++;
+
+                            }
                         }
-                    } 
+                        else
+                        {
+                            // Hệ số hỗn hợp
+                            for (int i = 1; i <= 1000; i++)
+                            {
+                                e = 9401 - i;
+                                ae = e / 10000;
+
+                                // Lưu lượng khối lượng của dòng khí
+                                qm = (float)(ae * Math.PI * Math.Pow(D5 / 1000, 2) / 4 * Math.Pow((2 * pkk * deltap), 0.5));
+                                // Khối lượng riêng của không khí tại vị trí đo áp suất tĩnh
+                                rho3[j] = (Pa - pe3) / (Rw * (Ta + 273.15f));
+                                // Tính toán lưu lượng thể tích
+                                q = qm / rho3[j];
+                                // Tính toán lưu lượng thể tích không khí vận chuyển trong đường ống
+                                // Sau khi hiệu chỉnh về điều kiện thiết kế qV
+                                qV = q * n2 / n1;
+                                //Vận tốc dòng khí
+                                As3 = (float)(Math.PI * Math.Pow(D5 / 1000, 2) / 4);
+                                v3 = q / As3;
+                                // Độ nhớt 
+                                M = (float)((17.1 + 0.048 * Ta) * Math.Pow(10, -6));
+                                // Hằng số Reynolds
+                                Re = v3 * (D5 / 1000) * pkk / M;
+                                // Hệ số hỗn hợp tính toán
+                                aett = (float)(0.01 * Math.Log10(Re) + 0.887);
+
+                                if (aett >= 0.94 || ae - aett <= 0.0000009) break;
+
+                                else i++;
+                            }
+                        }
+                    }
 
 
                     LogCalculation($"Hệ số dòng hỗn hợp: {ae}");
@@ -613,7 +645,7 @@ namespace TESMEA_TMS.Helpers
                     res.ApSuatTaiDiemDoChenhLechApSuatP5 = Pa * 1000 - deltap;
                     res.KLRTaiDiemDoLuuLuongPL5 = rho3[j];
                     res.DoNhotKhongKhi = M;
-                    res.HeSoLuuLuong = ae;
+                    res.HeSoLuuLuong = aett;
                     res.LuuLuongKhoiLuong = qm;
                     res.LuuLuongTheTich = q;
                     res.KLRTaiDiemDoApSuatPL3 = pkk;
@@ -832,16 +864,16 @@ namespace TESMEA_TMS.Helpers
 
 
             // thông số động cơ và truyền động
-            float e_motor = input.HieuSuatDongCo;
-            float n1 = input.TocDoThietKeCuaQuat;
-            float CosPhi = input.HeSoCongSuatDongCo;
+            float e_motor = _input.HieuSuatDongCo;
+            float n1 = _input.TocDoThietKeCuaQuat;
+            float CosPhi = _input.HeSoCongSuatDongCo;
 
             // thông số ống gió và van điều khiển
-            float D5 = duct.DuongKinhOngD5;
-            float d = duct.DuongKinhMiengQuat;
-            float L34 = duct.ChieuDaiConQuat;
+            float D5 = _duct.DuongKinhOngD5;
+            float d = _duct.DuongKinhMiengQuat;
+            float L34 = _duct.ChieuDaiConQuat;
 
-            float Ta = input.NhietDoThietKeLamViec;
+            float Ta = _input.NhietDoThietKeLamViec;
             // thông số phản hồi
             float Power_fb = measure.CongSuat_fb;
             float Current_fb = measure.DongDien_fb;
@@ -867,7 +899,7 @@ namespace TESMEA_TMS.Helpers
             // Tính toán đầu
             L1_3 = 3 * D5 + L34;
             //D3 = D5;
-            D3 = duct.DuongKinhOngD3;
+            D3 = _duct.DuongKinhOngD3;
 
             // Bước 1: Tính toán khối lượng riêng không khí tại khu vực đo kiểm 'rhoa'
             // Nhiệt độ bầu ướt
@@ -887,7 +919,26 @@ namespace TESMEA_TMS.Helpers
             pkk = (Pa - deltap) / (Rw * (Td + 273.15f));
 
             // Bước 3-5: Tính toán lưu lượng thể tích hiệu chỉnh về điều kiện thiết kế 'qV'
-            if (D5 > 500 && D5 < 2000)
+            if (_mType == "B")
+            {
+                float beta = d / D5;
+                float a = (float)(0.5993 + 0.1599 * Math.Pow(beta, 2) - 0.9156 * Math.Pow(beta, 4) + 6.5675 * Math.Pow(beta, 6) - 9.142 * Math.Pow(beta, 8));
+                float b = (float)(0.249 + 0.0701 * Math.Pow(beta, 2) + 0.243 * Math.Pow(beta, 4) + 0.113 * Math.Pow(beta, 6));
+                float c = (float)(0.0757 + 0.058 * Math.Pow(beta, 2) + 0.22 * Math.Pow(beta, 4) + 0.25 * Math.Pow(beta, 6));
+
+                float r = deltap / Pa;
+                ae = a * (1 - r * (b - c * r));
+                qm = (float)(ae * Math.PI * Math.Pow(D5 / 1000, 2) / 4 * Math.Pow(2 * pkk * deltap, 0.5));
+                rho3 = (Pa - Pe3) / (Rw * (Ta + 273.15f));
+                q = qm / rho3;
+                qV = q * n2 / n1;
+                As3 = (float)(Math.PI * Math.Pow(D5 / 1000, 2) / 4);
+                v3 = q / As3;
+                M = (float)((17.1 + 0.048 * Ta) * Math.Pow(10, -6));
+                Re = v3 * (D5 / 1000) * pkk / M;
+                aett = ae;
+            }
+            else if (D5 > 500 && D5 < 2000)
             {
                 emax = (float)((0.9131 + 0.0623 * (D5 / 1000) - 0.01567 * Math.Pow(D5 / 1000, 2)) * 10000 + 1);
                 m = emax - 9300;
