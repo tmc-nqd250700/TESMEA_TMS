@@ -421,6 +421,7 @@ namespace TESMEA_TMS.ViewModels
 
         private bool CanExecuteSaveCommand(object parameter)
         {
+            return true;
             return InputParameters.Any(p => p.IsNew || p.IsEdited || p.IsMarkedForDeletion);
         }
 

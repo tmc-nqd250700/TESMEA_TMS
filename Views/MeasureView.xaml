@@ -236,7 +236,7 @@
             </GroupBox>
             <Image Grid.Row="1" Source="{Binding ImagePath}" Stretch="Fill"/>
             <DataGrid Grid.Row="2"
-                    ItemsSource="{Binding MeasureResponses}"
+                     ItemsSource="{Binding MeasureResponses}"
                      Background="White" 
                      AutoGenerateColumns="False" 
                      IsReadOnly="True"
@@ -247,13 +247,15 @@
                      CanUserSortColumns="False"
                      HeadersVisibility="Column"
                      SelectionMode="Single"
-                     SelectionUnit="Cell"
+                     SelectionUnit="FullRow"
                      ColumnWidth="*"
                      HorizontalScrollBarVisibility="Auto"
                      VerticalScrollBarVisibility="Auto"
                      AlternatingRowBackground="#F5F5F5"
                      AlternationCount="2"
-                     FontSize="13">
+                     FontSize="13"
+                     SelectedItem="{Binding SelectedMeasureRes}"
+                     SelectionChanged="DataGrid_SelectionChanged">
                 <DataGrid.Resources>
                     <Style TargetType="DataGridColumnHeader" >
                         <Setter Property="HorizontalContentAlignment" Value="Center"/>
@@ -273,7 +275,13 @@
                 </DataGrid.CellStyle>
 
                 <DataGrid.Columns>
-                    <DataGridTextColumn Header="{lex:Loc col_No}" Width="50" Binding="{Binding STT}" IsReadOnly="True" CanUserResize="False"/>
+                    <DataGridTextColumn Header="{lex:Loc col_No}" Width="50" Binding="{Binding STT}" IsReadOnly="True" CanUserResize="False">
+                        <DataGridTextColumn.CellStyle>
+                            <Style TargetType="DataGridCell">
+                                <Setter Property="HorizontalAlignment" Value="Center"/>
+                            </Style>
+                        </DataGridTextColumn.CellStyle>
+                    </DataGridTextColumn>
                     <DataGridTextColumn Header="{lex:Loc col_Airflow}" Binding="{Binding Airflow, StringFormat={}{0:N2}}"/>
                     <DataGridTextColumn Header="{lex:Loc col_Ps}" Binding="{Binding Ps, StringFormat={}{0:N2}}"/>
                     <DataGridTextColumn Header="{lex:Loc col_Pt}" Binding="{Binding Pt, StringFormat={}{0:N2}}"/>

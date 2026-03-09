@@ -917,7 +917,7 @@ namespace TESMEA_TMS.Services
         {
             string path2 = Path.Combine(_exchangeFolder, "2_S_IN.csv");
             var sw = Stopwatch.StartNew();
-            char sep = _isComma ? ' ' : ';';
+            char sep = isConnection ? ' ' : ' ';
             WriteTomfanLog($"--- Bắt đầu chờ kết quả từ WinCC cho k={expectedK} ---");
             while (sw.ElapsedMilliseconds < UserSetting.Instance.TimeoutMilliseconds)
             {
@@ -929,7 +929,7 @@ namespace TESMEA_TMS.Services
                         using (var sr = new StreamReader(fs))
                         {
                             string[] lines = await File.ReadAllLinesAsync(path2);
-                            int targetIndex = isConnection ? expectedK - 1 : 2;
+                            int targetIndex = isConnection ? expectedK - 1 : expectedK - 1;
                             if (lines.Length > targetIndex)
                             {
                                 string targetLine = lines[targetIndex];
@@ -1028,7 +1028,7 @@ namespace TESMEA_TMS.Services
                                             // 11. chênh lệch áp suất
                                             m.ChenhLechApSuat_sen = _sensor.IsImportChenhLechApSuat
                                                ? _sensor.ChenhLechApSuatValue
-                                               : CalcSimatic(_sensor.ChenhLechApSuatMin, _sensor.ChenhLechApSuatMax, float.Parse(parts[13], CultureInfo.InvariantCulture) - 19.54f);
+                                               : CalcSimatic(_sensor.ChenhLechApSuatMin, _sensor.ChenhLechApSuatMax, float.Parse(parts[13], CultureInfo.InvariantCulture) - avgs[11]);
 
                                             // 12. áp suất khí quyển
                                             m.ApSuatkhiQuyen_sen = _sensor.IsImportApSuatKhiQuyen

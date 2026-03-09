@@ -101,6 +101,18 @@ namespace TESMEA_TMS.ViewModels
 
         public ObservableCollection<MeasureResponse> MeasureResponses { get; set; } = new ObservableCollection<MeasureResponse>();
 
+        private MeasureResponse _selectedMeasureRes;
+        public MeasureResponse SelectedMeasureRes
+        {
+            get => _selectedMeasureRes;
+            set
+            {
+                _selectedMeasureRes = value;
+                OnPropertyChanged(nameof(SelectedMeasureRes));
+            }
+        }
+
+
         private PlotModel _powerPlotModel;
         public PlotModel PowerPlotModel
         {
@@ -864,7 +876,7 @@ namespace TESMEA_TMS.ViewModels
                         var currentMax = yAxis.Maximum;
                         if (response.Power > yAxis.Maximum)
                         {
-                            yAxis.Maximum = Common.RoundUpToNearest(response.Power * 1.1f);
+                            yAxis.Maximum = Common.RoundUpToNearest(response.Power * 1.1f, 10);
                         }
                     }
 
@@ -1222,6 +1234,16 @@ namespace TESMEA_TMS.ViewModels
             _isCompleted = true;
         }
 
+        public void OnMeasureSelectionChanged()
+        {
+            if(!_isMeasuring && _isCompleted && SelectedMeasureRes != null)
+            {
+                var item = MeasureRows.FirstOrDefault(x => x.k == SelectedMeasureRes.STT);
+                ParameterShow = DataProcess.ParaShow(item);
+                OnPropertyChanged(nameof(ParameterShow));
+            }
+        }
+
 
         #region xuất kết quả và báo cáo
         private bool CanExportCommand(object obj)
@@ -1291,7 +1313,7 @@ namespace TESMEA_TMS.ViewModels
             {
                 Filter = "Word Files|*.docx",
                 Title = IsEn ? "Select where to save measurement reports" : "Chọn nơi lưu báo cáo",
-                FileName = $"Báo cáo đo kiểm_{timestamp}.docx",
+                FileName = $"Báo cáo đo kiểm_{SelectedReportTemplate}_{timestamp}.docx",
                 InitialDirectory = ThongTinDuAn.ThamSo.DuongDanLuuDuAn
             };
             if (sfd.ShowDialog() == System.Windows.Forms.DialogResult.OK)
@@ -1305,15 +1327,38 @@ namespace TESMEA_TMS.ViewModels
                 var dialogTask = DialogHost.Show(splash, "MainDialogHost");
                 try
                 {
-                    await _fileService.ExportReportTestResult(
-                       outputPath: sfd.FileName,
-                       option: SelectedReportTemplate ?? "DESIGN",
-                       project: ThongTinDuAn,
-                       input: await ConvertData(),
-                       res: DataProcess.kqdk
-                   );
+                    if(SelectedReportTemplate == "FULL")
+                    {
+                        await _fileService.ExportReportTestResult_full
+                            (
+                                 outputPath: sfd.FileName,
+                                 project: ThongTinDuAn,
+                                 input: await ConvertData(),
+                                 res: DataProcess.kqdk
+                            );
+                    }
+                    else
+                    {
+                        await _fileService.ExportReportTestResult(
+                           outputPath: sfd.FileName,
+                           option: SelectedReportTemplate ?? "DESIGN",
+                           project: ThongTinDuAn,
+                           input: await ConvertData(),
+                           res: DataProcess.kqdk
+                       );
+                    }
+                        
                     if (DialogHost.IsDialogOpen("MainDialogHost"))
                         DialogHost.Close("MainDialogHost");
+
+                    if (MessageBoxHelper.ShowQuestion(IsEn ? "Export report successfully, do you want to open it?" : "Báo cáo đã được xuất thành công, bạn có muốn mở nó không?"))
+                    {
+                        System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+                        {
+                            FileName = sfd.FileName,
+                            UseShellExecute = true
+                        });
+                    }
 
                 }
                 catch (Exception ex)
@@ -1322,7 +1367,7 @@ namespace TESMEA_TMS.ViewModels
                         DialogHost.Close("MainDialogHost");
                     throw;
                 }
-                MessageBoxHelper.ShowSuccess(IsEn ? "Export report successfully" : "Báo cáo đã được xuất thành công");
+                
             }
         }
 
@@ -1333,7 +1378,7 @@ namespace TESMEA_TMS.ViewModels
             {
                 Filter = "Excel Files|*.xlsx;*.xls",
                 Title = IsEn ? "Select where to save measurement calculation results" : "Chọn nơi lưu kết quả tính toán",
-                FileName = $"Kết quả đo kiểm_{timestamp}.xlsx",
+                FileName = $"Kết quả đo kiểm_{SelectedReportTemplate}_{timestamp}.xlsx",
                 InitialDirectory = ThongTinDuAn.ThamSo.DuongDanLuuDuAn
             };
             if (sfd.ShowDialog() == System.Windows.Forms.DialogResult.OK)
@@ -1358,6 +1403,14 @@ namespace TESMEA_TMS.ViewModels
                     if (DialogHost.IsDialogOpen("MainDialogHost"))
                         DialogHost.Close("MainDialogHost");
 
+                    if (MessageBoxHelper.ShowQuestion(IsEn ? "Export result successfully, do you want to open it?" : "Kết quả tính toán đã được xuất thành công, bạn có muốn mở nó không?"))
+                    {
+                        System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+                        {
+                            FileName = sfd.FileName,
+                            UseShellExecute = true
+                        });
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -1365,10 +1418,8 @@ namespace TESMEA_TMS.ViewModels
                         DialogHost.Close("MainDialogHost");
                     throw;
                 }
-                MessageBoxHelper.ShowSuccess(IsEn ? "Export result successfully" : "Kết quả tính toán đã được xuất thành công");
             }
         }
-
         #endregion
     }
 }

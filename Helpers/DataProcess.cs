@@ -309,9 +309,9 @@ namespace TESMEA_TMS.Helpers
                 float CosPhi = input.HeSoCongSuatDongCo;
 
                 // biến tần
-                float e_noitruc = inv.HieuSuatNoiTruc;
-                float e_goitruc = inv.HieuSuatGoiTruc;
-                float e_botruyen = inv.HieuSuatBoTruyen;
+                float e_noitruc = 99;
+                float e_goitruc = 98;
+                float e_botruyen = 100;
 
                 // thông số ống gió và van điều khiển
                 float D5 = duct.DuongKinhOngD5;

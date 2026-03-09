@@ -32,7 +32,7 @@
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
                 <GroupBox Grid.Row="0" Grid.Column="0" Header="{lex:Loc groupbox_Inverter}" FontSize="13" Margin="5 0">
-                    <Grid IsEnabled="False">
+                    <Grid IsEnabled="True">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="100"/>

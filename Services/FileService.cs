@@ -25,7 +25,8 @@ namespace TESMEA_TMS.Services
     {
         ThongSoDauVao ImportCalculation(string filePath);
         Task ExportExcelTestResult(string outputPath, string option, ThongTinDuAn project, ThongSoDauVao input, KetQuaDoKiem res);
-        Task ExportReportTestResult(string outputPath, string option,ThongTinDuAn project, ThongSoDauVao input, KetQuaDoKiem res);
+        Task ExportReportTestResult(string outputPath, string option, ThongTinDuAn project, ThongSoDauVao input, KetQuaDoKiem res);
+        Task ExportReportTestResult_full(string outputPath, ThongTinDuAn project, ThongSoDauVao input, KetQuaDoKiem res);
 
         // Report từ phần mềm cũ - scada
         //void ExportDatabase(string filePath);
@@ -103,7 +104,7 @@ namespace TESMEA_TMS.Services
                         })
                         .ToList();
 
-                    foreach(var item in freqGroups)
+                    foreach (var item in freqGroups)
                     {
                         if (option == "FULL")
                         {
@@ -120,13 +121,13 @@ namespace TESMEA_TMS.Services
                             else if (option == "NORMALIZED") keepSheets[1] = "Normalized Condition";
                             else if (option == "OPERATION") keepSheets[1] = "Operating Condition";
 
-                            // Xóa các sheet không cần thiết
-                            for (int i = package.Workbook.Worksheets.Count - 1; i >= 0; i--)
-                            {
-                                var sheet = package.Workbook.Worksheets[i];
-                                if (!keepSheets.Contains(sheet.Name))
-                                    package.Workbook.Worksheets.Delete(sheet.Name);
-                            }
+                            //// Xóa các sheet không cần thiết
+                            //for (int i = package.Workbook.Worksheets.Count - 1; i >= 0; i--)
+                            //{
+                            //    var sheet = package.Workbook.Worksheets[i];
+                            //    if (!keepSheets.Contains(sheet.Name))
+                            //        package.Workbook.Worksheets.Delete(sheet.Name);
+                            //}
 
                             // Fill dữ liệu cho sheet option
                             if (option == "DESIGN")
@@ -145,23 +146,28 @@ namespace TESMEA_TMS.Services
                             }
                         }
                     }
+                    package.Workbook.Worksheets.Delete("Design Condition");
+                    package.Workbook.Worksheets.Delete("Normalized Condition");
+                    package.Workbook.Worksheets.Delete("Operating Condition");
+                    package.Workbook.Worksheets.Delete("Full");
 
-                    if(option == "FULL")
-                    {
-                        package.Workbook.Worksheets.Delete("Design Condition");
-                        package.Workbook.Worksheets.Delete("Normalized Condition");
-                        package.Workbook.Worksheets.Delete("Operating Condition");
-                        package.Workbook.Worksheets.Delete("Full");
-                    }
-                    else
-                    {
-                        if(option == "DESIGN")
-                            package.Workbook.Worksheets.Delete("Design Condition");
-                        else if (option == "NORMALIZED")
-                            package.Workbook.Worksheets.Delete("Normalized Condition");
-                        else if (option == "OPERATION")
-                            package.Workbook.Worksheets.Delete("Operating Condition");
-                    }
+
+                    //if (option == "FULL")
+                    //{
+                    //    package.Workbook.Worksheets.Delete("Design Condition");
+                    //    package.Workbook.Worksheets.Delete("Normalized Condition");
+                    //    package.Workbook.Worksheets.Delete("Operating Condition");
+                    //    package.Workbook.Worksheets.Delete("Full");
+                    //}
+                    //else
+                    //{
+                    //    if(option == "DESIGN")
+                    //        package.Workbook.Worksheets.Delete("Design Condition");
+                    //    else if (option == "NORMALIZED")
+                    //        package.Workbook.Worksheets.Delete("Normalized Condition");
+                    //    else if (option == "OPERATION")
+                    //        package.Workbook.Worksheets.Delete("Operating Condition");
+                    //}
                     package.SaveAs(new FileInfo(outputPath));
                 }
             }
@@ -223,7 +229,7 @@ namespace TESMEA_TMS.Services
 
                     var thongSoDoKiem = new List<Measure>();
                     var stt = 1;
-                    for(int col = 3; col <= ws.Dimension.End.Column; col++)
+                    for (int col = 3; col <= ws.Dimension.End.Column; col++)
                     {
                         var kiemTraSoCell = ws.Cells[30, col].Value;
                         if (kiemTraSoCell == null) continue;
@@ -259,7 +265,7 @@ namespace TESMEA_TMS.Services
                     };
                 }
             }
-            catch(BusinessException ex)
+            catch (BusinessException ex)
             { throw; }
             catch (Exception ex)
             {
@@ -317,7 +323,7 @@ namespace TESMEA_TMS.Services
 
 
                 var kqtsDoKiem = ketQua.DanhSachketQuaTaiDieuKienDoKiem;
-                
+
                 #region export kết quả đo kiểm
                 for (int i = 0; i < kqtsDoKiem.Count; i++)
                 {
@@ -883,9 +889,7 @@ namespace TESMEA_TMS.Services
                     return;
                 }
 
-
-                string basePath = AppDomain.CurrentDomain.BaseDirectory;
-                string templatePath = option == "FULL" ? Path.Combine(basePath, "Templates", "baocaodokiem_template_full.docx") : Path.Combine(basePath, "Templates", "baocaodokiem_template.docx");
+                string templatePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Templates", "baocaodokiem_template1.docx");
                 if (!File.Exists(templatePath))
                 {
                     MessageBoxHelper.ShowWarning("File mẫu báo cáo không tồn tại");
@@ -922,7 +926,7 @@ namespace TESMEA_TMS.Services
                                 x.HieuSuatTong.ToString() ?? ""
                             )).ToList() ?? new List<BangKetQuaThuNghiem>();
                         break;
-                    case "OPERATING":
+                    case "OPERATION":
                         input.BangKetQuaThuNghiem = kqdk.DanhSachhieuChuanVeDieuKienLamviec
                             ?.Select((x, idx) => new BangKetQuaThuNghiem(
                                 (idx + 1).ToString(),
@@ -1234,14 +1238,24 @@ namespace TESMEA_TMS.Services
             body.Append(centeredChartParagraph);
         }
 
-        public Task ExportReport_full(string templatePath, string outputPath, ThongTinDuAn project, KetQuaDoKiem kqdk)
+        public Task ExportReportTestResult_full(string outputPath, ThongTinDuAn project, ThongSoDauVao tsdv, KetQuaDoKiem kqdk)
         {
             try
             {
                 if (Common.IsFileLocked(outputPath))
                 {
-                    throw new Exception("File đang được mở bởi ứng dụng khác. Vui lòng tắt file trước khi xuất báo cáo!");
+                    throw new BusinessException("File đang được mở bởi ứng dụng khác. Vui lòng tắt file trước khi xuất báo cáo!");
                 }
+                string templatePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Templates", "baocaodokiem_template_full.docx");
+                if (!File.Exists(templatePath))
+                {
+                    throw new BusinessException("File mẫu báo cáo không tồn tại");
+                }
+
+
+
+                BaoCao input = new BaoCao();
+                input.ThongTinDuAn = project;
 
                 File.Copy(templatePath, outputPath, true);
 
@@ -1279,29 +1293,27 @@ namespace TESMEA_TMS.Services
                         "" // Không dùng HieuSuatTong cho bảng này
                     )).ToList() ?? new List<BangKetQuaThuNghiem>();
 
+
+                var data = new Dictionary<string, string>();
+                if (input.ThongTinDuAn != null)
+                {
+                    foreach (var prop in typeof(ThamSo).GetProperties())
+                    {
+                        data[prop.Name] = prop.GetValue(input.ThongTinDuAn.ThamSo).ToString() ?? "";
+                    }
+                    foreach (var prop in typeof(ThongTinChung).GetProperties())
+                    {
+                        data[prop.Name] = prop.GetValue(input.ThongTinDuAn.ThongTinChung).ToString() ?? "";
+                    }
+
+                    foreach (var prop1 in typeof(ThongTinMauThuNghiem).GetProperties())
+                    {
+                        data[prop1.Name] = prop1.GetValue(input.ThongTinDuAn.ThongTinMauThuNghiem).ToString() ?? "";
+                    }
+                }
+
                 using (var doc = WordprocessingDocument.Open(outputPath, true))
                 {
-                    // fill thông tin chung
-                    var data = new Dictionary<string, string>();
-                    if (project != null)
-                    {
-                        if (project.ThongTinChung != null)
-                        {
-                            foreach (var prop in typeof(ThongTinDuAn).GetProperties())
-                            {
-                                var value = prop.GetValue(project.ThongTinChung);
-                                data[prop.Name] = value != null ? value.ToString() : "";
-                            }
-                        }
-                        if (project.ThongTinMauThuNghiem != null)
-                        {
-                            foreach (var prop in typeof(ThongTinMauThuNghiem).GetProperties())
-                            {
-                                var value = prop.GetValue(project.ThongTinMauThuNghiem);
-                                data[prop.Name] = value != null ? value.ToString() : "";
-                            }
-                        }
-                    }
 
                     var bookmarks = doc.MainDocumentPart.RootElement.Descendants<BookmarkStart>();
                     foreach (var bm in bookmarks)
@@ -1331,7 +1343,7 @@ namespace TESMEA_TMS.Services
                     // Fill bảng thiết kế
                     if (tables.Count > 2)
                         FillTable(tables[2], bangThietKe);
-
+                        
                     // Fill bảng tiêu chuẩn
                     if (tables.Count > 3)
                         FillTable(tables[3], bangTieuChuan);
@@ -1396,199 +1408,208 @@ namespace TESMEA_TMS.Services
              double yMajor
          )
         {
-            var mainPart = doc.MainDocumentPart;
-            var chartPart = mainPart.AddNewPart<ChartPart>();
-            string chartPartId = mainPart.GetIdOfPart(chartPart);
+            try
+            {
 
-            // Series 1: Tiêu chuẩn
-            var xValues1 = dataTieuChuan.Select(d => double.TryParse(d.GetType().GetProperty(xField)?.GetValue(d)?.ToString(), out var v) ? v : 0).ToList();
-            var yValues1 = dataTieuChuan.Select(d => double.TryParse(d.GetType().GetProperty(yField)?.GetValue(d)?.ToString(), out var v) ? v : 0).ToList();
 
-            var xNumberLiteral1 = new NumberLiteral(new FormatCode("General"), new PointCount() { Val = (uint)xValues1.Count });
-            foreach (var (v, i) in xValues1.Select((v, i) => (v, i)))
-                xNumberLiteral1.Append(new NumericPoint() { Index = (uint)i, NumericValue = new NumericValue(v.ToString()) });
+                var mainPart = doc.MainDocumentPart;
+                var chartPart = mainPart.AddNewPart<ChartPart>();
+                string chartPartId = mainPart.GetIdOfPart(chartPart);
 
-            var yNumberLiteral1 = new NumberLiteral(new FormatCode("General"), new PointCount() { Val = (uint)yValues1.Count });
-            foreach (var (v, i) in yValues1.Select((v, i) => (v, i)))
-                yNumberLiteral1.Append(new NumericPoint() { Index = (uint)i, NumericValue = new NumericValue(v.ToString()) });
-
-            // Series 2: Làm việc
-            var xValues2 = dataLamViec.Select(d => double.TryParse(d.GetType().GetProperty(xField)?.GetValue(d)?.ToString(), out var v) ? v : 0).ToList();
-            var yValues2 = dataLamViec.Select(d => double.TryParse(d.GetType().GetProperty(yField)?.GetValue(d)?.ToString(), out var v) ? v : 0).ToList();
-
-            var xNumberLiteral2 = new NumberLiteral(new FormatCode("General"), new PointCount() { Val = (uint)xValues2.Count });
-            foreach (var (v, i) in xValues2.Select((v, i) => (v, i)))
-                xNumberLiteral2.Append(new NumericPoint() { Index = (uint)i, NumericValue = new NumericValue(v.ToString()) });
-
-            var yNumberLiteral2 = new NumberLiteral(new FormatCode("General"), new PointCount() { Val = (uint)yValues2.Count });
-            foreach (var (v, i) in yValues2.Select((v, i) => (v, i)))
-                yNumberLiteral2.Append(new NumericPoint() { Index = (uint)i, NumericValue = new NumericValue(v.ToString()) });
-
-            var scatterChart = new ScatterChart(
-                new ScatterStyle() { Val = ScatterStyleValues.LineMarker },
                 // Series 1: Tiêu chuẩn
-                new ScatterChartSeries(
-                    new A.Charts.Index() { Val = (uint)0 },
-                    new Order() { Val = (uint)0 },
-                    new SeriesText(new NumericValue() { Text = "Điều kiện tiêu chuẩn" }),
-                    new XValues(xNumberLiteral1),
-                    new YValues(yNumberLiteral1),
-                    new Marker(
-                        new Symbol() { Val = MarkerStyleValues.Circle },
-                        new A.Charts.Size() { Val = 7 },
-                       new ChartShapeProperties(
-        new A.SolidFill(new A.RgbColorModelHex() { Val = "000000" }),
-        new A.Outline(new A.SolidFill(new A.RgbColorModelHex() { Val = "000000" }))
-    )
-                    ),
-                    new ChartShapeProperties(
-                        new A.Outline(new A.SolidFill(new A.RgbColorModelHex() { Val = "000000" }))
-                    )
-                ),
+                var xValues1 = dataTieuChuan.Select(d => double.TryParse(d.GetType().GetProperty(xField)?.GetValue(d)?.ToString(), out var v) ? v : 0).ToList();
+                var yValues1 = dataTieuChuan.Select(d => double.TryParse(d.GetType().GetProperty(yField)?.GetValue(d)?.ToString(), out var v) ? v : 0).ToList();
+
+                var xNumberLiteral1 = new NumberLiteral(new FormatCode("General"), new PointCount() { Val = (uint)xValues1.Count });
+                foreach (var (v, i) in xValues1.Select((v, i) => (v, i)))
+                    xNumberLiteral1.Append(new NumericPoint() { Index = (uint)i, NumericValue = new NumericValue(v.ToString()) });
+
+                var yNumberLiteral1 = new NumberLiteral(new FormatCode("General"), new PointCount() { Val = (uint)yValues1.Count });
+                foreach (var (v, i) in yValues1.Select((v, i) => (v, i)))
+                    yNumberLiteral1.Append(new NumericPoint() { Index = (uint)i, NumericValue = new NumericValue(v.ToString()) });
+
                 // Series 2: Làm việc
-                new ScatterChartSeries(
-                    new A.Charts.Index() { Val = (uint)1 },
-                    new Order() { Val = (uint)1 },
-                    new SeriesText(new NumericValue() { Text = "Điều kiện làm việc" }),
-                    new XValues(xNumberLiteral2),
-                    new YValues(yNumberLiteral2),
-                    new Marker(
-                        new Symbol() { Val = MarkerStyleValues.Diamond },
-                        new A.Charts.Size() { Val = 7 },
+                var xValues2 = dataLamViec.Select(d => double.TryParse(d.GetType().GetProperty(xField)?.GetValue(d)?.ToString(), out var v) ? v : 0).ToList();
+                var yValues2 = dataLamViec.Select(d => double.TryParse(d.GetType().GetProperty(yField)?.GetValue(d)?.ToString(), out var v) ? v : 0).ToList();
+
+                var xNumberLiteral2 = new NumberLiteral(new FormatCode("General"), new PointCount() { Val = (uint)xValues2.Count });
+                foreach (var (v, i) in xValues2.Select((v, i) => (v, i)))
+                    xNumberLiteral2.Append(new NumericPoint() { Index = (uint)i, NumericValue = new NumericValue(v.ToString()) });
+
+                var yNumberLiteral2 = new NumberLiteral(new FormatCode("General"), new PointCount() { Val = (uint)yValues2.Count });
+                foreach (var (v, i) in yValues2.Select((v, i) => (v, i)))
+                    yNumberLiteral2.Append(new NumericPoint() { Index = (uint)i, NumericValue = new NumericValue(v.ToString()) });
+
+                var scatterChart = new ScatterChart(
+                    new ScatterStyle() { Val = ScatterStyleValues.LineMarker },
+                    // Series 1: Tiêu chuẩn
+                    new ScatterChartSeries(
+                        new A.Charts.Index() { Val = (uint)0 },
+                        new Order() { Val = (uint)0 },
+                        new SeriesText(new NumericValue() { Text = "Điều kiện tiêu chuẩn" }),
+                        new XValues(xNumberLiteral1),
+                        new YValues(yNumberLiteral1),
+                        new Marker(
+                            new Symbol() { Val = MarkerStyleValues.Circle },
+                            new A.Charts.Size() { Val = 7 },
+                           new ChartShapeProperties(
+            new A.SolidFill(new A.RgbColorModelHex() { Val = "000000" }),
+            new A.Outline(new A.SolidFill(new A.RgbColorModelHex() { Val = "000000" }))
+        )
+                        ),
                         new ChartShapeProperties(
-        new A.SolidFill(new A.RgbColorModelHex() { Val = "000000" }),
-        new A.Outline(new A.SolidFill(new A.RgbColorModelHex() { Val = "000000" }))
-    )
+                            new A.Outline(new A.SolidFill(new A.RgbColorModelHex() { Val = "000000" }))
+                        )
                     ),
-                    new ChartShapeProperties(
-                        new A.Outline(new A.SolidFill(new A.RgbColorModelHex() { Val = "000000" }))
-                    )
-                ),
-                new AxisId() { Val = 48650112u },
-                new AxisId() { Val = 48672768u }
-            );
-
-            // Tiêu đề trục X
-            var xAxisTitle = new Title(
-                new ChartText(
-                    new RichText(
-                        new A.BodyProperties(),
-                        new A.ListStyle(),
-                        new A.Paragraph(
-                           new A.Run(
-                    new A.RunProperties
-                    {
-                        Language = "vi-VN",
-                        FontSize = 1100,
-                        Bold = true
-                    },
-                    new A.Text() { Text = Common.ToSuperscriptUnit(xTitle) }
-                )
+                    // Series 2: Làm việc
+                    new ScatterChartSeries(
+                        new A.Charts.Index() { Val = (uint)1 },
+                        new Order() { Val = (uint)1 },
+                        new SeriesText(new NumericValue() { Text = "Điều kiện làm việc" }),
+                        new XValues(xNumberLiteral2),
+                        new YValues(yNumberLiteral2),
+                        new Marker(
+                            new Symbol() { Val = MarkerStyleValues.Diamond },
+                            new A.Charts.Size() { Val = 7 },
+                            new ChartShapeProperties(
+            new A.SolidFill(new A.RgbColorModelHex() { Val = "000000" }),
+            new A.Outline(new A.SolidFill(new A.RgbColorModelHex() { Val = "000000" }))
+        )
+                        ),
+                        new ChartShapeProperties(
+                            new A.Outline(new A.SolidFill(new A.RgbColorModelHex() { Val = "000000" }))
                         )
+                    ),
+                    new AxisId() { Val = 48650112u },
+                    new AxisId() { Val = 48672768u }
+                );
+
+                // Tiêu đề trục X
+                var xAxisTitle = new Title(
+                    new ChartText(
+                        new RichText(
+                            new A.BodyProperties(),
+                            new A.ListStyle(),
+                            new A.Paragraph(
+                               new A.Run(
+                        new A.RunProperties
+                        {
+                            Language = "vi-VN",
+                            FontSize = 1100,
+                            Bold = true
+                        },
+                        new A.Text() { Text = Common.ToSuperscriptUnit(xTitle) }
                     )
-                ),
-                new Overlay() { Val = false }
-            );
-
-            // Tiêu đề trục Y
-            var yAxisTitle = new Title(
-                new ChartText(
-                    new RichText(
-                        new A.BodyProperties() { Rotation = -5400000 },
-
-                        new A.ListStyle(),
-                        new A.Paragraph(
-                           new A.Run(
-                    new A.RunProperties
-                    {
-                        Language = "vi-VN",
-                        FontSize = 1100,
-                        Bold = true
-                    },
-                    new A.Text() { Text = Common.ToSuperscriptUnit(yTitle) }
-                )
+                            )
                         )
-                    )
-                ),
-                new Overlay() { Val = false }
-            );
-
-            var catAx = new ValueAxis(
-                new AxisId() { Val = 48650112u },
-                new Scaling(
-                    new A.Charts.Orientation() { Val = OrientationValues.MinMax },
-                    new MinAxisValue() { Val = xMin },
-                    new MaxAxisValue() { Val = xMax }
-                ),
-                new Delete() { Val = false },
-                new AxisPosition() { Val = AxisPositionValues.Bottom },
-                new MajorGridlines(),
-                new A.Charts.NumberingFormat() { FormatCode = "General", SourceLinked = true },
-                new MajorUnit() { Val = xMajor },
-                new TickLabelPosition() { Val = TickLabelPositionValues.NextTo },
-                new CrossingAxis() { Val = 48672768u },
-                new Crosses() { Val = CrossesValues.AutoZero },
-                new CrossBetween() { Val = CrossBetweenValues.Between },
-                xAxisTitle
-            );
-
-            var valAx = new ValueAxis(
-                new AxisId() { Val = 48672768u },
-                new Scaling(
-                    new A.Charts.Orientation() { Val = OrientationValues.MinMax },
-                    new MinAxisValue() { Val = yMin },
-                    new MaxAxisValue() { Val = yMax }
-                ),
-                new Delete() { Val = false },
-                new AxisPosition() { Val = AxisPositionValues.Left },
-                new MajorGridlines(),
-                new A.Charts.NumberingFormat() { FormatCode = "General", SourceLinked = true },
-                new MajorUnit() { Val = yMajor },
-                new TickLabelPosition() { Val = TickLabelPositionValues.NextTo },
-                new CrossingAxis() { Val = 48650112u },
-                new Crosses() { Val = CrossesValues.AutoZero },
-                new CrossBetween() { Val = CrossBetweenValues.Between },
-                yAxisTitle
-            );
-
-
-
-            var chart = new Chart(
-                new AutoTitleDeleted() { Val = true },
-                new PlotArea(scatterChart, catAx, valAx),
-                new Legend(
-                    new LegendPosition() { Val = LegendPositionValues.Bottom },
-                    new Layout(),
+                    ),
                     new Overlay() { Val = false }
-                ),
-                new PlotVisibleOnly() { Val = true }
-            );
+                );
 
-            chartPart.ChartSpace = new ChartSpace(chart);
+                // Tiêu đề trục Y
+                var yAxisTitle = new Title(
+                    new ChartText(
+                        new RichText(
+                            new A.BodyProperties() { Rotation = -5400000 },
 
-            var drawing = new Drawing(
-                new Inline(
-                    new Extent() { Cx = 5486400, Cy = 3200400 },
-                    new EffectExtent() { LeftEdge = 0L, TopEdge = 0L, RightEdge = 0L, BottomEdge = 0L },
-                    new DocProperties() { Id = (UInt32Value)1U, Name = "Chart name" },
-                    new NonVisualGraphicFrameDrawingProperties(new A.GraphicFrameLocks() { NoChangeAspect = true }),
-                    new A.Graphic(
-                        new A.GraphicData(
-                            new ChartReference() { Id = chartPartId }
-                        )
-                        { Uri = "http://schemas.openxmlformats.org/drawingml/2006/chart" }
+                            new A.ListStyle(),
+                            new A.Paragraph(
+                               new A.Run(
+                        new A.RunProperties
+                        {
+                            Language = "vi-VN",
+                            FontSize = 1100,
+                            Bold = true
+                        },
+                        new A.Text() { Text = Common.ToSuperscriptUnit(yTitle) }
                     )
-                )
-            );
+                            )
+                        )
+                    ),
+                    new Overlay() { Val = false }
+                );
 
-            var centeredChartParagraph = new Paragraph(
-                new ParagraphProperties(
-                    new Justification() { Val = JustificationValues.Center }
-                ),
-                drawing
-            );
-            var body = mainPart.Document.Body;
-            body.Append(centeredChartParagraph);
+                var catAx = new ValueAxis(
+                    new AxisId() { Val = 48650112u },
+                    new Scaling(
+                        new A.Charts.Orientation() { Val = OrientationValues.MinMax },
+                        new MinAxisValue() { Val = xMin },
+                        new MaxAxisValue() { Val = xMax }
+                    ),
+                    new Delete() { Val = false },
+                    new AxisPosition() { Val = AxisPositionValues.Bottom },
+                    new MajorGridlines(),
+                    new A.Charts.NumberingFormat() { FormatCode = "General", SourceLinked = true },
+                    new MajorUnit() { Val = xMajor },
+                    new TickLabelPosition() { Val = TickLabelPositionValues.NextTo },
+                    new CrossingAxis() { Val = 48672768u },
+                    new Crosses() { Val = CrossesValues.AutoZero },
+                    new CrossBetween() { Val = CrossBetweenValues.Between },
+                    xAxisTitle
+                );
+
+                var valAx = new ValueAxis(
+                    new AxisId() { Val = 48672768u },
+                    new Scaling(
+                        new A.Charts.Orientation() { Val = OrientationValues.MinMax },
+                        new MinAxisValue() { Val = yMin },
+                        new MaxAxisValue() { Val = yMax }
+                    ),
+                    new Delete() { Val = false },
+                    new AxisPosition() { Val = AxisPositionValues.Left },
+                    new MajorGridlines(),
+                    new A.Charts.NumberingFormat() { FormatCode = "General", SourceLinked = true },
+                    new MajorUnit() { Val = yMajor },
+                    new TickLabelPosition() { Val = TickLabelPositionValues.NextTo },
+                    new CrossingAxis() { Val = 48650112u },
+                    new Crosses() { Val = CrossesValues.AutoZero },
+                    new CrossBetween() { Val = CrossBetweenValues.Between },
+                    yAxisTitle
+                );
+
+
+
+                var chart = new Chart(
+                    new AutoTitleDeleted() { Val = true },
+                    new PlotArea(scatterChart, catAx, valAx),
+                    new Legend(
+                        new LegendPosition() { Val = LegendPositionValues.Bottom },
+                        new Layout(),
+                        new Overlay() { Val = false }
+                    ),
+                    new PlotVisibleOnly() { Val = true }
+                );
+
+                chartPart.ChartSpace = new ChartSpace(chart);
+
+                var drawing = new Drawing(
+                    new Inline(
+                        new Extent() { Cx = 5486400, Cy = 3200400 },
+                        new EffectExtent() { LeftEdge = 0L, TopEdge = 0L, RightEdge = 0L, BottomEdge = 0L },
+                        new DocProperties() { Id = (UInt32Value)1U, Name = "Chart name" },
+                        new NonVisualGraphicFrameDrawingProperties(new A.GraphicFrameLocks() { NoChangeAspect = true }),
+                        new A.Graphic(
+                            new A.GraphicData(
+                                new ChartReference() { Id = chartPartId }
+                            )
+                            { Uri = "http://schemas.openxmlformats.org/drawingml/2006/chart" }
+                        )
+                    )
+                );
+
+                var centeredChartParagraph = new Paragraph(
+                    new ParagraphProperties(
+                        new Justification() { Val = JustificationValues.Center }
+                    ),
+                    drawing
+                );
+                var body = mainPart.Document.Body;
+                body.Append(centeredChartParagraph);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
         #endregion
 
@@ -2934,6 +2955,6 @@ namespace TESMEA_TMS.Services
         //    }
         //}
         //#endregion
-    
+
     }
 }
