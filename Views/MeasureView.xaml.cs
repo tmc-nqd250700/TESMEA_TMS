@@ -48,5 +48,14 @@ namespace TESMEA_TMS.Views
 
             this.Unloaded -= MeasureView_Unloaded;
         }
+
+        private void DataGrid_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
+        {
+            var vm = DataContext as MeasureViewModel;
+            if(vm.SelectedMeasureRes != null)
+            {
+                vm.OnMeasureSelectionChanged();
+            }
+        }
     }
 }

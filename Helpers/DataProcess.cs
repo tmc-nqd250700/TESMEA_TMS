@@ -345,9 +345,9 @@ namespace TESMEA_TMS.Helpers
                 //n2 = (n1 * (float)measure.S) / 100;
                 n2 = measure.SoVongQuay_sen;
 
-                Power_fb = measure.CongSuat_fb;
-                Current_fb = measure.DongDien_fb;
-                Voltage_fb = measure.DienAp_fb;
+                Power_fb = 100;
+                Current_fb = 99;
+                Voltage_fb = 98;
 
                 LogCalculation($"Giá trị chênh lệch áp suất deltap: {deltap}");
                 LogCalculation($"Giá trị áp suất tĩnh pe3: {pe3}");
