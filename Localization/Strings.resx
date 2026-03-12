@@ -154,7 +154,7 @@
     <value>Thông tin mẫu thử nghiệm</value>
   </data>
   <data name="groupbox_Sensor" xml:space="preserve">
-    <value>Bảng thông số cảm biến</value>
+    <value>Thông số cảm biến</value>
   </data>
   <data name="lbl_Reception_date" xml:space="preserve">
     <value>Ngày nhận mẫu</value>

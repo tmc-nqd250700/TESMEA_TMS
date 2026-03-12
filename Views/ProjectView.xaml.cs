@@ -22,6 +22,17 @@ namespace TESMEA_TMS.Views
             this.Loaded += ProjectView_Loaded;
         }
 
+        private void btnToolbox_Click(object sender, System.Windows.RoutedEventArgs e)
+        {
+            // lấy name của button được click rồi dùng common
+            var button = sender as System.Windows.Controls.Button;
+            if (button != null)
+            {
+                var name = button.Name;
+                Helpers.Common.ShowMessageBoxHelper(name);
+            }
+        }
+
         private void ProjectView_Loaded(object sender, System.Windows.RoutedEventArgs e)
         {
             

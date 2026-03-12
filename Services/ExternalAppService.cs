@@ -858,6 +858,7 @@ namespace TESMEA_TMS.Services
                 m.SoVongQuay_sen = _sensor.IsImportSoVongQuay
                     ? _sensor.SoVongQuayValue
                     : CalcSimatic(_sensor.SoVongQuayMin, _sensor.SoVongQuayMax, GetContinuousAverage(x => x.SoVongQuay_sen, "Số vòng quay"));
+                
                 // 8. phản hồi dòng điện
                 m.DongDien_fb = _sensor.IsImportPhanHoiDongDien
                   ? _sensor.PhanHoiDongDienValue

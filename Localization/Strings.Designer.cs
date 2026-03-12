@@ -520,7 +520,7 @@ namespace TESMEA_TMS.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Bảng thông số cảm biến.
+        ///   Looks up a localized string similar to Thông số cảm biến.
         /// </summary>
         internal static string groupbox_Sensor {
             get {
