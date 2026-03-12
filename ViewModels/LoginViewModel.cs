@@ -168,7 +168,7 @@ namespace TESMEA_TMS.ViewModels
                         if (DialogHost.IsDialogOpen("LoginDialogHost"))
                             DialogHost.Close("LoginDialogHost");
 
-                        ErrorMessage = $"Lỗi: {ex.Message}";
+                        ErrorMessage = $"{ex.Message}";
                     });
                 }
             });

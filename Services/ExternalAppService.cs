@@ -1017,7 +1017,8 @@ namespace TESMEA_TMS.Services
                                             // phía plc chỉ trả về 50% nên nhân với hệ số 2
                                             m.DongDien_fb = _sensor.IsImportPhanHoiDongDien
                                               ? _sensor.PhanHoiDongDienValue
-                                              : CalcSimatic(_sensor.PhanHoiDongDienMin, _sensor.PhanHoiDongDienMax, (float.Parse(parts[10], CultureInfo.InvariantCulture) - avgs[8]) * 2);
+                                              //: CalcSimatic(_sensor.PhanHoiDongDienMin, _sensor.PhanHoiDongDienMax, (float.Parse(parts[10], CultureInfo.InvariantCulture) - avgs[8]) * 2);
+                                              : CalcSimatic(_sensor.PhanHoiDongDienMin, _sensor.PhanHoiDongDienMax, (float.Parse(parts[10], CultureInfo.InvariantCulture) - avgs[8]));
                                             //: _sensor.PhanHoiDienApValue;
 
                                             // 9. áp suất tĩnh

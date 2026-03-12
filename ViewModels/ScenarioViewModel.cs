@@ -13,8 +13,6 @@ namespace TESMEA_TMS.ViewModels
 {
     public class ScenarioViewModel : ViewModelBase
     {
-        #region Properties
-
         private ObservableCollection<ScenarioDto> _scenarios;
         public ObservableCollection<ScenarioDto> Scenarios
         {
@@ -36,12 +34,11 @@ namespace TESMEA_TMS.ViewModels
                 OnPropertyChanged(nameof(SelectedScenario));
                 OnPropertyChanged(nameof(IsScenarioSelected));
                 OnPropertyChanged(nameof(CanEditParams));
-
-                // KHÔNG tự động load params khi chỉ select
-                // Chỉ load khi user click "Chọn" (ViewDetailCommand)
             }
         }
 
+
+        private Dictionary<Guid, ObservableCollection<ScenarioParamDTO>> _scenarioParamsDict = new Dictionary<Guid, ObservableCollection<ScenarioParamDTO>>();
         private ObservableCollection<ScenarioParamDTO> _scenarioParams;
         public ObservableCollection<ScenarioParamDTO> ScenarioParams
         {
@@ -53,39 +50,22 @@ namespace TESMEA_TMS.ViewModels
             }
         }
 
-        // Properties cho UI binding
         public bool IsScenarioSelected => SelectedScenario != null;
-
-        public bool CanEditParams => SelectedScenario != null &&
-                                     !SelectedScenario.IsMarkedForDeletion;
-        public bool HasUnsavedChanges =>
-            Scenarios.Any(item => item.IsNew || item.IsEdited || item.IsMarkedForDeletion);
-
-        #endregion
-
-        #region Services & Fields
+        public bool CanEditParams => SelectedScenario != null && !SelectedScenario.IsMarkedForDeletion;
+        public bool HasUnsavedChanges => Scenarios.Any(item => item.IsNew || item.IsEdited || item.IsMarkedForDeletion);
 
         private readonly IParameterService _parameterService;
 
         // Tracking để biết scenario nào đã có params thay đổi
         private HashSet<Guid> _scenariosWithChangedParams = new HashSet<Guid>();
-
         // Track scenario hiện đang xem chi tiết
         private Guid? _currentViewedScenarioId = null;
-
-        #endregion
-
-        #region Commands
 
         public ICommand NewCommand { get; }
         public ICommand SaveCommand { get; }
         public ICommand DeleteCommand { get; }
         public ICommand UndoDeleteCommand { get; }
         public ICommand ViewDetailCommand { get; }
-
-        #endregion
-
-        #region Constructor
 
         public ScenarioViewModel(IParameterService parameterService)
         {
@@ -95,7 +75,7 @@ namespace TESMEA_TMS.ViewModels
             ScenarioParams = new ObservableCollection<ScenarioParamDTO>();
 
             // Subscribe to collection changes để tự động đánh dấu edited
-            ScenarioParams.CollectionChanged += ScenarioParams_CollectionChanged;
+            //ScenarioParams.CollectionChanged += ScenarioParams_CollectionChanged;
 
             // Initialize commands
             NewCommand = new ViewModelCommand(_ => true, ExecuteNewCommand);
@@ -106,10 +86,6 @@ namespace TESMEA_TMS.ViewModels
 
             LoadScenarios();
         }
-
-        #endregion
-
-        #region Data Loading Methods
 
         public async void LoadScenarios()
         {
@@ -148,7 +124,6 @@ namespace TESMEA_TMS.ViewModels
                 {
                     var dto = ScenarioParamDTO.FromEntity(param, stt++, isNew: false);
 
-                    // Subscribe to property changes để track editing
                     dto.PropertyChanged += (s, e) =>
                     {
                         if ((e.PropertyName == nameof(ScenarioParamDTO.S) ||
@@ -172,9 +147,7 @@ namespace TESMEA_TMS.ViewModels
             }
         }
 
-        #endregion
 
-        #region Collection Change Handlers
 
         private void ScenarioParams_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
@@ -225,15 +198,11 @@ namespace TESMEA_TMS.ViewModels
             }
         }
 
-        #endregion
-
-        #region Command Handlers
 
         private async void ExecuteViewDetailCommand(object parameter)
         {
             try
             {
-
                 if (HasUnsavedChanges)
                 {
                     MessageBoxHelper.ShowWarning("Còn thay đổi chưa lưu, vui lòng lưu để hoàn thành");
@@ -410,7 +379,7 @@ namespace TESMEA_TMS.ViewModels
                 MessageBoxHelper.ShowSuccess("Lưu thành công");
 
                 LoadScenarios();
-                 // recall to reload current viewed param
+                // recall to reload current viewed param
                 var locator = (ViewModelLocator)Application.Current.Resources["Locator"];
                 locator.ProjectViewModel.LoadParam();
                 if (SelectedScenario == null ||
@@ -506,7 +475,5 @@ namespace TESMEA_TMS.ViewModels
                 MessageBoxHelper.ShowError($"Lỗi khi hoàn tác: {ex.Message}");
             }
         }
-
-        #endregion
     }
 }

@@ -39,6 +39,7 @@
         public double CongSuatDongCoThucTe { get; set; }
         public double HieuSuatTinh { get; set; }
         public double HieuSuatTong { get; set; }
+        public double TanSo { get; set; }
     }
 
     public class HieuChuanVeDieuKienTieuChuan
@@ -52,6 +53,7 @@
         public double CongSuatHapThuTieuChuan { get; set; }
         public double HieuSuatTinh { get; set; }
         public double HieuSuatTong { get; set; }
+        public double TanSo { get; set; }
     }
 
     public class HieuChuanVeDieuKienLamviec
@@ -66,5 +68,6 @@
         public double CongSuatHapThuLamViec { get; set; }
         public double HieuSuatTinh { get; set; }
         public double HieuSuatTong { get; set; }
+        public double TanSo { get; set; }
     }
 }

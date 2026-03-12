@@ -16,8 +16,9 @@
         public string CongSuatTieuThu { get; set; }
         public string HieuSuatTinh { get; set; }
         public string HieuSuatTong { get; set; }
+        public string TanSo { get; set; }
 
-        public BangKetQuaThuNghiem(string stt, string luuLuong, string apSuatTinh, string apSuatTong, string congSuatTieuThu, string hieuSuatTinh, string hieuSuatTong)
+        public BangKetQuaThuNghiem(string stt, string luuLuong, string apSuatTinh, string apSuatTong, string congSuatTieuThu, string hieuSuatTinh, string hieuSuatTong, string tanSo)
         {
             STT = stt;
             LuuLuong = luuLuong;
@@ -26,6 +27,7 @@
             CongSuatTieuThu = congSuatTieuThu;
             HieuSuatTinh = hieuSuatTinh;
             HieuSuatTong = hieuSuatTong;
+            TanSo = tanSo;
         }
     }
     #endregion

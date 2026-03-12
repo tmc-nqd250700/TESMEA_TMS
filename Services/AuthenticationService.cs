@@ -75,7 +75,11 @@ namespace TESMEA_TMS.Services
                     throw new BusinessException("Thông tin đăng nhập không chính xác");
                 }
             }
-            catch
+            catch(BusinessException)
+            {
+                throw;
+            }
+            catch(Exception)
             {
                 throw new BusinessException("Có lỗi trong quá trình đăng nhập");
             }

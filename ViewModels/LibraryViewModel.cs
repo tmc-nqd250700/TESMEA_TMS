@@ -430,7 +430,6 @@ namespace TESMEA_TMS.ViewModels
             try
             {
                 var result = MessageBoxHelper.ShowQuestion("Bạn có chắc chắn muốn lưu tất cả thay đổi?");
-
                 if (!result)
                 {
                     return;

@@ -1,5 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyModel;
 using TESMEA_TMS.DTOs;
 using TESMEA_TMS.Helpers;
 using TESMEA_TMS.Models.Entities;
@@ -67,7 +66,7 @@ namespace TESMEA_TMS.Services
             await ExecuteAsync(async () =>
             {
                 // kiểm tra để mỗi tần số phải có ít nhất 4 góc mở van để cho hàm fit.polynomial - thực hiện hồi quy bậc 2 
-                foreach (var param in scenario.Params.Where(p=>p.S > 0))
+                foreach (var param in scenario.Params.Where(p => p.S > 0))
                 {
                     var countCV = scenario.Params.Count(p => p.S == param.S);
                     if (countCV < 4)
@@ -96,7 +95,7 @@ namespace TESMEA_TMS.Services
                 else
                 {
                     var paramsToUpdate = scenario.Params.Select(p => p.ToEntity()).ToList();
-                    foreach(var item in paramsToUpdate)
+                    foreach (var item in paramsToUpdate)
                     {
                         item.ScenarioId = scenario.Scenario.ScenarioId;
                     }
@@ -124,7 +123,7 @@ namespace TESMEA_TMS.Services
                         _dbContext.ScenarioParams.UpdateRange(paramsToUpdate);
                     }
                 }
-                
+
                 await _dbContext.SaveChangesAsync();
             });
         }

@@ -345,9 +345,9 @@ namespace TESMEA_TMS.Helpers
                 //n2 = (n1 * (float)measure.S) / 100;
                 n2 = measure.SoVongQuay_sen;
 
-                Power_fb = 100;
-                Current_fb = 99;
-                Voltage_fb = 98;
+                Power_fb = measure.CongSuat_fb;
+                Current_fb = measure.DongDien_fb;
+                Voltage_fb = measure.DienAp_fb;
 
                 LogCalculation($"Giá trị chênh lệch áp suất deltap: {deltap}");
                 LogCalculation($"Giá trị áp suất tĩnh pe3: {pe3}");
@@ -661,6 +661,7 @@ namespace TESMEA_TMS.Helpers
                     res.CongSuatDongCoThucTe = Ope_PrPoint[j];
                     res.HieuSuatTinh = EsPoint[j];
                     res.HieuSuatTong = EtPoint[j];
+                    res.TanSo = measure.TanSo_fb;
 
                     HieuChuanVeDieuKienTieuChuan std = new HieuChuanVeDieuKienTieuChuan();
                     std.STT = j - 1;
@@ -672,6 +673,7 @@ namespace TESMEA_TMS.Helpers
                     std.CongSuatHapThuTieuChuan = Std_PrPoint[j];
                     std.HieuSuatTinh = Std_EsPoint[j];
                     std.HieuSuatTong = Std_EtPoint[j];
+                    std.TanSo = measure.TanSo_fb;
 
                     HieuChuanVeDieuKienLamviec ope = new HieuChuanVeDieuKienLamviec();
                     ope.STT = j - 1;
@@ -684,6 +686,7 @@ namespace TESMEA_TMS.Helpers
                     ope.CongSuatHapThuLamViec = Ope_PrPoint[j];
                     ope.HieuSuatTinh = Ope_EsPoint[j];
                     ope.HieuSuatTong = Ope_EtPoint[j];
+                    ope.TanSo = measure.TanSo_fb;
 
                     kqdk.DanhSachketQuaTaiDieuKienDoKiem.Add(res);
                     kqdk.DanhSachhieuChuanVeDieuKienTieuChuan.Add(std);
@@ -1059,7 +1062,7 @@ namespace TESMEA_TMS.Helpers
             return new ParameterShow
             {
                 Freq_show = (float)Math.Round(Freq_fb, 2),
-                Current_show = (float)Math.Round(Current_fb / 100, 2),
+                Current_show = (float)Math.Round(Current_fb, 2),
                 Pw_show = (float)Math.Round(Power_fb, 2),
                 Speed_show = (float)Math.Round(n2, 2),
                 TempB_show = (float)Math.Round(BearingTemp, 2),
@@ -1074,7 +1077,7 @@ namespace TESMEA_TMS.Helpers
                 deltap = deltap,
                 Pe3 = Pe3,
                 Pa_Show = Pa,
-                CV_show = measure.CV
+                CV_show = measure.ViTriVan_fb
             };
         }
 

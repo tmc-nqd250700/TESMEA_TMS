@@ -51,7 +51,7 @@ namespace TESMEA_TMS.DTOs
         public float NhietDoThietKeLamViec { get; set; } = 20;
         public float CongSuatDongCo { get; set; } = 11;
         public float TocDoThietKeCuaQuat { get; set; } = 2919;
-        public float TanSoDongCoTheoThietKe { get; set; }
+        public float TanSoDongCoTheoThietKe { get; set; } = 50;
         public float HeSoCongSuatDongCo { get; set; } = 0.88f; // cosphi
         public float HieuSuatDongCo { get; set; } = 100;
         public float DongDienDinhMucCuaDongCo { get; set; } = 21.5f;

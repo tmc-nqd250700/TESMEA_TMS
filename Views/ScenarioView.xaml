@@ -253,7 +253,7 @@
                     <!-- Style để enable/disable dựa trên SelectedScenario -->
                     <DataGrid.Style>
                         <Style TargetType="DataGrid">
-                            <Setter Property="IsReadOnly" Value="True"/>
+                            <Setter Property="IsReadOnly" Value="False"/>
                             <Setter Property="CanUserAddRows" Value="False"/>
                             <Style.Triggers>
                                 <!-- Cho phép chỉnh sửa khi có scenario được chọn và scenario đó là mới hoặc đang edit -->
