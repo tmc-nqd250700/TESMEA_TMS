@@ -627,16 +627,22 @@ namespace TESMEA_TMS.Services
         }
 
         // tính giá trị trả về từ %
-        private float CalcSimatic(float minValue, float maxValue, float percent)
+        private float CalcSimatic(float minValue, float maxValue, float percent, float sensorIdx, int indexK)
         {
+            if (percent <= 0)
+            {
+                WriteTomfanLog("Không hội tụ được giá trị từ PLC, thực hiện hội tụ từ trendline");
+                percent = CalculateConvergingByTrend(sensorIdx, indexK);
+            }
+
             return minValue + (maxValue - minValue) * percent / 100f;
         }
 
-        private float CalcSimatic(float minValue, float maxValue, float percent, float zeroSpan)
-        {
-            var newMax = maxValue * (100 - zeroSpan) / 100;
-            return minValue + (newMax - minValue) * percent / 100f;
-        }
+        //private float CalcSimatic(float minValue, float maxValue, float percent, float zeroSpan)
+        //{
+        //    var newMax = maxValue * (100 - zeroSpan) / 100;
+        //    return minValue + (newMax - minValue) * percent / 100f;
+        //}
 
         // retry nếu file bị khóa
         private async Task<bool> ExecuteWithRetryAsync(Func<Task> action, int retries = 20, int delay = 200)
@@ -720,23 +726,17 @@ namespace TESMEA_TMS.Services
             }
         }
 
-        // lấy dữ liệu từ trendline file để tính toán
-        public Measure CalculateTrendData(float S, float CV, int index)
+        // tính hội tụ của tín hiệu cảm biến để lấy giá trị chốt, tránh trường hợp tín hiệu không ổn định, kết quả là %
+        public float CalculateConvergingByTrend(float sensor, int index)
         {
             try
             {
-                Measure m = new Measure
-                {
-                    k = index,
-                    S = S,
-                    CV = CV
-                };
                 string trendFilePath = Path.Combine(_trendFolder, $"{index}.csv");
                 if (!File.Exists(trendFilePath))
                 {
-                    throw new FileNotFoundException($"File trend không tồn tại: {trendFilePath}");
+                    WriteTomfanLog($"File trend không tồn tại: {trendFilePath}");
+                    return 0;
                 }
-
 
                 var trendTimes = new List<TrendTime>();
 
@@ -775,7 +775,7 @@ namespace TESMEA_TMS.Services
                 if (trendTimes.Count <= 20)
                 {
                     WriteTomfanLog($"Trendtime không đủ 20 giá trị để chốt dữ liệu. Tổng {trendTimes.Count}");
-                    return null;
+                    return 0;
                 }
 
 
@@ -818,103 +818,52 @@ namespace TESMEA_TMS.Services
                     return 0;
                 }
 
-                // tần số tính từ %S
-                m.TanSo_fb = _sensor.IsImportPhanHoiTanSo
-                            ? _sensor.PhanHoiTanSoValue
-                            : CalcSimatic(_sensor.PhanHoiTanSoMin, _sensor.PhanHoiTanSoMax, S);
+                float val = 0;
+                switch (sensor)
+                {
+                    case 1:
+                        val = GetContinuousAverage(x => x.NhietDoMoiTruong_sen, "Nhiệt độ môi trường");
+                        break;
+                    case 2:
+                         val = GetContinuousAverage(x => x.DoAm_sen, "Độ ẩm");
+                        break;
+                    case 3:
+                         val = GetContinuousAverage(x => x.ViTriVan_fb, "Vị trí van");
+                        break;
+                    case 4:
+                         val = GetContinuousAverage(x => x.Momen_sen, "Momen");
+                        break;
+                    case 5:
+                         val = GetContinuousAverage(x => x.NhietDoGoi_sen, "Nhiệt độ hồng ngoại");
+                        break;
+                    case 6:
+                         val = GetContinuousAverage(x => x.DoRung_sen, "Độ rung");
+                        break;
+                    case 7:
+                         val = GetContinuousAverage(x => x.SoVongQuay_sen, "Số vòng quay");
+                        break;
+                    case 8:
+                         val = GetContinuousAverage(x => x.DongDien_fb, "Dòng điện");
+                        break;
+                    case 9:
+                         val = GetContinuousAverage(x => x.ApSuatTinh_sen, "Áp suất tĩnh");
+                        break;
+                    case 10:
+                         val = GetContinuousAverage(x => x.CongSuat_fb, "Công suất");
+                        break;
+                    case 11:
+                         val = GetContinuousAverage(x => x.ChenhLechApSuat_sen, "Chênh lệch áp suất");
+                        break;
+                    case 12:
+                         val = GetContinuousAverage(x => x.ApSuatkhiQuyen_sen, "Áp suất khí quyển");
+                        break;
+                }
 
-                // 1. nhiệt độ môi trường
-                m.NhietDoMoiTruong_sen = _sensor.IsImportNhietDoMoiTruong
-                    ? _sensor.NhietDoMoiTruongValue
-                    : CalcSimatic(_sensor.NhietDoMoiTruongMin, _sensor.NhietDoMoiTruongMax, GetContinuousAverage(x => x.NhietDoMoiTruong_sen, "Nhiệt độ môi trường"));
-
-                // 2. độ ẩm
-                m.DoAm_sen = _sensor.IsImportDoAmMoiTruong
-                    ? _sensor.DoAmMoiTruongValue
-                    : CalcSimatic(_sensor.DoAmMoiTruongMin, _sensor.DoAmMoiTruongMax, GetContinuousAverage(x => x.DoAm_sen, "Độ ẩm"));
-
-                // 3. phản hồi vị trí van
-                m.ViTriVan_fb = _sensor.IsImportPhanHoiViTriVan
-                    ? _sensor.PhanHoiViTriVanValue
-                    : CalcSimatic(_sensor.PhanHoiViTriVanMin, _sensor.PhanHoiViTriVanMax, GetContinuousAverage(x => x.ViTriVan_fb, "Vị trí van"));
-
-                // 4. momen
-                m.Momen_sen = _sensor.IsImportMomen
-                    ? _sensor.MomenValue
-                     : _sensor.MomenValue;
-                    //: CalcSimatic(_sensor.MomenMin, _sensor.MomenMax, GetContinuousAverage(x => x.ViTriVan_fb, "momen"));
-               
-                // 5. nhiệt độ hồng ngoại
-                m.NhietDoGoi = _sensor.IsImportNhietDoGoiTruc
-                    ? _sensor.NhietDoGoiTrucValue
-                    : CalcSimatic(_sensor.NhietDoGoiTrucMin, _sensor.NhietDoGoiTrucMax, GetContinuousAverage(x => x.NhietDoGoi_sen, "Nhiệt độ hồng ngoại"));
-
-                // 6. độ rung
-                m.DoRung_sen = _sensor.IsImportDoRung
-                    ? _sensor.DoRungValue
-                    : CalcSimatic(_sensor.DoRungMin, _sensor.DoRungMax, GetContinuousAverage(x => x.DoRung_sen, "Độ rung"));
-
-                //7. số vòng quay
-                m.SoVongQuay_sen = _sensor.IsImportSoVongQuay
-                    ? _sensor.SoVongQuayValue
-                    : CalcSimatic(_sensor.SoVongQuayMin, _sensor.SoVongQuayMax, GetContinuousAverage(x => x.SoVongQuay_sen, "Số vòng quay"));
-                
-                // 8. phản hồi dòng điện
-                m.DongDien_fb = _sensor.IsImportPhanHoiDongDien
-                  ? _sensor.PhanHoiDongDienValue
-                  : CalcSimatic(_sensor.PhanHoiDongDienMin, _sensor.PhanHoiDongDienMax, GetContinuousAverage(x => x.DongDien_fb, "Dòng điện"));
-                //: _sensor.PhanHoiDienApValue;
-                
-                // 9. áp suất tĩnh
-                m.ApSuatTinh_sen = _sensor.IsImportApSuatTinh
-                    ? _sensor.ApSuatTinhValue
-                    : CalcSimatic(_sensor.ApSuatTinhMin, _sensor.ApSuatTinhMax, GetContinuousAverage(x => x.ApSuatTinh_sen, "Áp suất tĩnh"));
-
-                // 10. phản hồi công suất
-                m.CongSuat_fb = _sensor.IsImportPhanHoiCongSuat
-                  ? _sensor.PhanHoiCongSuatValue
-                  : CalcSimatic(_sensor.PhanHoiCongSuatMin, _sensor.PhanHoiCongSuatMax, GetContinuousAverage(x => x.CongSuat_fb, "Công suất"));
-
-
-                // 11. chênh lệch áp suất
-                m.ChenhLechApSuat_sen = _sensor.IsImportChenhLechApSuat
-                   ? _sensor.ChenhLechApSuatValue
-                   : CalcSimatic(_sensor.ChenhLechApSuatMin, _sensor.ChenhLechApSuatMax, GetContinuousAverage(x => x.ChenhLechApSuat_sen, "Chênh lệch áp suất"));
-
-                // 12. áp suất khí quyển
-                m.ApSuatkhiQuyen_sen = _sensor.IsImportApSuatKhiQuyen
-                    ? _sensor.ApSuatKhiQuyenValue
-                    : CalcSimatic(_sensor.ApSuatKhiQuyenMin, _sensor.ApSuatKhiQuyenMax, GetContinuousAverage(x => x.ApSuatkhiQuyen_sen, "Áp suất khí quyển"));
-
-
-                m.DoOn_sen = _sensor.IsImportDoOn
-                    ? _sensor.DoOnValue
-                    : _sensor.DoOnValue;
-
-                m.DienAp_fb = _sensor.IsImportPhanHoiDienAp
-                   ? _sensor.PhanHoiDienApValue
-                   : _sensor.PhanHoiDienApValue;
-
-
-                WriteTomfanLog("Hoàn thành tính toán kết quả từ trendline");
-                WriteTomfanLog($"Nhiệt độ môi trường: {m.NhietDoMoiTruong_sen}");
-                WriteTomfanLog($"Độ ẩm: {m.DoAm_sen}");
-                WriteTomfanLog($"Áp suất khí quyển: {m.ApSuatkhiQuyen_sen}");
-                WriteTomfanLog($"Chênh lệch áp suất: {m.ChenhLechApSuat_sen}");
-                WriteTomfanLog($"Áp suất tĩnh: {m.ApSuatTinh_sen}");
-                WriteTomfanLog($"Độ rung: {m.DoRung_sen}");
-                WriteTomfanLog($"Độ ồn: {m.DoOn_sen}");
-                WriteTomfanLog($"Số vòng quay: {m.SoVongQuay_sen}");
-                WriteTomfanLog($"Momen: {m.Momen_sen}");
-                WriteTomfanLog($"Dòng điện phản hồi: {m.DongDien_fb}");
-                WriteTomfanLog($"Công suất phản hồi: {m.CongSuat_fb}");
-                WriteTomfanLog($"Vị trí van phản hồi: {m.ViTriVan_fb}");
-                WriteTomfanLog($"Tần số phản hồi: {m.TanSo_fb}");
-                return m;
+                return val;
             }
             catch (Exception ex)
             {
-                throw ex;
+                throw;
             }
         }
 
@@ -964,115 +913,162 @@ namespace TESMEA_TMS.Services
                                     // 12 parts còn lại tương ứng với tín hiệu trả về của 12 cảm biến
                                     if (!isConnection && parts.Length > 10)
                                     {
-                                        // check nếu parts có giá trị -1 -> lỗi chốt dữ liệu từ simatic thì sẽ truy cập trực tiếp vào file trend lấy dữ liệu và thực hiện chốt ở đây
-                                        bool isInvalid = parts.Any(p =>
-                                        {
-                                            if (float.TryParse(p, NumberStyles.Float, CultureInfo.InvariantCulture, out var val))
-                                                return val <= 0;
-                                            return false;
-                                        });
-                                        if (true)
-                                        {
-                                            // tần số tính từ %S
-                                            m.TanSo_fb = _sensor.IsImportPhanHoiTanSo
-                                                        ? _sensor.PhanHoiTanSoValue
-                                                        : CalcSimatic(_sensor.PhanHoiTanSoMin, _sensor.PhanHoiTanSoMax, float.Parse(parts[1], CultureInfo.InvariantCulture));
 
-                                            // 1. nhiệt độ môi trường
-                                            m.NhietDoMoiTruong_sen = _sensor.IsImportNhietDoMoiTruong
-                                                ? _sensor.NhietDoMoiTruongValue
-                                                : CalcSimatic(_sensor.NhietDoMoiTruongMin, _sensor.NhietDoMoiTruongMax, float.Parse(parts[3], CultureInfo.InvariantCulture) - avgs[1]);
+                                        // tần số tính từ %S
+                                        m.TanSo_fb = _sensor.IsImportPhanHoiTanSo
+                                                    ? _sensor.PhanHoiTanSoValue
+                                                    : CalcSimatic(
+                                                        minValue: _sensor.PhanHoiTanSoMin,
+                                                        maxValue: _sensor.PhanHoiTanSoMax,
+                                                        percent: float.Parse(parts[1], CultureInfo.InvariantCulture),
+                                                        sensorIdx: 1,
+                                                        indexK: m.k);
 
-                                            // 2. độ ẩm
-                                            m.DoAm_sen = _sensor.IsImportDoAmMoiTruong
-                                                ? _sensor.DoAmMoiTruongValue
-                                                : CalcSimatic(_sensor.DoAmMoiTruongMin, _sensor.DoAmMoiTruongMax, float.Parse(parts[4], CultureInfo.InvariantCulture) - avgs[2]);
+                                        // 1. nhiệt độ môi trường
+                                        m.NhietDoMoiTruong_sen = _sensor.IsImportNhietDoMoiTruong
+                                            ? _sensor.NhietDoMoiTruongValue
+                                            : CalcSimatic(
+                                                minValue: _sensor.NhietDoMoiTruongMin,
+                                                maxValue: _sensor.NhietDoMoiTruongMax,
+                                                percent: float.Parse(parts[3], CultureInfo.InvariantCulture) - avgs[1],
+                                                sensorIdx: 3,
+                                                indexK: m.k);
 
-                                            // 3. phản hồi vị trí van
-                                            m.ViTriVan_fb = _sensor.IsImportPhanHoiViTriVan
-                                                ? _sensor.PhanHoiViTriVanValue
-                                                : CalcSimatic(_sensor.PhanHoiViTriVanMin, _sensor.PhanHoiViTriVanMax, float.Parse(parts[5], CultureInfo.InvariantCulture) - avgs[3]);
+                                        // 2. độ ẩm
+                                        m.DoAm_sen = _sensor.IsImportDoAmMoiTruong
+                                            ? _sensor.DoAmMoiTruongValue
+                                            : CalcSimatic(
+                                                minValue: _sensor.DoAmMoiTruongMin,
+                                                maxValue: _sensor.DoAmMoiTruongMax,
+                                                percent: float.Parse(parts[4], CultureInfo.InvariantCulture) - avgs[2],
+                                                sensorIdx: 4,
+                                                indexK: m.k);
 
-                                            // 4. Momen
-                                            m.Momen_sen = _sensor.IsImportMomen
-                                                ? _sensor.MomenValue
-                                                : CalcSimatic(_sensor.MomenMin, _sensor.MomenMax, float.Parse(parts[6], CultureInfo.InvariantCulture) - avgs[4]);
+                                        // 3. phản hồi vị trí van
+                                        m.ViTriVan_fb = _sensor.IsImportPhanHoiViTriVan
+                                            ? _sensor.PhanHoiViTriVanValue
+                                            : CalcSimatic(
+                                                minValue: _sensor.PhanHoiViTriVanMin,
+                                                maxValue: _sensor.PhanHoiViTriVanMax,
+                                                percent: float.Parse(parts[5], CultureInfo.InvariantCulture) - avgs[3],
+                                                sensorIdx: 5,
+                                                indexK: m.k);
 
-                                           
-                                            // 5. nhiệt độ hồng ngoại
-                                            m.NhietDoGoi = _sensor.IsImportNhietDoGoiTruc
-                                                ? _sensor.NhietDoGoiTrucValue
-                                                : CalcSimatic(_sensor.NhietDoGoiTrucMin, _sensor.NhietDoGoiTrucMax, float.Parse(parts[7], CultureInfo.InvariantCulture) - avgs[5]);
+                                        // 4. Momen
+                                        m.Momen_sen = _sensor.IsImportMomen
+                                            ? _sensor.MomenValue
+                                            : CalcSimatic(
+                                                minValue: _sensor.MomenMin,
+                                                maxValue: _sensor.MomenMax,
+                                                percent: float.Parse(parts[6], CultureInfo.InvariantCulture) - avgs[4],
+                                                sensorIdx: 6,
+                                                indexK: m.k);
 
-                                            // 6. độ rung
-                                            m.DoRung_sen = _sensor.IsImportDoRung
-                                                ? _sensor.DoRungValue
-                                                : CalcSimatic(_sensor.DoRungMin, _sensor.DoRungMax, float.Parse(parts[8], CultureInfo.InvariantCulture) - avgs[6]);
+                                        // 5. nhiệt độ hồng ngoại
+                                        m.NhietDoGoi = _sensor.IsImportNhietDoGoiTruc
+                                            ? _sensor.NhietDoGoiTrucValue
+                                            : CalcSimatic(
+                                                minValue: _sensor.NhietDoGoiTrucMin,
+                                                maxValue: _sensor.NhietDoGoiTrucMax,
+                                                percent: float.Parse(parts[7], CultureInfo.InvariantCulture) - avgs[5],
+                                                sensorIdx: 7,
+                                                indexK: m.k);
 
-                                            //7. số vòng quay
-                                            m.SoVongQuay_sen = _sensor.IsImportSoVongQuay
-                                                ? _sensor.SoVongQuayValue
-                                                : CalcSimatic(_sensor.SoVongQuayMin, _sensor.SoVongQuayMax, float.Parse(parts[9], CultureInfo.InvariantCulture) - avgs[7]);
+                                        // 6. độ rung
+                                        m.DoRung_sen = _sensor.IsImportDoRung
+                                            ? _sensor.DoRungValue
+                                            : CalcSimatic(
+                                                minValue: _sensor.DoRungMin,
+                                                maxValue: _sensor.DoRungMax,
+                                                percent: float.Parse(parts[8], CultureInfo.InvariantCulture) - avgs[6],
+                                                sensorIdx: 8,
+                                                indexK: m.k);
 
-                                            // 8. phản hồi dòng điện
-                                            // phía plc chỉ trả về 50% nên nhân với hệ số 2
-                                            m.DongDien_fb = _sensor.IsImportPhanHoiDongDien
-                                              ? _sensor.PhanHoiDongDienValue
-                                              : CalcSimatic(_sensor.PhanHoiDongDienMin, _sensor.PhanHoiDongDienMax, (float.Parse(parts[10], CultureInfo.InvariantCulture) - avgs[8]) * 2);
-                                            //: _sensor.PhanHoiDienApValue;
+                                        // 7. số vòng quay
+                                        m.SoVongQuay_sen = _sensor.IsImportSoVongQuay
+                                            ? _sensor.SoVongQuayValue
+                                            : CalcSimatic(
+                                                minValue: _sensor.SoVongQuayMin,
+                                                maxValue: _sensor.SoVongQuayMax,
+                                                percent: float.Parse(parts[9], CultureInfo.InvariantCulture) - avgs[7],
+                                                sensorIdx: 9,
+                                                indexK: m.k);
 
-                                            // 9. áp suất tĩnh
-                                            m.ApSuatTinh_sen = _sensor.IsImportApSuatTinh
-                                                ? _sensor.ApSuatTinhValue
-                                                : CalcSimatic(_sensor.ApSuatTinhMin, _sensor.ApSuatTinhMax, float.Parse(parts[11], CultureInfo.InvariantCulture) - avgs[9]);
-                                           
-                                            // 10. phản hồi công suất
-                                            m.CongSuat_fb = _sensor.IsImportPhanHoiCongSuat
-                                              ? _sensor.PhanHoiCongSuatValue
-                                              : CalcSimatic(_sensor.PhanHoiCongSuatMin, _sensor.PhanHoiCongSuatMax, float.Parse(parts[12], CultureInfo.InvariantCulture) - avgs[10]);
+                                        // 8. phản hồi dòng điện
+                                        // phía plc chỉ trả về 50% nên nhân với hệ số 2
+                                        m.DongDien_fb = _sensor.IsImportPhanHoiDongDien
+                                            ? _sensor.PhanHoiDongDienValue
+                                            : CalcSimatic(
+                                                minValue: _sensor.PhanHoiDongDienMin,
+                                                maxValue: _sensor.PhanHoiDongDienMax,
+                                                percent: (float.Parse(parts[10], CultureInfo.InvariantCulture) - avgs[8]) * 2,
+                                                sensorIdx: 10,
+                                                indexK: m.k);
 
-                                            // 11. chênh lệch áp suất
-                                            m.ChenhLechApSuat_sen = _sensor.IsImportChenhLechApSuat
-                                               ? _sensor.ChenhLechApSuatValue
-                                               : CalcSimatic(_sensor.ChenhLechApSuatMin, _sensor.ChenhLechApSuatMax, float.Parse(parts[13], CultureInfo.InvariantCulture) - avgs[11]);
+                                        // 9. áp suất tĩnh
+                                        m.ApSuatTinh_sen = _sensor.IsImportApSuatTinh
+                                            ? _sensor.ApSuatTinhValue
+                                            : CalcSimatic(
+                                                minValue: _sensor.ApSuatTinhMin,
+                                                maxValue: _sensor.ApSuatTinhMax,
+                                                percent: float.Parse(parts[11], CultureInfo.InvariantCulture) - avgs[9],
+                                                sensorIdx: 11,
+                                                indexK: m.k);
 
-                                            // 12. áp suất khí quyển
-                                            m.ApSuatkhiQuyen_sen = _sensor.IsImportApSuatKhiQuyen
-                                                ? _sensor.ApSuatKhiQuyenValue
-                                                : CalcSimatic(_sensor.ApSuatKhiQuyenMin, _sensor.ApSuatKhiQuyenMax, float.Parse(parts[14], CultureInfo.InvariantCulture) - avgs[12]);
+                                        // 10. phản hồi công suất
+                                        m.CongSuat_fb = _sensor.IsImportPhanHoiCongSuat
+                                            ? _sensor.PhanHoiCongSuatValue
+                                            : CalcSimatic(
+                                                minValue: _sensor.PhanHoiCongSuatMin,
+                                                maxValue: _sensor.PhanHoiCongSuatMax,
+                                                percent: float.Parse(parts[12], CultureInfo.InvariantCulture) - avgs[10],
+                                                sensorIdx: 12,
+                                                indexK: m.k);
 
-                                            // điện áp luôn lấy theo giá trị nhập vào
-                                            m.DienAp_fb = _sensor.IsImportPhanHoiDienAp
-                                                ? _sensor.PhanHoiDienApValue
-                                                : _sensor.PhanHoiDienApValue;
-                                            //CalcSimatic(_sensor.PhanHoiDienApMin, _sensor.PhanHoiDienApMax, float.Parse(parts[6], CultureInfo.InvariantCulture));
+                                        // 11. chênh lệch áp suất
+                                        m.ChenhLechApSuat_sen = _sensor.IsImportChenhLechApSuat
+                                            ? _sensor.ChenhLechApSuatValue
+                                            : CalcSimatic(
+                                                minValue: _sensor.ChenhLechApSuatMin,
+                                                maxValue: _sensor.ChenhLechApSuatMax,
+                                                percent: float.Parse(parts[13], CultureInfo.InvariantCulture) - avgs[11],
+                                                sensorIdx: 13,
+                                                indexK: m.k);
 
-                                            m.DoOn_sen = _sensor.IsImportDoOn
-                                                ? _sensor.DoOnValue
-                                                : _sensor.DoOnValue;
+                                        // 12. áp suất khí quyển
+                                        m.ApSuatkhiQuyen_sen = _sensor.IsImportApSuatKhiQuyen
+                                            ? _sensor.ApSuatKhiQuyenValue
+                                            : CalcSimatic(
+                                                minValue: _sensor.ApSuatKhiQuyenMin,
+                                                maxValue: _sensor.ApSuatKhiQuyenMax,
+                                                percent: float.Parse(parts[14], CultureInfo.InvariantCulture) - avgs[12],
+                                                sensorIdx: 14,
+                                                indexK: m.k);
 
+                                        // điện áp luôn lấy theo giá trị nhập vào
+                                        m.DienAp_fb = _sensor.IsImportPhanHoiDienAp
+                                            ? _sensor.PhanHoiDienApValue
+                                            : _sensor.PhanHoiDienApValue;
 
-                                            WriteTomfanLog("Hoàn thành tính toán từ file 2_S_IN.csv");
-                                            WriteTomfanLog($"Nhiệt độ môi trường: {m.NhietDoMoiTruong_sen}");
-                                            WriteTomfanLog($"Độ ẩm: {m.DoAm_sen}");
-                                            WriteTomfanLog($"Áp suất khí quyển: {m.ApSuatkhiQuyen_sen}");
-                                            WriteTomfanLog($"Chênh lệch áp suất: {m.ChenhLechApSuat_sen}");
-                                            WriteTomfanLog($"Áp suất tĩnh: {m.ApSuatTinh_sen}");
-                                            WriteTomfanLog($"Độ rung: {m.DoRung_sen}");
-                                            WriteTomfanLog($"Độ ồn: {m.DoOn_sen}");
-                                            WriteTomfanLog($"Số vòng quay: {m.SoVongQuay_sen}");
-                                            WriteTomfanLog($"Momen: {m.Momen_sen}");
-                                            WriteTomfanLog($"Dòng điện phản hồi: {m.DongDien_fb}");
-                                            WriteTomfanLog($"Công suất phản hồi: {m.CongSuat_fb}");
-                                            WriteTomfanLog($"Vị trí van phản hồi: {m.ViTriVan_fb}");
-                                            WriteTomfanLog($"Tần số phản hồi: {m.TanSo_fb}");
-                                            WriteTomfanLog($"Nhiệt độ gối trục: {m.NhietDoGoi}");
-                                        }
-                                        else
-                                        {
-                                            WriteTomfanLog("Dữ liệu không hợp lệ, thực hiện tính thủ công từ trendline");
-                                            m = CalculateTrendData(m.S, m.CV, m.k);
-                                        }
+                                        m.DoOn_sen = _sensor.IsImportDoOn
+                                            ? _sensor.DoOnValue
+                                            : _sensor.DoOnValue;
+
+                                        WriteTomfanLog("Hoàn thành tính toán từ file 2_S_IN.csv");
+                                        WriteTomfanLog($"Nhiệt độ môi trường: {m.NhietDoMoiTruong_sen}");
+                                        WriteTomfanLog($"Độ ẩm: {m.DoAm_sen}");
+                                        WriteTomfanLog($"Áp suất khí quyển: {m.ApSuatkhiQuyen_sen}");
+                                        WriteTomfanLog($"Chênh lệch áp suất: {m.ChenhLechApSuat_sen}");
+                                        WriteTomfanLog($"Áp suất tĩnh: {m.ApSuatTinh_sen}");
+                                        WriteTomfanLog($"Độ rung: {m.DoRung_sen}");
+                                        WriteTomfanLog($"Độ ồn: {m.DoOn_sen}");
+                                        WriteTomfanLog($"Số vòng quay: {m.SoVongQuay_sen}");
+                                        WriteTomfanLog($"Momen: {m.Momen_sen}");
+                                        WriteTomfanLog($"Dòng điện phản hồi: {m.DongDien_fb}");
+                                        WriteTomfanLog($"Công suất phản hồi: {m.CongSuat_fb}");
+                                        WriteTomfanLog($"Vị trí van phản hồi: {m.ViTriVan_fb}");
+                                        WriteTomfanLog($"Tần số phản hồi: {m.TanSo_fb}");
+                                        WriteTomfanLog($"Nhiệt độ gối trục: {m.NhietDoGoi}");
                                     }
 
                                     if (expectedK >= 2)

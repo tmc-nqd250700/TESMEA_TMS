@@ -313,6 +313,9 @@ namespace TESMEA_TMS.Helpers
                 float e_noitruc = 99;
                 float e_goitruc = 98;
                 float e_botruyen = 100;
+                //float e_noitruc = _inv.HieuSuatNoiTruc;
+                //float e_goitruc = _inv.HieuSuatGoiTruc;
+                //float e_botruyen = _inv.HieuSuatBoTruyen;
 
                 // thông số ống gió và van điều khiển
                 float D5 = _duct.DuongKinhOngD5;
