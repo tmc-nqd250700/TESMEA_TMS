@@ -75,7 +75,7 @@ namespace TESMEA_TMS.ViewModels
             ScenarioParams = new ObservableCollection<ScenarioParamDTO>();
 
             // Subscribe to collection changes để tự động đánh dấu edited
-            //ScenarioParams.CollectionChanged += ScenarioParams_CollectionChanged;
+            ScenarioParams.CollectionChanged += ScenarioParams_CollectionChanged;
 
             // Initialize commands
             NewCommand = new ViewModelCommand(_ => true, ExecuteNewCommand);

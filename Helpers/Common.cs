@@ -107,6 +107,9 @@ namespace TESMEA_TMS.Helpers
                 case "btnNhietDoGoiTruc":
                     MessageBoxHelper.ShowInformation(isEn ? "Infrared temperature data obtained from the sensor. The measuring range is configured according to the sensor catalog" : "Nhiệt độ hồng ngoại thu được, đải đo được cấu hình theo catalog");
                     break;
+                case "btnPhanHoiTanSo":
+                    MessageBoxHelper.ShowInformation(isEn ? "Frequency feedback data obtained from the sensor. The measuring range is configured according to the sensor catalog" : "Phản hồi tần số thu được, dải đo được cấu hình theo catalog");
+                    break;
 
 
 
@@ -131,6 +134,9 @@ namespace TESMEA_TMS.Helpers
                     break;
                 case "btnDuongKinhOngD3":
                     MessageBoxHelper.ShowInformation(isEn ? "D3 duct diameter is the diameter of the static pressure measurement pipe" : "Đường kính ống D3 là đường kính ống đo áp suất tĩnh");
+                    break;
+                case "btnDuongKinhLoPhut":
+                    MessageBoxHelper.ShowInformation(isEn ? "The diameter of the auxiliary hole is the diameter of the auxiliary pipe (applies when measuring type B)" : "Đường kính lỗ phụt là đường kính của ống phụt (áp dụng khi đo kiểu B)");
                     break;
 
                 // thông số quạt

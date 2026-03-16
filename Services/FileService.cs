@@ -78,7 +78,7 @@ namespace TESMEA_TMS.Services
                 ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
                 using (var package = new ExcelPackage(new FileInfo(templatePath)))
                 {
-                    var kqDoKiem = await ExportCalculation(package, tsdv, ketQuaDoKiem);
+                    var kqDoKiem = await ExportCalculation(package, tsdv, ketQuaDoKiem, project.ThamSo.KieuKiemThu);
                     // Lấy danh sách các tần số duy nhất
                     var freqGroups = tsdv.DanhSachThongSoDoKiem
                         .Select((item, idx) => new { item.TanSo_fb, Index = idx })
@@ -151,6 +151,14 @@ namespace TESMEA_TMS.Services
                     package.Workbook.Worksheets.Delete("Normalized Condition");
                     package.Workbook.Worksheets.Delete("Operating Condition");
                     package.Workbook.Worksheets.Delete("Full");
+                    if(project.ThamSo.KieuKiemThu == "B")
+                    {
+                        package.Workbook.Worksheets.Delete("Calculation_C");
+                    }
+                    else
+                    {
+                        package.Workbook.Worksheets.Delete("Calculation_B");
+                    }
 
 
                     //if (option == "FULL")
@@ -273,12 +281,12 @@ namespace TESMEA_TMS.Services
                 throw new Exception($"Thông số đầu vào không phù hợp: {ex.Message}");
             }
         }
-        public async Task<KetQuaDoKiem> ExportCalculation(ExcelPackage package, ThongSoDauVao tsdv, KetQuaDoKiem ketQua)
+        public async Task<KetQuaDoKiem> ExportCalculation(ExcelPackage package, ThongSoDauVao tsdv, KetQuaDoKiem ketQua, string kieuKiemThu = "C")
         {
             try
             {
                 KetQuaTaiDieuKienDoKiem thongSoKetQuaDoKiem = new KetQuaTaiDieuKienDoKiem();
-                var ws = package.Workbook.Worksheets["Calculation"];
+                var ws = package.Workbook.Worksheets[$"Calculation_{kieuKiemThu}"];
                 if (ws == null) return null;
 
                 // Thông số đường ống gió

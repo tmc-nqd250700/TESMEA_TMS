@@ -321,6 +321,7 @@ namespace TESMEA_TMS.Helpers
                 D3 = _duct.DuongKinhOngD3;
                 LogCalculation($"Đường kính ống tại điểm đo áp suất tĩnh D3: {D3}");
                 float d = _duct.DuongKinhMiengQuat;
+                float dPhut = _duct.DuongKinhLoPhut;
                 LogCalculation($"Đường kính miệng quạt d: {d}");
                 float L34 = _duct.ChieuDaiConQuat;
                 LogCalculation($"Chiều dài côn quạt L34; {D5}");
@@ -414,7 +415,7 @@ namespace TESMEA_TMS.Helpers
                     if (_mType == "B")
                     {
                         // tính beta
-                        float beta = d / D5;
+                        float beta = dPhut / D5;
                         // tính hệ số A,B,C
                         float a = (float)(0.5993 + 0.1599 * Math.Pow(beta, 2) - 0.9156 * Math.Pow(beta, 4) + 6.5675 * Math.Pow(beta, 6) - 9.142 * Math.Pow(beta, 8));
                         float b = (float)(0.249 + 0.0701 * Math.Pow(beta, 2) + 0.243 * Math.Pow(beta, 4) + 0.113 * Math.Pow(beta, 6));
@@ -424,7 +425,7 @@ namespace TESMEA_TMS.Helpers
                         // tính hệ số lưu lượng
                         ae = a * (1 - r * (b - c * r));
                         // Lưu lượng khối lượng của dòng khí
-                        qm = (float)(ae * Math.PI * Math.Pow(D5 / 1000, 2) / 4 * Math.Pow(2 * pkk * deltap, 0.5));
+                        qm = (float)(ae * (Math.PI * Math.Pow(dPhut / 1000, 2) / 4) * Math.Pow(2 * pkk * deltap, 0.5));
                         // Khối lượng riêng của không khí tại vị trí đo áp suất tĩnh
                         rho3[j] = (Pa - pe3) / (Rw * (Ta + 273.15f));
                         // Tính toán lưu lượng thể tích
@@ -874,6 +875,7 @@ namespace TESMEA_TMS.Helpers
             // thông số ống gió và van điều khiển
             float D5 = _duct.DuongKinhOngD5;
             float d = _duct.DuongKinhMiengQuat;
+            float dPhut = _duct.DuongKinhLoPhut;
             float L34 = _duct.ChieuDaiConQuat;
 
             float Ta = _input.NhietDoThietKeLamViec;
@@ -924,7 +926,7 @@ namespace TESMEA_TMS.Helpers
             // Bước 3-5: Tính toán lưu lượng thể tích hiệu chỉnh về điều kiện thiết kế 'qV'
             if (_mType == "B")
             {
-                float beta = d / D5;
+                float beta = dPhut / D5;
                 float a = (float)(0.5993 + 0.1599 * Math.Pow(beta, 2) - 0.9156 * Math.Pow(beta, 4) + 6.5675 * Math.Pow(beta, 6) - 9.142 * Math.Pow(beta, 8));
                 float b = (float)(0.249 + 0.0701 * Math.Pow(beta, 2) + 0.243 * Math.Pow(beta, 4) + 0.113 * Math.Pow(beta, 6));
                 float c = (float)(0.0757 + 0.058 * Math.Pow(beta, 2) + 0.22 * Math.Pow(beta, 4) + 0.25 * Math.Pow(beta, 6));

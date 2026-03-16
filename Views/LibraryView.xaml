@@ -55,6 +55,7 @@
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
 
                         <!--<TextBlock Grid.Row="0" Grid.Column="0" Text="{lex:Loc lbl_Sensor_range}" VerticalAlignment="Center" Margin="10 0 5 0" FontWeight="SemiBold" FontSize="15"/>-->
@@ -172,21 +173,21 @@
                         <TextBox Grid.Row="9" Grid.Column="5" Margin="10 0 5 0" Text="{Binding CamBien.DoOnMax, Mode=TwoWay}" IsEnabled="{Binding IsChecked, ElementName=chkImportDoOn, Converter={StaticResource BooleanNegationConverter}}"/>-->
 
 
-                        <!-- 13. Phản hồi điện áp --><!--
+                         <!--13. Phản hồi điện áp 
                         <TextBlock Grid.Row="15" Grid.Column="0" Text="13. Phản hồi điện áp (V)" VerticalAlignment="Center" Margin="10 0 5 0"/>
                         <Button Grid.Row="15" Grid.Column="1" Margin="5 0" x:Name="btnPhanHoiDienAp" Width="48" Height="Auto" Style="{StaticResource SolidButtonStyle}" Content="?" Padding="0" FontSize="15"/>
                         <CheckBox Grid.Row="15" Grid.Column="2" x:Name="chkImportPhanHoiDienAp" Margin="10 0 5 0" IsChecked="{Binding CamBien.IsImportPhanHoiDienAp, Mode=TwoWay}" HorizontalAlignment="Center"/>
                         <TextBox Grid.Row="15" Grid.Column="3" Margin="10 0 5 0" Text="{Binding CamBien.PhanHoiDienApValue, Mode=TwoWay}" IsEnabled="{Binding IsChecked, ElementName=chkImportPhanHoiDienAp}"/>
                         <TextBox Grid.Row="15" Grid.Column="4" Margin="10 0 5 0" Text="{Binding CamBien.PhanHoiDienApMin, Mode=TwoWay}" IsEnabled="{Binding IsChecked, ElementName=chkImportPhanHoiDienAp, Converter={StaticResource BooleanNegationConverter}}"/>
-                        <TextBox Grid.Row="15" Grid.Column="5" Margin="10 0 5 0" Text="{Binding CamBien.PhanHoiDienApMax, Mode=TwoWay}" IsEnabled="{Binding IsChecked, ElementName=chkImportPhanHoiDienAp, Converter={StaticResource BooleanNegationConverter}}"/>
+                        <TextBox Grid.Row="15" Grid.Column="5" Margin="10 0 5 0" Text="{Binding CamBien.PhanHoiDienApMax, Mode=TwoWay}" IsEnabled="{Binding IsChecked, ElementName=chkImportPhanHoiDienAp, Converter={StaticResource BooleanNegationConverter}}"/>-->
 
-                        --><!-- 14. Tần số --><!--
-                        <TextBlock Grid.Row="16" Grid.Column="0" Text="14. Phản hồi tần số (Hz)" VerticalAlignment="Center" Margin="10 0 5 0"/>
-                        <Button Grid.Row="16" Grid.Column="1" Margin="5 0" x:Name="btnPhanHoiTanSo" Width="48" Height="Auto" Style="{StaticResource SolidButtonStyle}" Content="?" Padding="0" FontSize="15"/>
-                        <CheckBox Grid.Row="16" Grid.Column="2" x:Name="chkImportPhanHoiTanSo" Margin="10 0 5 0" IsChecked="{Binding CamBien.IsImportPhanHoiTanSo, Mode=TwoWay}" HorizontalAlignment="Center"/>
-                        <TextBox Grid.Row="16" Grid.Column="3" Margin="10 0 5 0" Text="{Binding CamBien.PhanHoiTanSoValue, Mode=TwoWay}" IsEnabled="{Binding IsChecked, ElementName=chkImportPhanHoiTanSo}"/>
-                        <TextBox Grid.Row="16" Grid.Column="4" Margin="10 0 5 0" Text="{Binding CamBien.PhanHoiTanSoMin, Mode=TwoWay}" IsEnabled="{Binding IsChecked, ElementName=chkImportPhanHoiTanSo, Converter={StaticResource BooleanNegationConverter}}"/>
-                        <TextBox Grid.Row="16" Grid.Column="5" Margin="10 0 5 0" Text="{Binding CamBien.PhanHoiTanSoMax, Mode=TwoWay}" IsEnabled="{Binding IsChecked, ElementName=chkImportPhanHoiTanSo, Converter={StaticResource BooleanNegationConverter}}"/>-->
+                         <!--14. Tần số--> 
+                        <TextBlock Grid.Row="13" Grid.Column="0" Text="13. Phản hồi tần số (Hz)" VerticalAlignment="Center" Margin="10 0 5 0"/>
+                        <Button Grid.Row="13" Grid.Column="1" Margin="5 0" x:Name="btnPhanHoiTanSo" Width="48" Height="Auto" Style="{StaticResource SolidButtonStyle}" Content="?" Padding="0" FontSize="15" Click="btnToolbox_Click"/>
+                        <CheckBox Grid.Row="13" Grid.Column="2" x:Name="chkImportPhanHoiTanSo" Margin="10 0 5 0" IsChecked="{Binding CamBien.IsImportPhanHoiTanSo, Mode=TwoWay}" HorizontalAlignment="Center"/>
+                        <TextBox Grid.Row="13" Grid.Column="3" Margin="10 0 5 0" Text="{Binding CamBien.PhanHoiTanSoValue, Mode=TwoWay}" IsEnabled="{Binding IsChecked, ElementName=chkImportPhanHoiTanSo}"/>
+                        <TextBox Grid.Row="13" Grid.Column="4" Margin="10 0 5 0" Text="{Binding CamBien.PhanHoiTanSoMin, Mode=TwoWay}" IsEnabled="{Binding IsChecked, ElementName=chkImportPhanHoiTanSo, Converter={StaticResource BooleanNegationConverter}}"/>
+                        <TextBox Grid.Row="13" Grid.Column="5" Margin="10 0 5 0" Text="{Binding CamBien.PhanHoiTanSoMax, Mode=TwoWay}" IsEnabled="{Binding IsChecked, ElementName=chkImportPhanHoiTanSo, Converter={StaticResource BooleanNegationConverter}}"/>
 
                         
                     </Grid>
@@ -239,7 +240,7 @@
                             <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
 
-                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Đường kính miệng hút D5 (mm)" VerticalAlignment="Center" Margin="10 0 5 0"/>
+                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Đường kính ống D5 (mm)" VerticalAlignment="Center" Margin="10 0 5 0"/>
                         <Button  Grid.Row="0" Grid.Column="1" Margin="5 0" x:Name="btnDuongKinhOngD5" Width="48" Height="Auto"  Style="{StaticResource SolidButtonStyle}" Content="?" Padding="0" FontSize="15" Click="btnToolbox_Click"/>
                         <TextBox Grid.Row="0" Grid.Column="2" Text="{Binding OngGio.DuongKinhOngD5, Mode=TwoWay}" />
 
@@ -247,12 +248,12 @@
                         <Button  Grid.Row="1" Grid.Column="1" Margin="5 0" x:Name="btnChieuDaiConQuat" Width="48" Height="Auto"  Style="{StaticResource SolidButtonStyle}" Content="?" Padding="0" FontSize="15" Click="btnToolbox_Click"/>
                         <TextBox Grid.Row="1" Grid.Column="2" Text="{Binding OngGio.ChieuDaiConQuat, Mode=TwoWay}" />
 
-                        <TextBlock Grid.Row="2" Grid.Column="0" Text="Đường kính ống đo Ps D3 (mm)" VerticalAlignment="Center" Margin="10 0 5 0"/>
+                        <TextBlock Grid.Row="2" Grid.Column="0" Text="Đường kính ống D3 (mm)" VerticalAlignment="Center" Margin="10 0 5 0"/>
                         <Button  Grid.Row="2" Grid.Column="1" Margin="5 0" x:Name="btnDuongKinhOngD3" Width="48" Height="Auto"  Style="{StaticResource SolidButtonStyle}" Content="?" Padding="0" FontSize="15" Click="btnToolbox_Click"/>
                         <TextBox Grid.Row="2" Grid.Column="2" Text="{Binding OngGio.DuongKinhOngD3, Mode=TwoWay}" />
 
                         <TextBlock Grid.Row="3" Grid.Column="0" Text="Đường kính lỗ phụt" VerticalAlignment="Center" Margin="10 0 5 0"/>
-                        <Button  Grid.Row="3" Grid.Column="1" Margin="5 0" x:Name="btnDuongKinhLoPhut" Width="48" Height="Auto"  Style="{StaticResource SolidButtonStyle}" Content="?" Padding="0" FontSize="15" Visibility="Hidden"/>
+                        <Button  Grid.Row="3" Grid.Column="1" Margin="5 0" x:Name="btnDuongKinhLoPhut" Width="48" Height="Auto"  Style="{StaticResource SolidButtonStyle}" Content="?" Padding="0" FontSize="15" Click="btnToolbox_Click"/>
                         <TextBox Grid.Row="3" Grid.Column="2" Text="{Binding OngGio.DuongKinhLoPhut, Mode=TwoWay}" />
 
                         <TextBlock Grid.Row="4" Grid.Column="0" Text="Tiết diện ống D5" VerticalAlignment="Center" Margin="10 0 5 0"/>
