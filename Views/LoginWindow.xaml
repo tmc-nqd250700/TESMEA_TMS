@@ -104,6 +104,7 @@
                              Style="{StaticResource MaterialDesignOutlinedTextBox}"/>
 
                     <PasswordBox PasswordChanged="PasswordBox_PasswordChanged"
+                                 x:Name="txtPassword"
                                  KeyDown="PasswordBox_KeyDown"
                                  FontSize="16"
                                  Margin="0 0 0 10"

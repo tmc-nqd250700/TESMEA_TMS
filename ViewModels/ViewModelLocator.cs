@@ -19,7 +19,7 @@
         public T GetViewModel<T>() where T : class
         {
             if (_serviceProvider == null)
-                throw new InvalidOperationException("ServiceProvider chưa được khởi tạo. Hãy gọi ViewModelLocator.Initialize() trước.");
+                throw new InvalidOperationException("ServiceProvider chưa được khởi tạo. Hãy gọi ViewModelLocator.Initialize() trước");
 
             var type = typeof(T);
             if (!_viewModels.ContainsKey(type))

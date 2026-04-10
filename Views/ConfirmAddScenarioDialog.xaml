@@ -11,55 +11,102 @@
         lex:ResxLocalizationProvider.DefaultDictionary="Strings"
         mc:Ignorable="d"
         Title="{lex:Loc title_Scenario_new}"
-        Height="300" 
-        Width="400"
+        Height="650"
+        Width="450"
         Icon="/Assets/Images/tcm_logo.PNG"
         WindowStartupLocation="CenterOwner"
         ResizeMode="NoResize"
         WindowStyle="ToolWindow">
     <Grid Margin="20">
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <StackPanel Grid.Row="0"  Orientation="Vertical">
-            <TextBox Margin="0 5"
-                     x:Name="InputTextBox"
-                     Style="{StaticResource MaterialDesignFloatingHintTextBox}"
+        <!-- ── Inputs ── -->
+        <StackPanel Grid.Row="0" Orientation="Vertical">
+            <TextBox x:Name="InputTextBox"
+                     Margin="0 5"
                      FontSize="13"
-                     VerticalAlignment="Top"
+                     Style="{StaticResource MaterialDesignFloatingHintTextBox}"
                      Text="{Binding InputText, UpdateSourceTrigger=PropertyChanged}"
                      MaxLength="200"
                      md:HintAssist.Hint="{lex:Loc col_Scenario_name}"/>
-
-            <TextBox FontSize="13" Margin="0 5"
-                     VerticalAlignment="Top" 
+            <TextBox Margin="0 5" FontSize="13"
+                     Style="{StaticResource MaterialDesignFloatingHintTextBox}"
+                     Text="{Binding InverterHz, UpdateSourceTrigger=PropertyChanged}"
+                     md:HintAssist.Hint="Tần số tối đa (Hz)"/>
+            <TextBox Margin="0 5" FontSize="13"
+                     Style="{StaticResource MaterialDesignFloatingHintTextBox}"
+                     Text="{Binding FreqNum, UpdateSourceTrigger=PropertyChanged}"
+                     md:HintAssist.Hint="Số lượng dải tần số cần đo kiểm"/>
+            <TextBox Margin="0 5" FontSize="13"
+                     Style="{StaticResource MaterialDesignFloatingHintTextBox}"
+                     Text="{Binding ValveNumPerFreq, UpdateSourceTrigger=PropertyChanged}"
+                     md:HintAssist.Hint="Số lượng điểm đo mỗi dải tần số"/>
+            <TextBox Margin="0 5" FontSize="13"
                      Style="{StaticResource MaterialDesignFloatingHintTextBox}"
                      Text="{Binding StandardDeviation, UpdateSourceTrigger=PropertyChanged}"
                      md:HintAssist.Hint="{lex:Loc col_Scenario_maxmin}"/>
-            
-            <TextBox FontSize="13" Margin="0 5"
-                     VerticalAlignment="Top" 
+            <TextBox Margin="0 5" FontSize="13"
                      Style="{StaticResource MaterialDesignFloatingHintTextBox}"
                      Text="{Binding TimeRange, UpdateSourceTrigger=PropertyChanged}"
                      md:HintAssist.Hint="{lex:Loc col_Scenario_timerange}"/>
         </StackPanel>
-        
-        <StackPanel Grid.Row="1"
-                Orientation="Horizontal" 
-                HorizontalAlignment="Right"
-                Margin="0 20 0 0">
-            <Button Content="{lex:Loc btn_Cancel}" 
-                Width="80" 
-                Margin="0 0 10 0"
-                Click="CancelButton_Click"
-                Style="{StaticResource SolidButtonStyle}" 
-                IsCancel="True"/>
-            <Button Content="{lex:Loc btn_Ok}" 
-                Width="80"
-                Click="OkButton_Click"
-                IsDefault="True"/>
+
+        <!-- ── Generate button ── -->
+        <Button Grid.Row="1"
+                Content="⚙ Tạo kịch bản mẫu"
+                Margin="0 10 0 5"
+                HorizontalAlignment="Left"
+                Width="Auto"
+                Click="GenerateButton_Click"/>
+
+        <!-- ── Preview DataGrid (chỉ hiện sau khi Generate) ── -->
+        <GroupBox Grid.Row="2"
+                  Header="Preview kịch bản"
+                  Margin="0 5 0 5"
+                  Visibility="{Binding HasPreview,
+                               Converter={StaticResource BooleanToVisibilityConverter}}">
+            <DataGrid ItemsSource="{Binding PreviewParams}"
+                      AutoGenerateColumns="False"
+                      CanUserAddRows="False"
+                      IsReadOnly="False"
+                      AlternatingRowBackground="#F5F5F5"
+                      AlternationCount="2"
+                      FontSize="12"
+                       CellEditEnding="PreviewDataGrid_CellEditEnding">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="STT"
+                                        Binding="{Binding STT}"
+                                        Width="auto"/>
+                    <DataGridTextColumn Header="Tần số (Hz)"
+                                        Binding="{Binding S, StringFormat=F0}"
+                                        Width="*"/>
+                    <DataGridTextColumn Header="Điểm đo (%)"
+                                        Binding="{Binding CV}"
+                                        Width="*"/>
+                </DataGrid.Columns>
+            </DataGrid>
+        </GroupBox>
+
+        <!-- ── OK / Cancel ── -->
+        <StackPanel Grid.Row="3"
+                    Orientation="Horizontal"
+                    HorizontalAlignment="Right"
+                    Margin="0 10 0 0">
+            <Button Content="{lex:Loc btn_Cancel}"
+                    Width="80"
+                    Margin="0 0 10 0"
+                    Click="CancelButton_Click"
+                    Style="{StaticResource SolidButtonStyle}"
+                    IsCancel="True"/>
+            <Button Content="{lex:Loc btn_Ok}"
+                    Width="80"
+                    Click="OkButton_Click"
+                    IsDefault="True"/>
         </StackPanel>
     </Grid>
 </Window>

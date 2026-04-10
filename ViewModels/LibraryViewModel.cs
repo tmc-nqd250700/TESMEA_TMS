@@ -540,7 +540,7 @@ namespace TESMEA_TMS.ViewModels
 
                 var result = MessageBoxHelper.ShowQuestion(
                     $"Bạn có chắc chắn muốn xóa library '{libraryToDelete.LibName}'?\n\n" +
-                    "Lưu ý: Thao tác này có thể hoàn tác trước khi lưu.");
+                    "Lưu ý: Thao tác này có thể hoàn tác trước khi lưu");
 
                 if (result)
                 {

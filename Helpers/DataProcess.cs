@@ -618,7 +618,7 @@ namespace TESMEA_TMS.Helpers
                     // Tính toán hiệu suất theo momen xoắn
                     if (T > 0)
                     {
-                        LogCalculation("Tính toán hiệu suất theo momen xoắn.");
+                        LogCalculation("Tính toán hiệu suất theo momen xoắn");
                         // Công suất tính theo T
                         float Prt = T * n2 / 9550;
                         LogCalculation($"Công suất tính theo momen xoắn Prt: {Prt}");

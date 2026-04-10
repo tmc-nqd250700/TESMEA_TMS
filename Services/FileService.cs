@@ -535,7 +535,7 @@ namespace TESMEA_TMS.Services
                 var templateSheet = package.Workbook.Worksheets["Operating Condition"];
                 if (templateSheet == null)
                 {
-                    throw new Exception("Không tìm thấy worksheet template 'Operating Condition'.");
+                    throw new Exception("Không tìm thấy worksheet template 'Operating Condition'");
                 }
                 var ws = package.Workbook.Worksheets.Add(sheetName, templateSheet);
                 await FillThongTinChung(ws, project.ThongTinChung);
@@ -586,7 +586,7 @@ namespace TESMEA_TMS.Services
                 var templateSheet = package.Workbook.Worksheets["Full"];
                 if (templateSheet == null)
                 {
-                    throw new Exception("Không tìm thấy worksheet 'Full'.");
+                    throw new Exception("Không tìm thấy worksheet 'Full'");
                 }
                 var ws = package.Workbook.Worksheets.Add(sheetName, templateSheet);
                 await FillThongTinChung(ws, project.ThongTinChung);

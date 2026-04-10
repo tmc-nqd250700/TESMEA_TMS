@@ -319,7 +319,7 @@ namespace TESMEA_TMS.Services
                 _simaticResults.Clear();
 
                 var m = _measures[0];
-                WriteTomfanLog($"Connect - Ghi file và chờ WinCC phản hồi...");
+                WriteTomfanLog($"Connect - Ghi file và chờ WinCC phản hồi..");
                 // tao file 0.csv để zero-span
                 string zeroSpanPath = Path.Combine(_exchangeFolder, "ZERO", "0.csv");
                 using (var fs = File.Create(zeroSpanPath)) { }
@@ -458,7 +458,7 @@ namespace TESMEA_TMS.Services
                 OnSimaticConnectionChanged?.Invoke(true);
                 _currentIndex = m.k;
 
-                WriteTomfanLog("Đã thiết lập kết nối với Simatic thành công.");
+                WriteTomfanLog("Đã thiết lập kết nối với Simatic thành công");
                 return true;
             }
             catch (Exception ex)
@@ -475,8 +475,8 @@ namespace TESMEA_TMS.Services
             {
                 if (!IsConnectedToSimatic)
                 {
-                    WriteTomfanLog("StartExchange bị từ chối: Chưa kết nối Simatic.");
-                    MessageBoxHelper.ShowWarning("Chưa kết nối với Simatic.");
+                    WriteTomfanLog("StartExchange bị từ chối: Chưa kết nối Simatic");
+                    MessageBoxHelper.ShowWarning("Chưa kết nối với Simatic");
                     return;
                 }
 
@@ -514,7 +514,7 @@ namespace TESMEA_TMS.Services
                     {
                         // delay 15s den khi ghi dong tiep theo
                         WriteTomfanLog("Delay 15s sau đó chờ kết quả dòng tiếp theo");
-                        await Task.Delay(0);
+                        await Task.Delay(15000);
                         WriteTomfanLog("Delay xong, tiếp tục lắng nghe dòng tiếp theo");
                     }
                     // Chờ kết quả xử lý thực tế (isConnection = false để tính toán sensor)
@@ -556,7 +556,7 @@ namespace TESMEA_TMS.Services
                         {
                             // delay 15s den khi ghi dong tiep theo
                             WriteTomfanLog("Delay 15s trước khi ghi dòng tiếp theo");
-                            await Task.Delay(0);
+                            await Task.Delay(15000);
                             WriteTomfanLog("Delay xong, tiếp tục ghi dữ liệu dòng tiếp theo");
                         }
                         WriteTomfanLog($"Hoàn tất điểm đo k={m.k}");
@@ -638,7 +638,12 @@ namespace TESMEA_TMS.Services
             if (percent <= 0)
             {
                 WriteTomfanLog("Không hội tụ được giá trị từ PLC, thực hiện hội tụ từ trendline");
-                percent = CalculateConvergingByTrend(sensorIdx, indexK);
+                /// Vì file 2_S_IN.csv phía PLC trả về có 3 giá trị đầu là
+                /// 0. Mã lệnh điều khiển: 100 - yêu cầu tính hội tụ, 96 - lệnh dừng khẩn cấp (E-Stop)
+                /// 1. Giá trị S (% tần số) 
+                /// 2. Giá trị CV (% van điều khiển)
+                /// => ngoại trừ tín hiệu tần số phản hồi, các tín hiệu khác lấy từ 3 => -2 để fit với index bên trend
+                percent = CalculateConvergingByTrend(sensorIdx == 1 ? sensorIdx : sensorIdx - 2, indexK);
             }
 
             return minValue + (maxValue - minValue) * percent / 100f;
@@ -665,7 +670,7 @@ namespace TESMEA_TMS.Services
                     WriteTomfanLog($"retry {i + 1}/{retries}: File đang bị khóa bởi WinCC: {ex.Message}");
                     if (i == retries - 1)
                     {
-                        WriteTomfanLog("Đã thử lại tối đa nhưng vẫn không thể truy cập file.");
+                        WriteTomfanLog("Đã thử lại tối đa nhưng vẫn không thể truy cập file");
                         throw;
                     }
                     await Task.Delay(delay);
@@ -699,7 +704,7 @@ namespace TESMEA_TMS.Services
                     }
                     else
                     {
-                        throw new BusinessException("File 1_T_OUT.csv không tồn tại.");
+                        throw new BusinessException("File 1_T_OUT.csv không tồn tại");
                     }
 
                     // Tạo nội dung dòng mới
@@ -723,7 +728,7 @@ namespace TESMEA_TMS.Services
                         await sw.FlushAsync();
                         fs.Flush(true);
                     }
-                    WriteTomfanLog($"Step: CSV row {rowIdx} ghi thành công.");
+                    WriteTomfanLog($"Step: CSV row {rowIdx} ghi thành công");
                 });
             }
             catch (Exception ex)

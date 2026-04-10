@@ -11,6 +11,7 @@ namespace TESMEA_TMS.DTOs
 
         public Guid ScenarioId { get; set; }
         public string ScenarioName { get; set; }
+        public float Frequency { get; set; }
         public float StandardDeviation { get; set; }
         public float TimeRange { get; set; }
         public DateTime CreatedDate { get; set; }
@@ -71,6 +72,7 @@ namespace TESMEA_TMS.DTOs
             {
                 ScenarioId = entity.ScenarioId,
                 ScenarioName = entity.ScenarioName,
+                Frequency = entity.Frequency,
                 StandardDeviation = entity.StandardDeviation,
                 TimeRange = entity.TimeRange,
                 CreatedDate = entity.CreatedDate,
@@ -92,6 +94,7 @@ namespace TESMEA_TMS.DTOs
             {
                 ScenarioId = ScenarioId,
                 ScenarioName = ScenarioName,
+                Frequency = Frequency,
                 StandardDeviation = StandardDeviation,
                 TimeRange = TimeRange,
                 CreatedDate = CreatedDate,

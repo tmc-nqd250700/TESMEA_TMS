@@ -135,7 +135,7 @@ namespace TESMEA_TMS.Models.Infrastructure
         //    }
         //    catch (Exception ex)
         //    {
-        //        throw new InvalidOperationException("Không thể kết nối hoặc kiểm tra schema database.", ex);
+        //        throw new InvalidOperationException("Không thể kết nối hoặc kiểm tra schema database", ex);
         //    }
         //}
     }

@@ -277,7 +277,12 @@ namespace TESMEA_TMS.ViewModels
                 var scenarioName = dialog.InputText?.Trim();
                 var standardDeviation = dialog.StandardDeviation;
                 var timeRange = dialog.TimeRange;
-                if(standardDeviation < 105)
+                var inverterHz = dialog.InverterHz;
+                var freqNum = dialog.FreqNum;
+                var valveNumPerFreq = dialog.ValveNumPerFreq;
+
+
+                if (standardDeviation < 105)
                 {
                     MessageBoxHelper.ShowWarning("Tỉ lệ giá trị max/min không được nhỏ hơn 1.05");
                 }
@@ -322,9 +327,20 @@ namespace TESMEA_TMS.ViewModels
                 };
 
                 Scenarios.Add(newScenario);
-
                 SelectedScenario = newScenario;
                 _currentViewedScenarioId = newScenario.ScenarioId;
+
+
+                List<float> GenerateLinear(float from, float to, int n)
+                {
+                    var list = new List<float>(n);
+                    if (n == 1) { list.Add(to); return list; }
+                    float step = (to - from) / (n - 1);
+                    for (int i = 0; i < n; i++)
+                        list.Add(from + step * i);
+                    return list;
+                }
+
                 ScenarioParams.Clear();
                 ScenarioParams.Add(new ScenarioParamDTO
                 {
@@ -343,6 +359,24 @@ namespace TESMEA_TMS.ViewModels
                     IsNew = true
                 });
 
+                if(freqNum > 0 && valveNumPerFreq > 0)
+                {
+                    // Tính lại tần số và điểm đo (cùng logic với Generate trong dialog)
+                    var freqList = GenerateLinear(inverterHz * 0.5f, inverterHz, freqNum);
+                    var cvList = GenerateLinear(10f, 100f, valveNumPerFreq);
+
+                    int stt = 3;
+                    foreach (var freq in freqList)
+                        foreach (var cv in cvList)
+                            ScenarioParams.Add(new ScenarioParamDTO
+                            {
+                                ScenarioId = newScenario.ScenarioId,
+                                STT = stt++,
+                                S = freq,
+                                CV = cv,
+                                IsNew = true
+                            });
+                }
             }
             catch (Exception ex)
             {
@@ -367,7 +401,7 @@ namespace TESMEA_TMS.ViewModels
                 }
                 if (!ScenarioParams.Any())
                 {
-                    MessageBoxHelper.ShowWarning("Không có thay đổi để lưu.");
+                    MessageBoxHelper.ShowWarning("Không có thay đổi để lưu");
                     return;
                 }
 

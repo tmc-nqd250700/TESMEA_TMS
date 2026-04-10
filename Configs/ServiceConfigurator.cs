@@ -30,7 +30,7 @@ namespace TESMEA_TMS.Configs
             //var connectionString = configuration.GetConnectionString("Default");
             //if (string.IsNullOrEmpty(connectionString))
             //{
-            //    throw new InvalidOperationException("Connection string not found.");
+            //    throw new InvalidOperationException("Connection string not found");
             //}
             //optionsBuilder.UseSqlite(connectionString);
 
