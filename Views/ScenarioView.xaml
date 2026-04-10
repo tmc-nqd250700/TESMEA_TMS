@@ -197,13 +197,11 @@
                                 </Style>
                             </DataGridTextColumn.CellStyle>-->
                         </DataGridTextColumn>
-                        
-                        
 
+
+                        <DataGridTextColumn Header="Tần số tối đa (Hz)" Binding="{Binding Frequency}" IsReadOnly="True" Width="*"/>
                         <DataGridTextColumn Header="{lex:Loc col_Scenario_maxmin}" Binding="{Binding StandardDeviation}" IsReadOnly="True" Width="*"/>
                         <DataGridTextColumn Header="{lex:Loc col_Scenario_timerange}" Binding="{Binding TimeRange}" IsReadOnly="True" Width="*"/>
-
-
                         <DataGridTextColumn Header="{lex:Loc col_Created_date}" Binding="{Binding CreatedDate, StringFormat='{}{0:dd/MM/yyyy HH:mm}'}" IsReadOnly="True" Width="*"/>
                         <DataGridTextColumn Header="{lex:Loc col_Created_user}" Binding="{Binding CreatedUser}" IsReadOnly="True" Width="*"/>
                         <DataGridTextColumn Header="{lex:Loc col_Modified_date}" Binding="{Binding ModifiedDate, StringFormat='{}{0:dd/MM/yyyy HH:mm}'}" IsReadOnly="True" Width="*"/>
@@ -215,16 +213,43 @@
             <md:PackIcon Grid.Column="1" Kind="ArrowRightBold" Width="40" Height="40" Foreground="DodgerBlue" VerticalAlignment="Center" Margin="10"/>
 
             <!-- DataGrid Con - Thông số chi tiết -->
-            <StackPanel Grid.Column="2" Margin="0 5">
-                <TextBlock Text="{Binding SelectedScenario.ScenarioName, Mode=OneWay}" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="15" FontWeight="Bold"/>
+            <ScrollViewer Grid.Column="2" VerticalScrollBarVisibility="Visible">
+                <StackPanel Grid.Column="2" Margin="0 5">
+                <TextBlock HorizontalAlignment="Center" 
+                           VerticalAlignment="Center" 
+                           FontSize="15" 
+                           FontWeight="Bold"
+                           d:Text="Tên kịch bản - 50Hz">
+                    <TextBlock.Text>
+                        <MultiBinding StringFormat="{}{0} - {1}Hz">
+                            <Binding Path="SelectedScenario.ScenarioName" Mode="OneWay"/>
+                            <Binding Path="SelectedScenario.Frequency"    Mode="OneWay"/>
+                        </MultiBinding>
+                    </TextBlock.Text>
+                </TextBlock>
+                
+                <TextBlock HorizontalAlignment="Left"
+                           VerticalAlignment="Center"
+                           FontSize="15" TextWrapping="WrapWithOverflow">
+                    <Run Text="Lưu ý:" FontWeight="Bold"/>
+                    <LineBreak/>
+                    <Run Text="1. Hai điểm đầu tiên dùng để kiểm tra kết nối tới PLC"/>
+                    <LineBreak/>
+                    <Run Text="2. Cột tần số là tỷ lệ (%) với tần số cấu hình của kịch bản"/>
+                    <LineBreak/>
+                    <Run Text="Ví dụ:Đo kiểm ở tần số 30Hz trên biến tần 50Hz, 30/50 (Hz) = 60(%)"/>
+                    <LineBreak/>
+                    <Run Text="3. Cột góc mở van là % góc mở của van điều khiển, tối đa 100%"/>
+                </TextBlock>
                 <DataGrid 
                         x:Name="ScenarioParamsDataGrid"
-                    PreviewKeyDown="ScenarioParamsDataGrid_PreviewKeyDown"
-                    Background="White" 
+                        PreviewKeyDown="ScenarioParamsDataGrid_PreviewKeyDown"
+                        Background="White" 
                           ItemsSource="{Binding ScenarioParams}"
                           AutoGenerateColumns="False" 
                           CanUserResizeColumns="False"
                           CanUserResizeRows="False"
+                    CanUserDeleteRows="True"
                           CanUserReorderColumns="False"
                           CanUserSortColumns="False"
                           HeadersVisibility="Column"
@@ -232,9 +257,9 @@
                           SelectionUnit="FullRow"
                           ColumnWidth="*"
                           HorizontalScrollBarVisibility="Auto"
-                          VerticalScrollBarVisibility="Auto"
+                          VerticalScrollBarVisibility="Disabled"
                           FontSize="15"
-                          Margin="10">
+                          Margin="0 10">
                     <DataGrid.Resources>
                         <Style TargetType="DataGridColumnHeader">
                             <Setter Property="HorizontalContentAlignment" Value="Center"/>
@@ -332,6 +357,7 @@
                      VerticalAlignment="Center"
                      Visibility="{Binding ScenarioParams.Count, Converter={StaticResource ZeroToVisibilityConverter}, ConverterParameter=False}"/>
             </StackPanel>
+            </ScrollViewer>
         </Grid>
 
         <!-- Bottom action buttons -->

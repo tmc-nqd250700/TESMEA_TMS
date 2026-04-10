@@ -7,6 +7,7 @@ namespace TESMEA_TMS.Models.Entities
         [Key]
         public Guid ScenarioId { get; set; }
         public string ScenarioName { get; set; }
+        public float Frequency { get; set; } = 50;
         public float StandardDeviation { get; set; } // độ lệch chuẩn (max/min-1)*100 < %STable của vùng để cho là ổn định
         public float TimeRange { get; set; } // khoảng thời gian (s) để tính ổn định
     }

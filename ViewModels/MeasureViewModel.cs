@@ -280,7 +280,7 @@ namespace TESMEA_TMS.ViewModels
                 MinorGridlineStyle = LineStyle.Dot,
             });
 
-           
+
             var scatterSeries = new ScatterSeries
             {
                 Title = IsEn ? "Power" : "Công suất",
@@ -529,7 +529,7 @@ namespace TESMEA_TMS.ViewModels
         //{
         //    var splashViewModel = new ProgressSplashViewModel
         //    {
-        //        Message = "Đang kiểm tra kết nối với Simatic...",
+        //        Message = "Đang kiểm tra kết nối với Simatic..",
         //        IsIndeterminate = true
         //    };
         //    var splash = new Views.CustomControls.ProgressSplashContent { DataContext = splashViewModel };
@@ -632,7 +632,7 @@ namespace TESMEA_TMS.ViewModels
         {
             var splashViewModel = new ProgressSplashViewModel
             {
-                Message = "Dừng khẩn cấp kết nối với Simatic...",
+                Message = "Dừng khẩn cấp kết nối với Simatic..",
                 IsIndeterminate = true
             };
             var splash = new Views.CustomControls.ProgressSplashContent { DataContext = splashViewModel };
@@ -852,7 +852,9 @@ namespace TESMEA_TMS.ViewModels
                 // Thêm vào danh sách kết quả
                 MeasureResponses.Add(response);
 
-               // Power Plot Update
+                // Power Plot Update
+
+                double xMaximum = 4000;
                 var powerSeries = PowerPlotModel.Series.OfType<ScatterSeries>().FirstOrDefault();
                 if (powerSeries != null)
                 {
@@ -864,17 +866,17 @@ namespace TESMEA_TMS.ViewModels
                     // Cập nhật trục X
                     if (xAxis != null)
                     {
-                        if (response.Airflow > xAxis.Maximum)
+                        if (response.Airflow * 1.1f > xAxis.Maximum)
                         {
                             xAxis.Maximum = Common.RoundUpToNearest(response.Airflow * 1.1f, 1000);
                         }
+                        xMaximum = xAxis.Maximum;
                     }
 
                     // Cập nhật trục Y
                     if (yAxis != null)
                     {
-                        var currentMax = yAxis.Maximum;
-                        if (response.Power > yAxis.Maximum)
+                        if (response.Power * 1.1f > yAxis.Maximum)
                         {
                             yAxis.Maximum = Common.RoundUpToNearest(response.Power * 1.1f, 10);
                         }
@@ -903,11 +905,12 @@ namespace TESMEA_TMS.ViewModels
                     // Cập nhật trục X
                     if (xAxisEff != null)
                     {
-                        var currentMax = xAxisEff.Maximum;
-                        if (response.Airflow > currentMax)
-                        {
-                            xAxisEff.Maximum = Common.RoundUpToNearest(response.Airflow * 1.1f, 1000);
-                        }
+                        //if (response.Airflow > xAxisEff.Maximum * 1.1f)
+                        //{
+                        //    xAxisEff.Maximum = Common.RoundUpToNearest(response.Airflow * 1.1f, 1000);
+                        //}
+                        // gán xAxisEff.Maximum bằng xMaximum đã tính toán ở Power Plot để đảm bảo 2 plot có cùng trục X
+                        xAxisEff.Maximum = xMaximum;
                     }
 
                     // Cập nhật trục Y (Pressure)
@@ -915,7 +918,7 @@ namespace TESMEA_TMS.ViewModels
                     {
                         float maxPress = Math.Max(response.Ps, response.Pt);
                         var currentMax = yPressAxis.Maximum;
-                        if (maxPress > currentMax)
+                        if (maxPress * 1.1f > currentMax)
                         {
                             yPressAxis.Maximum = Common.RoundUpToNearest(maxPress * 1.1f, 1000);
                         }
@@ -1126,23 +1129,65 @@ namespace TESMEA_TMS.ViewModels
             if (xValues == null || yValues == null || xValues.Length != yValues.Length || xValues.Length == 0)
                 return line;
 
-            // Nếu chỉ có 1 hoặc 2 điểm, thêm trực tiếp
-            if (xValues.Length <= 2)
+            var cleanData = xValues.Zip(yValues, (x, y) => new { X = x, Y = y })
+                .GroupBy(p => p.X) // Nhóm các điểm có cùng tọa độ X
+                .Select(g => g.First()) // Lấy điểm đầu tiên, hoặc dùng .Average(p => p.Y) nếu muốn trung bình
+                .OrderBy(p => p.X) // Bắt buộc phải sắp xếp tăng dần theo X cho Spline
+                .ToList();
+
+            double[] finalX = cleanData.Select(d => d.X).ToArray();
+            double[] finalY = cleanData.Select(d => d.Y).ToArray();
+            // Nếu sau khi lọc chỉ còn ít điểm
+            if (finalX.Length <= 2)
             {
-                for (int i = 0; i < xValues.Length; i++)
+                foreach (var p in cleanData)
                 {
-                    line.Points.Add(new DataPoint(xValues[i], yValues[i]));
+                    line.Points.Add(new DataPoint(p.X, p.Y));
                 }
                 return line;
             }
 
-            // Tạo cubic spline interpolation giống Excel
-            var splinePoints = CreateCubicSplinePoints(xValues, yValues, 50); // 50 điểm interpolation giữa mỗi segment
-
-            foreach (var point in splinePoints)
+            try
             {
-                line.Points.Add(point);
+                // Tạo cubic spline từ dữ liệu 
+                var splinePoints = CreateCubicSplinePoints(finalX, finalY, 50);
+
+                foreach (var point in splinePoints)
+                {
+                    // Kiểm tra an toàn lần cuối trước khi thêm vào Series
+                    if (!double.IsNaN(point.X) && !double.IsNaN(point.Y))
+                    {
+                        line.Points.Add(point);
+                    }
+                }
             }
+            catch (Exception ex)
+            {
+                // Nếu Spline vẫn lỗi (do dữ liệu quá dị biệt), vẽ đường thẳng thô để không mất dữ liệu
+                foreach (var p in cleanData)
+                {
+                    line.Points.Add(new DataPoint(p.X, p.Y));
+                }
+                System.Diagnostics.Debug.WriteLine("Spline Error: " + ex.Message);
+            }
+
+            //// Nếu chỉ có 1 hoặc 2 điểm, thêm trực tiếp
+            //if (xValues.Length <= 2)
+            //{
+            //    for (int i = 0; i < xValues.Length; i++)
+            //    {
+            //        line.Points.Add(new DataPoint(xValues[i], yValues[i]));
+            //    }
+            //    return line;
+            //}
+
+            //// Tạo cubic spline interpolation giống Excel
+            //var splinePoints = CreateCubicSplinePoints(xValues, yValues, 50); // 50 điểm interpolation giữa mỗi segment
+
+            //foreach (var point in splinePoints)
+            //{
+            //    line.Points.Add(point);
+            //}
 
             return line;
         }
@@ -1236,7 +1281,7 @@ namespace TESMEA_TMS.ViewModels
 
         public void OnMeasureSelectionChanged()
         {
-            if(!_isMeasuring && _isCompleted && SelectedMeasureRes != null)
+            if (!_isMeasuring && _isCompleted && SelectedMeasureRes != null)
             {
                 var item = MeasureRows.FirstOrDefault(x => x.k == SelectedMeasureRes.STT);
                 ParameterShow = DataProcess.ParaShow(item);
@@ -1295,7 +1340,7 @@ namespace TESMEA_TMS.ViewModels
                 tsdv.DanhSachThongSoDoKiem = MeasureRows.Skip(2).ToList();
                 return tsdv;
             }
-            catch(BusinessException ex)
+            catch (BusinessException ex)
             {
                 throw;
             }
@@ -1327,7 +1372,7 @@ namespace TESMEA_TMS.ViewModels
                 var dialogTask = DialogHost.Show(splash, "MainDialogHost");
                 try
                 {
-                    if(SelectedReportTemplate == "FULL")
+                    if (SelectedReportTemplate == "FULL")
                     {
                         await _fileService.ExportReportTestResult_full
                             (
@@ -1347,7 +1392,7 @@ namespace TESMEA_TMS.ViewModels
                            res: DataProcess.kqdk
                        );
                     }
-                        
+
                     if (DialogHost.IsDialogOpen("MainDialogHost"))
                         DialogHost.Close("MainDialogHost");
 
@@ -1367,7 +1412,7 @@ namespace TESMEA_TMS.ViewModels
                         DialogHost.Close("MainDialogHost");
                     throw;
                 }
-                
+
             }
         }
 

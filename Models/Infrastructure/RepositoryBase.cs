@@ -21,10 +21,10 @@
             {
                 if (timeoutCts.IsCancellationRequested)
                 {
-                    throw new TimeoutException($"Thao tác đã vượt quá thời gian cho phép ({DefaultTimeout.TotalSeconds} giây).", ex);
+                    throw new TimeoutException($"Thao tác đã vượt quá thời gian cho phép ({DefaultTimeout.TotalSeconds} giây)", ex);
                 }
 
-                throw new OperationCanceledException("Thao tác đã bị hủy bởi người dùng.", ex);
+                throw new OperationCanceledException("Thao tác đã bị hủy bởi người dùng", ex);
             }
         }
 
@@ -43,10 +43,10 @@
             {
                 if (timeoutCts.IsCancellationRequested)
                 {
-                    throw new TimeoutException($"Thao tác đã vượt quá thời gian cho phép ({DefaultTimeout.TotalSeconds} giây).", ex);
+                    throw new TimeoutException($"Thao tác đã vượt quá thời gian cho phép ({DefaultTimeout.TotalSeconds} giây)", ex);
                 }
 
-                throw new OperationCanceledException("Thao tác đã bị hủy bởi hệ thống.", ex);
+                throw new OperationCanceledException("Thao tác đã bị hủy bởi hệ thống", ex);
             }
         }
 
@@ -67,10 +67,10 @@
             {
                 if (timeoutCts.IsCancellationRequested)
                 {
-                    throw new TimeoutException($"Thao tác đã vượt quá thời gian cho phép ({DefaultTimeout.TotalSeconds} giây).", ex);
+                    throw new TimeoutException($"Thao tác đã vượt quá thời gian cho phép ({DefaultTimeout.TotalSeconds} giây)", ex);
                 }
 
-                throw new OperationCanceledException("Thao tác đã bị hủy bởi người dùng.", ex);
+                throw new OperationCanceledException("Thao tác đã bị hủy bởi người dùng", ex);
             }
         }
 
@@ -89,10 +89,10 @@
             {
                 if (timeoutCts.IsCancellationRequested)
                 {
-                    throw new TimeoutException($"Thao tác đã vượt quá thời gian cho phép ({DefaultTimeout.TotalSeconds} giây).", ex);
+                    throw new TimeoutException($"Thao tác đã vượt quá thời gian cho phép ({DefaultTimeout.TotalSeconds} giây)", ex);
                 }
 
-                throw new OperationCanceledException("Thao tác đã bị hủy bởi hệ thống.", ex);
+                throw new OperationCanceledException("Thao tác đã bị hủy bởi hệ thống", ex);
             }
         }
     }

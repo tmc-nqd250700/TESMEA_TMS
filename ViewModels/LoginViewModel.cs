@@ -151,6 +151,11 @@ namespace TESMEA_TMS.ViewModels
                                 UserSetting.Instance.LastUserName = UserName;
                                 UserSetting.Instance.Save();
                             }
+                            else
+                            {
+                                UserSetting.Instance.LastUserName = "";
+                                UserSetting.Instance.Save();
+                            }
                             _appNavigationService.CurrentUser = CurrentUser.Instance;
                             _appNavigationService.IsLoggedIn = true;
                             _appNavigationService.ShowMainWindow();
