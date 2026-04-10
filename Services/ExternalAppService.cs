@@ -453,11 +453,11 @@ namespace TESMEA_TMS.Services
 
                 m.F = MeasureStatus.Completed;
                 WriteTomfanLog($"Connect thành công");
-                
+
                 IsConnectedToSimatic = true;
                 OnSimaticConnectionChanged?.Invoke(true);
                 _currentIndex = m.k;
-                
+
                 WriteTomfanLog("Đã thiết lập kết nối với Simatic thành công.");
                 return true;
             }
@@ -523,6 +523,12 @@ namespace TESMEA_TMS.Services
 
                     if (result != null)
                     {
+                        if(result.CongSuat_fb > _input.CongSuatDongCo)
+                        {
+                            WriteTomfanLog("======= QUÁ TẢI ======= \nKết quả công suất từ Simatic vượt quá công suất định mức của động cơ, dừng đo kiểm và gửi lệnh E-Stop =======");
+                            if(MessageBoxHelper.ShowQuestion("Quá tải công suất của động cơ, có muốn tiếp tục đo kiểm không?", "Cảnh báo quá tải"))
+                                await StopExchangeAsync();
+                        }
                         WriteTomfanLog($"Đã nhận kết quả k={m.k}");
                         m = result;
                         m.F = MeasureStatus.Completed;
@@ -561,7 +567,7 @@ namespace TESMEA_TMS.Services
                         m.F = MeasureStatus.Error;
                         OnSimaticResultReceived?.Invoke(m);
                     }
-                    
+
                 }
 
                 WriteTomfanLog("========== HOÀN TẤT TOÀN BỘ KỊCH BẢN ĐO KIỂM, DỪNG ĐO KIỂM, GỬI LỆNH 96 TỚI SIMATIC ==========");
@@ -604,18 +610,18 @@ namespace TESMEA_TMS.Services
 
                     Directory.CreateDirectory(destFolder);
 
-                    foreach(string dirPath in Directory.GetDirectories(_exchangeFolder, "*", SearchOption.AllDirectories))
+                    foreach (string dirPath in Directory.GetDirectories(_exchangeFolder, "*", SearchOption.AllDirectories))
                     {
                         Directory.CreateDirectory(dirPath.Replace(_exchangeFolder, destFolder));
                     }
 
-                    foreach(string filePath in Directory.GetFiles(_exchangeFolder, "*", SearchOption.AllDirectories))
+                    foreach (string filePath in Directory.GetFiles(_exchangeFolder, "*", SearchOption.AllDirectories))
                     {
                         string destFilePath = filePath.Replace(_exchangeFolder, destFolder);
                         File.Copy(filePath, destFilePath, true);
                     }
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     throw ex;
                 }
@@ -825,37 +831,37 @@ namespace TESMEA_TMS.Services
                         val = GetContinuousAverage(x => x.NhietDoMoiTruong_sen, "Nhiệt độ môi trường");
                         break;
                     case 2:
-                         val = GetContinuousAverage(x => x.DoAm_sen, "Độ ẩm");
+                        val = GetContinuousAverage(x => x.DoAm_sen, "Độ ẩm");
                         break;
                     case 3:
-                         val = GetContinuousAverage(x => x.ViTriVan_fb, "Vị trí van");
+                        val = GetContinuousAverage(x => x.ViTriVan_fb, "Vị trí van");
                         break;
                     case 4:
-                         val = GetContinuousAverage(x => x.Momen_sen, "Momen");
+                        val = GetContinuousAverage(x => x.Momen_sen, "Momen");
                         break;
                     case 5:
-                         val = GetContinuousAverage(x => x.NhietDoGoi_sen, "Nhiệt độ hồng ngoại");
+                        val = GetContinuousAverage(x => x.NhietDoGoi_sen, "Nhiệt độ hồng ngoại");
                         break;
                     case 6:
-                         val = GetContinuousAverage(x => x.DoRung_sen, "Độ rung");
+                        val = GetContinuousAverage(x => x.DoRung_sen, "Độ rung");
                         break;
                     case 7:
-                         val = GetContinuousAverage(x => x.SoVongQuay_sen, "Số vòng quay");
+                        val = GetContinuousAverage(x => x.SoVongQuay_sen, "Số vòng quay");
                         break;
                     case 8:
-                         val = GetContinuousAverage(x => x.DongDien_fb, "Dòng điện");
+                        val = GetContinuousAverage(x => x.DongDien_fb, "Dòng điện");
                         break;
                     case 9:
-                         val = GetContinuousAverage(x => x.ApSuatTinh_sen, "Áp suất tĩnh");
+                        val = GetContinuousAverage(x => x.ApSuatTinh_sen, "Áp suất tĩnh");
                         break;
                     case 10:
-                         val = GetContinuousAverage(x => x.CongSuat_fb, "Công suất");
+                        val = GetContinuousAverage(x => x.CongSuat_fb, "Công suất");
                         break;
                     case 11:
-                         val = GetContinuousAverage(x => x.ChenhLechApSuat_sen, "Chênh lệch áp suất");
+                        val = GetContinuousAverage(x => x.ChenhLechApSuat_sen, "Chênh lệch áp suất");
                         break;
                     case 12:
-                         val = GetContinuousAverage(x => x.ApSuatkhiQuyen_sen, "Áp suất khí quyển");
+                        val = GetContinuousAverage(x => x.ApSuatkhiQuyen_sen, "Áp suất khí quyển");
                         break;
                 }
 
@@ -867,6 +873,7 @@ namespace TESMEA_TMS.Services
             }
         }
 
+
         // chờ kết quả từ file 2.csv
         private async Task<Measure?> WaitForResultAsync(int expectedK, bool isConnection)
         {
@@ -874,6 +881,7 @@ namespace TESMEA_TMS.Services
             var sw = Stopwatch.StartNew();
             char sep = isConnection ? ' ' : ' ';
             WriteTomfanLog($"--- Bắt đầu chờ kết quả từ WinCC cho k={expectedK} ---");
+            string lastLine = "";
             while (sw.ElapsedMilliseconds < UserSetting.Instance.TimeoutMilliseconds)
             {
                 try
@@ -884,14 +892,30 @@ namespace TESMEA_TMS.Services
                         using (var sr = new StreamReader(fs))
                         {
                             string[] lines = await File.ReadAllLinesAsync(path2);
-                            int targetIndex = isConnection ? expectedK - 1 : expectedK - 1;
+                            //int targetIndex = isConnection ? expectedK - 1 : expectedK - 1;
+                            int targetIndex = expectedK - 1;
                             if (lines.Length > targetIndex)
                             {
+                                var isNewLine = false;
                                 string targetLine = lines[targetIndex];
 
                                 // Kiểm tra nếu dòng có dữ liệu
+                                // phía plc có thể gặp lỗi row luôn bị xóa khi chuyển sang điểm đo mới -> kết quả luôn nằm ở row này -> tạo thêm check với row3 để đảm bảo có dữ liệu trả về
                                 if (!string.IsNullOrWhiteSpace(targetLine))
                                 {
+                                    isNewLine = true;
+                                }
+                                else
+                                {
+                                    targetLine = lines[2];
+                                    if (!string.IsNullOrEmpty(targetLine))
+                                        isNewLine = true;
+                                }
+
+                                if (isNewLine)
+                                {
+                                    if (lastLine == targetLine) continue;
+                                    lastLine = targetLine;
                                     var parts = targetLine.Split(sep);
                                     if (parts.Length < 3) continue;
 
@@ -1118,7 +1142,7 @@ namespace TESMEA_TMS.Services
                                                     ws.Cells[1, 25].Value = "Công suất (kW)";
                                                     ws.Cells[1, 26].Value = "Chênh lệch áp (Pa)";
                                                     ws.Cells[1, 27].Value = "Áp suất khí quyển (Pa)";
-                                                   
+
                                                     ws.Cells[1, 28].Value = "Tần số (Hz)";
                                                     ws.Cells[1, 29].Value = "Điện áp (V)";
                                                     ws.Cells[1, 30].Value = "Độ ồn (dB)";
@@ -1190,7 +1214,7 @@ namespace TESMEA_TMS.Services
                                                     ws1.Cells[row, 5].Value = _sensor.MomenMax;
                                                     row++;
 
-                                                    
+
 
                                                     // 5. Nhiệt độ gối trục
                                                     ws1.Cells[row, 1].Value = "Nhiệt độ gối trục";
@@ -1321,7 +1345,7 @@ namespace TESMEA_TMS.Services
                                                     ws.Cells[dataRow, 28].Value = m.TanSo_fb;
                                                     ws.Cells[dataRow, 29].Value = m.DienAp_fb;
                                                     ws.Cells[dataRow, 30].Value = m.DoOn_sen;
-                                                    
+
                                                 }
                                                 ws.Cells.AutoFitColumns();
                                                 package.Save();
@@ -1335,6 +1359,7 @@ namespace TESMEA_TMS.Services
 
                                     return m;
                                 }
+
                             }
                         }
                     }

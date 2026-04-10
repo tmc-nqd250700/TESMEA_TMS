@@ -25,9 +25,9 @@ namespace TESMEA_TMS.Helpers
             MessageBox.Show(message, "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
         }
 
-        public static bool ShowQuestion(string message)
+        public static bool ShowQuestion(string message, string caption = "Xác nhận")
         {
-            var result = MessageBox.Show(message, "Xác nhận", MessageBoxButton.YesNo, MessageBoxImage.Question);
+            var result = MessageBox.Show(message, caption, MessageBoxButton.YesNo, MessageBoxImage.Question);
             return result == MessageBoxResult.Yes;
         }
     }
