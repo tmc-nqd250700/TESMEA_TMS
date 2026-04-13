@@ -1,4 +1,4 @@
-﻿using OfficeOpenXml;
+using OfficeOpenXml;
 using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Input;
@@ -13,7 +13,6 @@ namespace TESMEA_TMS.ViewModels
 {
     public class LibraryViewModel : ViewModelBase
     {
-        #region Properties
 
         private ObservableCollection<LibraryDto> _inputParameters;
         public ObservableCollection<LibraryDto> InputParameters
@@ -72,21 +71,19 @@ namespace TESMEA_TMS.ViewModels
         }
 
         public bool IsParameterSelected => CurrentParameter != null;
+        private bool _isCurrentDetailDirty = false;
         public bool HasUnsavedChanges =>
+            _isCurrentDetailDirty ||
             InputParameters.Any(item => item.IsNew || item.IsEdited || item.IsMarkedForDeletion);
 
-        #endregion
 
-        #region Services & Fields
 
         private readonly IParameterService _parameterService;
 
         // Track library hiện đang xem
         private Guid? _currentViewedParamId = null;
 
-        #endregion
 
-        #region Commands
 
         public ICommand ViewDetailCommand { get; }
         public ICommand NewCommand { get; }
@@ -95,9 +92,7 @@ namespace TESMEA_TMS.ViewModels
         public ICommand DeleteCommand { get; }
         public ICommand UndoDeleteCommand { get; }
 
-        #endregion
 
-        #region Constructor
 
         public LibraryViewModel(IParameterService parameterService)
         {
@@ -116,11 +111,8 @@ namespace TESMEA_TMS.ViewModels
             LoadData();
         }
 
-        #endregion
 
-        #region Data Loading Methods
-
-        public async void LoadData()
+        public async Task LoadData()
         {
             try
             {
@@ -137,6 +129,7 @@ namespace TESMEA_TMS.ViewModels
                 }
 
                 InitializeEmptyData();
+                _isCurrentDetailDirty = false;
             }
             catch (Exception ex)
             {
@@ -186,6 +179,7 @@ namespace TESMEA_TMS.ViewModels
 
         private void OnDataChanged(object sender, EventArgs e)
         {
+            _isCurrentDetailDirty = true;
             // Đánh dấu library là đã chỉnh sửa khi có thay đổi data
             if (CurrentParameter != null && !CurrentParameter.IsNew && _currentViewedParamId.HasValue)
             {
@@ -193,9 +187,6 @@ namespace TESMEA_TMS.ViewModels
             }
         }
 
-        #endregion
-
-        #region Command Handlers
 
         private async void ExecuteViewDetailCommand(object parameter)
         {
@@ -216,6 +207,17 @@ namespace TESMEA_TMS.ViewModels
                 else
                 {
                     return;
+                }
+
+                // Nếu đang xem chính nó thì không cần hỏi
+                if (_currentViewedParamId == libId) return;
+
+                if (HasUnsavedChanges)
+                {
+                    if (!MessageBoxHelper.ShowQuestion("Dữ liệu chưa lưu, bạn có muốn chuyển? (Các thay đổi vừa rồi sẽ bị mất)"))
+                        return;
+
+                    await LoadData();
                 }
 
                 var library = InputParameters.FirstOrDefault(p => p.LibId == libId);
@@ -249,6 +251,7 @@ namespace TESMEA_TMS.ViewModels
                     // Re-subscribe after loading new data
                     SubscribeToDataChanges();
                 }
+                _isCurrentDetailDirty = false;
             }
             catch (Exception ex)
             {
@@ -256,10 +259,17 @@ namespace TESMEA_TMS.ViewModels
             }
         }
 
-        private void ExecuteNewCommand(object obj)
+        private async void ExecuteNewCommand(object obj)
         {
             try
             {
+                if (HasUnsavedChanges)
+                {
+                    if (!MessageBoxHelper.ShowQuestion("Dữ liệu chưa lưu, bạn có muốn chuyển sang tạo mới? (Các thay đổi vừa rồi sẽ bị mất)"))
+                        return;
+
+                    await LoadData();
+                }
                 var mainWindow = Application.Current.Windows
                             .OfType<Window>()
                             .FirstOrDefault(w => w is TESMEA_TMS.Views.MainWindow);
@@ -315,6 +325,7 @@ namespace TESMEA_TMS.ViewModels
                 OngGio = new OngGioDto { LibId = newLibrary.LibId };
 
                 SubscribeToDataChanges();
+                _isCurrentDetailDirty = false;
             }
             catch (Exception ex)
             {
@@ -500,6 +511,7 @@ namespace TESMEA_TMS.ViewModels
                     libraryDto.IsNew = false;
                     libraryDto.IsEdited = false;
                 }
+                _isCurrentDetailDirty = false;
 
                 MessageBoxHelper.ShowSuccess("Lưu thành công!");
 
@@ -593,11 +605,5 @@ namespace TESMEA_TMS.ViewModels
                 MessageBoxHelper.ShowError($"Lỗi khi hoàn tác: {ex.Message}");
             }
         }
-
-      
-       
-
-       
-        #endregion
     }
 }

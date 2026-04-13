@@ -87,7 +87,7 @@ namespace TESMEA_TMS.ViewModels
             LoadScenarios();
         }
 
-        public async void LoadScenarios()
+        public async Task LoadScenarios()
         {
             try
             {
@@ -203,12 +203,6 @@ namespace TESMEA_TMS.ViewModels
         {
             try
             {
-                if (HasUnsavedChanges)
-                {
-                    MessageBoxHelper.ShowWarning("Còn thay đổi chưa lưu, vui lòng lưu để hoàn thành");
-                    return;
-                }
-
                 if (parameter == null)
                     return;
 
@@ -225,6 +219,19 @@ namespace TESMEA_TMS.ViewModels
                 {
                     return;
                 }
+
+                // Nếu đang xem chính nó thì không cần hỏi
+                if (_currentViewedScenarioId == scenarioId) return;
+
+                if (HasUnsavedChanges)
+                {
+                    if (!MessageBoxHelper.ShowQuestion("Dữ liệu chưa lưu, bạn có muốn chuyển? (Các thay đổi vừa rồi sẽ bị mất)"))
+                        return;
+
+                    await LoadScenarios();
+                }
+
+
 
                 var scenario = Scenarios.FirstOrDefault(s => s.ScenarioId == scenarioId);
                 if (scenario == null || scenario.IsMarkedForDeletion)
@@ -252,10 +259,17 @@ namespace TESMEA_TMS.ViewModels
             }
         }
 
-        private void ExecuteNewCommand(object obj)
+        private async void ExecuteNewCommand(object obj)
         {
             try
             {
+                if (HasUnsavedChanges)
+                {
+                    if (!MessageBoxHelper.ShowQuestion("Dữ liệu chưa lưu, bạn có muốn chuyển sang tạo mới? (Các thay đổi vừa rồi sẽ bị mất)"))
+                        return;
+
+                    await LoadScenarios();
+                }
                 var mainWindow = Application.Current.Windows
                           .OfType<Window>()
                           .FirstOrDefault(w => w is TESMEA_TMS.Views.MainWindow);

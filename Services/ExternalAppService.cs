@@ -1,4 +1,4 @@
-﻿using OfficeOpenXml;
+using OfficeOpenXml;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Globalization;
@@ -48,6 +48,7 @@ namespace TESMEA_TMS.Services
 
         private bool _isEStop = false;
         private float[] avgs = new float[13];
+        private string _lastReadTargetLine = string.Empty;
         public ExternalAppService()
         {
             _exchangeFolder = UserSetting.TOMFAN_folder;
@@ -317,6 +318,7 @@ namespace TESMEA_TMS.Services
                 }
 
                 _simaticResults.Clear();
+                _lastReadTargetLine = string.Empty;
 
                 var m = _measures[0];
                 WriteTomfanLog($"Connect - Ghi file và chờ WinCC phản hồi..");
@@ -886,7 +888,6 @@ namespace TESMEA_TMS.Services
             var sw = Stopwatch.StartNew();
             char sep = isConnection ? ' ' : ' ';
             WriteTomfanLog($"--- Bắt đầu chờ kết quả từ WinCC cho k={expectedK} ---");
-            string lastLine = "";
             while (sw.ElapsedMilliseconds < UserSetting.Instance.TimeoutMilliseconds)
             {
                 try
@@ -910,7 +911,7 @@ namespace TESMEA_TMS.Services
                                 {
                                     isNewLine = true;
                                 }
-                                else
+                                else if (lines.Length > 2)
                                 {
                                     targetLine = lines[2];
                                     if (!string.IsNullOrEmpty(targetLine))
@@ -919,8 +920,8 @@ namespace TESMEA_TMS.Services
 
                                 if (isNewLine)
                                 {
-                                    if (lastLine == targetLine) continue;
-                                    lastLine = targetLine;
+                                    if (_lastReadTargetLine == targetLine) continue;
+                                    _lastReadTargetLine = targetLine;
                                     var parts = targetLine.Split(sep);
                                     if (parts.Length < 3) continue;
 

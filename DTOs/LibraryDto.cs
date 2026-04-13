@@ -1,4 +1,4 @@
-﻿using System.ComponentModel;
+using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using TESMEA_TMS.Models.Entities;
 
@@ -925,6 +925,7 @@ namespace TESMEA_TMS.DTOs
                     TietDienOngD5 = (float)(3.14 * Math.Pow(DuongKinhOngD5 / 1000, 2) / 4);
                     OnPropertyChanged(nameof(DuongKinhOngD5));
                     OnPropertyChanged(nameof(TietDienOngD5));
+                    NotifyChanged();
                 }
             }
         }
@@ -946,6 +947,7 @@ namespace TESMEA_TMS.DTOs
                     TietDienOngD3 = (float)(3.14 * Math.Pow(DuongKinhOngD3 / 1000, 2) / 4);
                     OnPropertyChanged(nameof(DuongKinhOngD3));
                     OnPropertyChanged(nameof(TietDienOngD3));
+                    NotifyChanged();
                 }
             }
         }
@@ -959,6 +961,7 @@ namespace TESMEA_TMS.DTOs
                 {
                     _tietDienOngD5 = value;
                     OnPropertyChanged(nameof(TietDienOngD5));
+                    NotifyChanged();
                 }
             }
         }

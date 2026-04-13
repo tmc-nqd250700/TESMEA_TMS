@@ -1,4 +1,4 @@
-﻿<UserControl x:Class="TESMEA_TMS.Views.LibraryView"
+<UserControl x:Class="TESMEA_TMS.Views.LibraryView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
@@ -209,15 +209,15 @@
 
                         <TextBlock Grid.Row="0" Grid.Column="0" Text="Hiệu suất bộ truyền (%)" VerticalAlignment="Center" Margin="10 0 5 0"/>
                         <Button  Grid.Row="0" Grid.Column="1" Margin="5 0" x:Name="btnHieuSuatBoTruyen" Width="48" Height="Auto"  Style="{StaticResource SolidButtonStyle}" Content="?" Padding="0" FontSize="15" Click="btnToolbox_Click"/>
-                        <TextBox Grid.Row="0" Grid.Column="2" Text="{Binding BienTan.HieuSuatBoTruyen, Mode=OneWay}"  />
+                        <TextBox Grid.Row="0" Grid.Column="2" Text="{Binding BienTan.HieuSuatBoTruyen, Mode=TwoWay}"  />
                         
                         <TextBlock Grid.Row="1" Grid.Column="0" Text="Hiệu suất của khớp nối trục đàn hồi (%)" TextWrapping="Wrap" VerticalAlignment="Center" Margin="10 0 5 0"/>
                         <Button  Grid.Row="1" Grid.Column="1" Margin="5 0" x:Name="btnHieuSuatNoiTruc" Width="48" Height="Auto"  Style="{StaticResource SolidButtonStyle}" Content="?" Padding="0" FontSize="15" Click="btnToolbox_Click"/>
-                        <TextBox Grid.Row="1" Grid.Column="2" Text="{Binding BienTan.HieuSuatNoiTruc, Mode=OneWay}"  />
+                        <TextBox Grid.Row="1" Grid.Column="2" Text="{Binding BienTan.HieuSuatNoiTruc, Mode=TwoWay}"  />
 
                         <TextBlock Grid.Row="2" Grid.Column="0" Text="Hiệu suất gối trục (%)" TextWrapping="Wrap" VerticalAlignment="Center" Margin="10 0 5 0"/>
                         <Button  Grid.Row="2" Grid.Column="1" Margin="5 0" x:Name="btnHieuSuatGoiTruc" Width="48" Height="Auto"  Style="{StaticResource SolidButtonStyle}" Content="?" Padding="0" FontSize="15" Click="btnToolbox_Click"/>
-                        <TextBox Grid.Row="2" Grid.Column="2" Text="{Binding BienTan.HieuSuatGoiTruc, Mode=OneWay}"  />
+                        <TextBox Grid.Row="2" Grid.Column="2" Text="{Binding BienTan.HieuSuatGoiTruc, Mode=TwoWay}"  />
                     </Grid>
                 </GroupBox>
                 
