@@ -516,7 +516,7 @@ namespace TESMEA_TMS.Services
                     {
                         // delay 15s den khi ghi dong tiep theo
                         WriteTomfanLog("Delay 15s sau đó chờ kết quả dòng tiếp theo");
-                        await Task.Delay(15000);
+                        await Task.Delay(1000);
                         WriteTomfanLog("Delay xong, tiếp tục lắng nghe dòng tiếp theo");
                     }
                     // Chờ kết quả xử lý thực tế (isConnection = false để tính toán sensor)
@@ -558,7 +558,7 @@ namespace TESMEA_TMS.Services
                         {
                             // delay 15s den khi ghi dong tiep theo
                             WriteTomfanLog("Delay 15s trước khi ghi dòng tiếp theo");
-                            await Task.Delay(15000);
+                            await Task.Delay(1000);
                             WriteTomfanLog("Delay xong, tiếp tục ghi dữ liệu dòng tiếp theo");
                         }
                         WriteTomfanLog($"Hoàn tất điểm đo k={m.k}");
@@ -646,6 +646,12 @@ namespace TESMEA_TMS.Services
                 /// 2. Giá trị CV (% van điều khiển)
                 /// => ngoại trừ tín hiệu tần số phản hồi, các tín hiệu khác lấy từ 3 => -2 để fit với index bên trend
                 percent = CalculateConvergingByTrend(sensorIdx == 1 ? sensorIdx : sensorIdx - 2, indexK);
+            }
+
+            if(percent > 118)
+            {
+                WriteTomfanLog($"Không kết nối được tới tín hiệu cảm biến {indexK}");
+                return 0;
             }
 
             return minValue + (maxValue - minValue) * percent / 100f;
@@ -900,10 +906,10 @@ namespace TESMEA_TMS.Services
                             string[] lines = await File.ReadAllLinesAsync(path2);
                             //int targetIndex = isConnection ? expectedK - 1 : expectedK - 1;
                             int targetIndex = expectedK - 1;
-                            if (lines.Length > targetIndex)
+                            if (lines.Length > 0)
                             {
                                 var isNewLine = false;
-                                string targetLine = lines[targetIndex];
+                                var targetLine = lines[targetIndex];
 
                                 // Kiểm tra nếu dòng có dữ liệu
                                 // phía plc có thể gặp lỗi row luôn bị xóa khi chuyển sang điểm đo mới -> kết quả luôn nằm ở row này -> tạo thêm check với row3 để đảm bảo có dữ liệu trả về
@@ -943,7 +949,6 @@ namespace TESMEA_TMS.Services
                                     // 12 parts còn lại tương ứng với tín hiệu trả về của 12 cảm biến
                                     if (!isConnection && parts.Length > 10)
                                     {
-
                                         // tần số tính từ %S
                                         m.TanSo_fb = _sensor.IsImportPhanHoiTanSo
                                                     ? _sensor.PhanHoiTanSoValue
@@ -1015,8 +1020,9 @@ namespace TESMEA_TMS.Services
                                                 indexK: m.k);
 
                                         // 7. số vòng quay
+                                        // nếu là thông số nhập tay, lấy số vòng quay value (là số định mức của động cơ tương đương tần số cao nhất đê tính ra số vòng quay ở tần số hiện tại) 
                                         m.SoVongQuay_sen = _sensor.IsImportSoVongQuay
-                                            ? _sensor.SoVongQuayValue
+                                            ? (_sensor.SoVongQuayValue * m.S / _input.TanSoDongCoTheoThietKe)
                                             : CalcSimatic(
                                                 minValue: _sensor.SoVongQuayMin,
                                                 maxValue: _sensor.SoVongQuayMax,
