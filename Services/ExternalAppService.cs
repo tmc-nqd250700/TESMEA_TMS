@@ -904,30 +904,14 @@ namespace TESMEA_TMS.Services
                         using (var sr = new StreamReader(fs))
                         {
                             string[] lines = await File.ReadAllLinesAsync(path2);
-                            //int targetIndex = isConnection ? expectedK - 1 : expectedK - 1;
-                            int targetIndex = expectedK - 1;
-                            if (lines.Length > 0)
+                            int targetIndex = isConnection ? expectedK - 1 : expectedK - 1;
+                            if (lines.Length > targetIndex)
                             {
-                                var isNewLine = false;
-                                var targetLine = lines[targetIndex];
+                                string targetLine = lines[targetIndex];
 
                                 // Kiểm tra nếu dòng có dữ liệu
-                                // phía plc có thể gặp lỗi row luôn bị xóa khi chuyển sang điểm đo mới -> kết quả luôn nằm ở row này -> tạo thêm check với row3 để đảm bảo có dữ liệu trả về
                                 if (!string.IsNullOrWhiteSpace(targetLine))
                                 {
-                                    isNewLine = true;
-                                }
-                                else if (lines.Length > 2)
-                                {
-                                    targetLine = lines[2];
-                                    if (!string.IsNullOrEmpty(targetLine))
-                                        isNewLine = true;
-                                }
-
-                                if (isNewLine)
-                                {
-                                    if (_lastReadTargetLine == targetLine) continue;
-                                    _lastReadTargetLine = targetLine;
                                     var parts = targetLine.Split(sep);
                                     if (parts.Length < 3) continue;
 
@@ -949,6 +933,7 @@ namespace TESMEA_TMS.Services
                                     // 12 parts còn lại tương ứng với tín hiệu trả về của 12 cảm biến
                                     if (!isConnection && parts.Length > 10)
                                     {
+
                                         // tần số tính từ %S
                                         m.TanSo_fb = _sensor.IsImportPhanHoiTanSo
                                                     ? _sensor.PhanHoiTanSoValue
@@ -1371,7 +1356,6 @@ namespace TESMEA_TMS.Services
 
                                     return m;
                                 }
-
                             }
                         }
                     }
@@ -1385,8 +1369,6 @@ namespace TESMEA_TMS.Services
             WriteTomfanLog($"Không nhận được phản hồi cho k={expectedK} sau {UserSetting.Instance.TimeoutMilliseconds}ms ----- TIMEOUT");
             return null;
         }
-
-
         public void WriteTomfanLog(string message)
         {
             try
